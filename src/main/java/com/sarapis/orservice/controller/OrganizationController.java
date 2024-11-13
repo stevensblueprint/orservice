@@ -1,6 +1,7 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.OrganizationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,19 @@ public class OrganizationController {
   }
 
   @GetMapping
-  public ResponseEntity<List<OrganizationDTO>> getAllOrganizations() {
+  public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations() {
     List<OrganizationDTO> organizations = organizationService.getAllOrganizations();
-    return ResponseEntity.ok(organizations);
+    PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
+        organizations.size(),
+        1,
+        10,
+        organizations.size(),
+        false,
+        false,
+        false,
+        organizations
+    );
+    return ResponseEntity.ok(paginationDTO);
   }
 
   @GetMapping("/{id}")
