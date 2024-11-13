@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,6 +31,7 @@ public class SecurityConfiguration {
   }
 
   @Bean
+  @Profile("prod")
   public GrantedAuthoritiesMapper userAuthoritiesMapper() {
     return (authorities) -> {
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
@@ -43,5 +45,13 @@ public class SecurityConfiguration {
       }
       return mappedAuthorities;
     };
+  }
+
+  @Bean
+  @Profile("dev")
+  public SecurityFilterChain localSecurityFilterChain(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(request -> request.requestMatchers("/").permitAll()
+        .anyRequest().permitAll());
+    return http.build();
   }
 }
