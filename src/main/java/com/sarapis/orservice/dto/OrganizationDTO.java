@@ -1,5 +1,8 @@
 package com.sarapis.orservice.dto;
 
+import com.sarapis.orservice.entity.Url;
+import com.sarapis.orservice.entity.core.Organization;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +19,9 @@ public class OrganizationDTO {
   private String description;
   private String email;
   private String website;
+  private List<Url> additionalWebsites;
+  private int yearIncorporated;
+  private String legalStatus;
+  private String uri;
+  private Organization parentOrganization;
 }

@@ -32,7 +32,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationDTO.getAlternateName(),
         organizationDTO.getDescription(),
         organizationDTO.getEmail(),
-        organizationDTO.getWebsite()
+        organizationDTO.getWebsite(),
+        organizationDTO.getAdditionalWebsites(),
+        organizationDTO.getYearIncorporated(),
+        organizationDTO.getLegalStatus(),
+        organizationDTO.getUri(),
+        organizationDTO.getParentOrganization()
     );
   }
 
