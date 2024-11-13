@@ -1,6 +1,7 @@
 services:
   db:
     container_name: orservice_db
+    restart: always
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -9,6 +10,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=orderservice_db
     volumes:
-      - pgdata:/var/lib/postgresql/data
-volumes:
-  pgdata: {}
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
