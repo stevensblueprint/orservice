@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
-public class ServiceCapacity {
-
+public enum Freq {
+  WEEKLY,
+  MONTHLY
 }
