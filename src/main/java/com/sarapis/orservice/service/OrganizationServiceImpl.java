@@ -21,7 +21,13 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.getAlternateName(),
         organization.getDescription(),
         organization.getEmail(),
-        organization.getWebsite()
+        organization.getWebsite(),
+        organization.getAdditionalWebsites(),
+        organization.getYearIncorporated(),
+        organization.getLegalStatus(),
+        organization.getLogo(),
+        organization.getUri(),
+        organization.getParentOrganization()
     );
   }
 
@@ -36,6 +42,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationDTO.getAdditionalWebsites(),
         organizationDTO.getYearIncorporated(),
         organizationDTO.getLegalStatus(),
+        organizationDTO.getLogo(),
         organizationDTO.getUri(),
         organizationDTO.getParentOrganization()
     );

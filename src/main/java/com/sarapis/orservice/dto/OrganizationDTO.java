@@ -22,6 +22,7 @@ public class OrganizationDTO {
   private List<Url> additionalWebsites;
   private int yearIncorporated;
   private String legalStatus;
+  private String logo;
   private String uri;
   private Organization parentOrganization;
 }
