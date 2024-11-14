@@ -25,7 +25,7 @@ public class PaginationDTO<T> {
       boolean firstPage, boolean lastPage, boolean empty, List<T> contents) {
     PaginationDTO<T> paginationDTO = new PaginationDTO<>();
     paginationDTO.setTotalItems(totalItems);
-    paginationDTO.setTotalItems(totalPages);
+    paginationDTO.setTotalPages(totalPages);
     paginationDTO.setPageNumber(pageNumber);
     paginationDTO.setSize(size);
     paginationDTO.setFirstPage(firstPage);
