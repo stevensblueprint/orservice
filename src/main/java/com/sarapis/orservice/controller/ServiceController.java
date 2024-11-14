@@ -30,7 +30,7 @@ public class ServiceController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ServiceDTO> getServiceById(@PathVariable Long id) {
+  public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String id) {
     return null;
   }
 
@@ -40,12 +40,12 @@ public class ServiceController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ServiceDTO> updateService(@PathVariable Long id, @RequestBody ServiceDTO serviceDTO) {
+  public ResponseEntity<ServiceDTO> updateService(@PathVariable String id, @RequestBody ServiceDTO serviceDTO) {
     return null;
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteService(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteService(@PathVariable String id) {
     service.deleteService(id);
     return ResponseEntity.noContent().build();
   }

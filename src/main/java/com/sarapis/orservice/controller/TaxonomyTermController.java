@@ -30,7 +30,7 @@ public class TaxonomyTermController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<TaxonomyTermDTO> getTaxonomyTermById(@PathVariable Long id) {
+  public ResponseEntity<TaxonomyTermDTO> getTaxonomyTermById(@PathVariable String id) {
     return null;
   }
 
@@ -40,12 +40,12 @@ public class TaxonomyTermController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<TaxonomyTermDTO> updateTaxonomyTerm(@PathVariable Long id, @RequestBody TaxonomyTermDTO taxonomyTermDTO) {
+  public ResponseEntity<TaxonomyTermDTO> updateTaxonomyTerm(@PathVariable String id, @RequestBody TaxonomyTermDTO taxonomyTermDTO) {
     return null;
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteTaxonomyTerm(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteTaxonomyTerm(@PathVariable String id) {
     taxonomyTermService.deleteTaxonomyTerm(id);
     return ResponseEntity.noContent().build();
   }

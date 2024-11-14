@@ -30,7 +30,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   }
 
   @Override
-  public ServiceAtLocationDTO getServiceAtLocationById(Long id) {
+  public ServiceAtLocationDTO getServiceAtLocationById(String id) {
     return null;
   }
 
@@ -40,13 +40,13 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   }
 
   @Override
-  public ServiceAtLocationDTO updateServiceAtLocation(Long id,
+  public ServiceAtLocationDTO updateServiceAtLocation(String id,
       ServiceAtLocationDTO serviceAtLocationDTO) {
     return null;
   }
 
   @Override
-  public void deleteServiceAtLocation(Long id) {
+  public void deleteServiceAtLocation(String id) {
 
   }
 }

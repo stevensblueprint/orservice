@@ -6,11 +6,11 @@ import java.util.List;
 public interface ServiceService {
   List<ServiceDTO> getAllServices();
 
-  ServiceDTO getServiceById(Long id);
+  ServiceDTO getServiceById(String id);
 
   ServiceDTO createService(ServiceDTO serviceDTO);
 
-  ServiceDTO updateService(Long id, ServiceDTO serviceDTO);
+  ServiceDTO updateService(String id, ServiceDTO serviceDTO);
 
-  void deleteService(Long id);
+  void deleteService(String id);
 }

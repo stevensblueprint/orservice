@@ -6,11 +6,11 @@ import java.util.List;
 public interface ServiceAtLocationService {
   List<ServiceAtLocationDTO> getAllServicesAtLocation();
 
-  ServiceAtLocationDTO getServiceAtLocationById(Long id);
+  ServiceAtLocationDTO getServiceAtLocationById(String id);
 
   ServiceAtLocationDTO createServiceAtLocation(ServiceAtLocationDTO serviceAtLocationDTO);
 
-  ServiceAtLocationDTO updateServiceAtLocation(Long id, ServiceAtLocationDTO serviceAtLocationDTO);
+  ServiceAtLocationDTO updateServiceAtLocation(String id, ServiceAtLocationDTO serviceAtLocationDTO);
 
-  void deleteServiceAtLocation(Long id);
+  void deleteServiceAtLocation(String id);
 }

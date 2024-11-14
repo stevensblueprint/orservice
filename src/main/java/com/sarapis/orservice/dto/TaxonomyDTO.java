@@ -10,5 +10,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TaxonomyDTO {
-
+  private String id;
+  private String name;
+  private String description;
+  private String uri;
+  private String version;
 }

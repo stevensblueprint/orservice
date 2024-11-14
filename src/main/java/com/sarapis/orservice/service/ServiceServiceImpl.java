@@ -29,7 +29,7 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
-  public ServiceDTO getServiceById(Long id) {
+  public ServiceDTO getServiceById(String id) {
     return null;
   }
 
@@ -39,12 +39,12 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
-  public ServiceDTO updateService(Long id, ServiceDTO serviceDTO) {
+  public ServiceDTO updateService(String id, ServiceDTO serviceDTO) {
     return null;
   }
 
   @Override
-  public void deleteService(Long id) {
+  public void deleteService(String id) {
 
   }
 }

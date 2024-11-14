@@ -31,7 +31,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   }
 
   @Override
-  public TaxonomyTermDTO getTaxonomyTermById(Long id) {
+  public TaxonomyTermDTO getTaxonomyTermById(String id) {
     return null;
   }
 
@@ -41,12 +41,12 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   }
 
   @Override
-  public TaxonomyTermDTO updateTaxonomyTerm(Long id, TaxonomyTermDTO taxonomyTermDTO) {
+  public TaxonomyTermDTO updateTaxonomyTerm(String id, TaxonomyTermDTO taxonomyTermDTO) {
     return null;
   }
 
   @Override
-  public void deleteTaxonomyTerm(Long id) {
+  public void deleteTaxonomyTerm(String id) {
 
   }
 }

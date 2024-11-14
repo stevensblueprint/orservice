@@ -60,8 +60,8 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO getOrganizationById(Long id) {
-    Organization organization =  organizationRepository.findById(id)
+  public OrganizationDTO getOrganizationById(String id) {
+    Organization organization =  organizationRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("Organization not found"));
     return mapToDTO(organization);
   }
@@ -74,8 +74,8 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO updateOrganization(Long id, OrganizationDTO organizationDTO) {
-    Organization existingOrganization = organizationRepository.findById(id)
+  public OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO) {
+    Organization existingOrganization = organizationRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("Could not find organization"));
     existingOrganization.setName(organizationDTO.getName());
     existingOrganization.setAlternateName(organizationDTO.getAlternateName());
@@ -87,8 +87,8 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public void deleteOrganization(Long id) {
-    Organization organization = organizationRepository.findById(id)
+  public void deleteOrganization(String id) {
+    Organization organization = organizationRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("Could not find organization"));
     organizationRepository.delete(organization);
   }

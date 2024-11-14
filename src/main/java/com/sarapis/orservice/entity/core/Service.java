@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "service")
@@ -25,8 +26,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Service {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue
+  @UuidGenerator
+  private String id;
 
   @ManyToOne
   private Organization organization;
@@ -65,7 +67,6 @@ public class Service {
   private String accreditations;
 
   @Column(name = "eligibility_description")
-  @Lob
   private String eligibilityDescription;
 
   @Column(name = "minimum_age")

@@ -30,7 +30,7 @@ public class TaxonomyController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<TaxonomyDTO> getTaxonomyById(@PathVariable Long id) {
+  public ResponseEntity<TaxonomyDTO> getTaxonomyById(@PathVariable String id) {
     return null;
   }
 
@@ -40,12 +40,12 @@ public class TaxonomyController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<TaxonomyDTO> updateTaxonomy(@PathVariable Long id, @RequestBody TaxonomyDTO taxonomyDTO) {
+  public ResponseEntity<TaxonomyDTO> updateTaxonomy(@PathVariable String id, @RequestBody TaxonomyDTO taxonomyDTO) {
     return null;
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteTaxonomy(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteTaxonomy(@PathVariable String id) {
     taxonomyService.deleteTaxonomy(id);
     return ResponseEntity.noContent().build();
   }

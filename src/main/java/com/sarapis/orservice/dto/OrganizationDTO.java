@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrganizationDTO {
-  private Long id;
+  private String id;
   private String name;
   private String alternateName;
   private String description;

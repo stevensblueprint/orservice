@@ -30,7 +30,7 @@ public class TaxonomyServiceImpl implements TaxonomyService {
   }
 
   @Override
-  public TaxonomyDTO getTaxonomyById(Long id) {
+  public TaxonomyDTO getTaxonomyById(String id) {
     return null;
   }
 
@@ -40,12 +40,12 @@ public class TaxonomyServiceImpl implements TaxonomyService {
   }
 
   @Override
-  public TaxonomyDTO updateTaxonomy(Long id, TaxonomyDTO taxonomyDTO) {
+  public TaxonomyDTO updateTaxonomy(String id, TaxonomyDTO taxonomyDTO) {
     return null;
   }
 
   @Override
-  public void deleteTaxonomy(Long id) {
+  public void deleteTaxonomy(String id) {
 
   }
 }

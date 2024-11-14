@@ -7,16 +7,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.sql.Date;
+import java.sql.Time;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "schedule")
@@ -26,8 +26,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Schedule {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue
+  @UuidGenerator
+  private String id;
 
   @ManyToOne
   private Service service;
@@ -36,16 +37,16 @@ public class Schedule {
   private ServiceAtLocation serviceAtLocation;
 
   @Column(name = "valid_from")
-  private LocalDate validFrom;
+  private Date validFrom;
 
   @Column(name = "valid_to")
-  private LocalDate validTo;
+  private Date validTo;
 
   @Column(name = "dtstart")
-  private LocalDate dtStart;
+  private Date dtStart;
 
   private int TimeZone;
-  private LocalDate until;
+  private Date until;
   private int count;
 
   @Enumerated(EnumType.STRING)
@@ -62,10 +63,10 @@ public class Schedule {
   private String description;
 
   @Column(name = "opens_at")
-  private LocalDate opensAt;
+  private Time opensAt;
 
   @Column(name = "closes_at")
-  private LocalDate closesAt;
+  private Time closesAt;
 
   private String scheduleLink;
   private String attendingType;

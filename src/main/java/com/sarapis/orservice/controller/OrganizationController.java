@@ -43,7 +43,7 @@ public class OrganizationController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable Long id) {
+  public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable String id) {
     OrganizationDTO organization = organizationService.getOrganizationById(id);
     return ResponseEntity.ok(organization);
   }
@@ -55,13 +55,13 @@ public class OrganizationController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable Long id, @RequestBody OrganizationDTO organizationDTO) {
+  public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String id, @RequestBody OrganizationDTO organizationDTO) {
     OrganizationDTO updatedOrganization = organizationService.updateOrganization(id, organizationDTO);
     return ResponseEntity.ok(updatedOrganization);
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteOrganization(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
     organizationService.deleteOrganization(id);
     return ResponseEntity.noContent().build();
   }

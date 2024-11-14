@@ -6,12 +6,12 @@ import java.util.List;
 public interface OrganizationService {
   List<OrganizationDTO> getAllOrganizations();
 
-  OrganizationDTO getOrganizationById(Long id);
+  OrganizationDTO getOrganizationById(String id);
 
   OrganizationDTO createOrganization(OrganizationDTO organizationDTO);
 
-  OrganizationDTO updateOrganization(Long id, OrganizationDTO organizationDTO);
+  OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO);
 
-  void deleteOrganization(Long id);
+  void deleteOrganization(String id);
 
 }

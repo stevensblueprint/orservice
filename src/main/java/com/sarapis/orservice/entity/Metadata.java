@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "metadata")
@@ -23,11 +24,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Metadata {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue
+  @UuidGenerator
+  private String id;
 
   @Column(name = "resource_id", nullable = false, unique = true)
-  private UUID resourceId;
+  private String resourceId;
 
   @Enumerated(EnumType.STRING)
   private ResourceType resourceType;

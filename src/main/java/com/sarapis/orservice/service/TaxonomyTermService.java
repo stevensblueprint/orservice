@@ -6,11 +6,11 @@ import java.util.List;
 public interface TaxonomyTermService {
   List<TaxonomyTermDTO> getAllTaxonomyTerms();
 
-  TaxonomyTermDTO getTaxonomyTermById(Long id);
+  TaxonomyTermDTO getTaxonomyTermById(String id);
 
   TaxonomyTermDTO createTaxonomyTerm(TaxonomyTermDTO taxonomyTermDTO);
 
-  TaxonomyTermDTO updateTaxonomyTerm(Long id, TaxonomyTermDTO taxonomyTermDTO);
+  TaxonomyTermDTO updateTaxonomyTerm(String id, TaxonomyTermDTO taxonomyTermDTO);
 
-  void deleteTaxonomyTerm(Long id);
+  void deleteTaxonomyTerm(String id);
 }
