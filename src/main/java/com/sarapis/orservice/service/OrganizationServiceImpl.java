@@ -4,7 +4,6 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

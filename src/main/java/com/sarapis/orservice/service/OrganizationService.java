@@ -1,9 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
-import com.sarapis.orservice.entity.core.Organization;
 import java.util.List;
-import java.util.Optional;
 
 public interface OrganizationService {
   List<OrganizationDTO> getAllOrganizations();
