@@ -2,10 +2,10 @@ package com.sarapis.orservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication
-@ComponentScan(basePackages = {"com.sarapis.orservice.entity"})
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class OrserviceApplication {
 
 	public static void main(String[] args) {
