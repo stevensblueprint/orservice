@@ -1,18 +1,13 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.List;
 
 @Entity
 @Table(name = "taxonomy_term")
@@ -26,21 +21,36 @@ public class TaxonomyTerm {
   @UuidGenerator
   private String id;
 
+  @Column(name = "code")
   private String code;
+
+  @Column(name = "name")
   private String name;
+
+  @Column(name = "description")
   private String description;
 
   @OneToOne
+  @JoinColumn(name = "parent_id")
   private TaxonomyTerm parent;
 
   @Column(name = "taxonomy")
-  private String taxonomyName;
+  private String taxonomy;
 
-  @ManyToOne
-  private Taxonomy taxonomy;
+  @OneToOne
+  @JoinColumn(name = "taxonomy_detail")
+  private Taxonomy taxonomyDetail;
+
+  @Column(name = "language")
   private String language;
+
+  @Column(name = "taxonomy_id", nullable = false, unique = true)
+  private String taxonomyId;
 
   @Column(name = "term_uri")
   private String termUri;
 
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

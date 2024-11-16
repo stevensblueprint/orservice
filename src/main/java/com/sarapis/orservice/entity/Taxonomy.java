@@ -1,20 +1,18 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.List;
+
 @Entity
 @Table(name = "taxonomy")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Taxonomy {
@@ -23,11 +21,19 @@ public class Taxonomy {
   @UuidGenerator
   private String id;
 
+  @Column(name = "name")
   private String name;
 
+  @Column(name = "description")
   private String description;
 
+  @Column(name = "uri")
   private String uri;
 
+  @Column(name = "version")
   private String version;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

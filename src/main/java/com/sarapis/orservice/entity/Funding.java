@@ -2,22 +2,19 @@ package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.List;
+
 @Entity
 @Table(name = "funding")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Funding {
@@ -27,12 +24,21 @@ public class Funding {
   private String id;
 
   @ManyToOne
+  @JoinColumn(name = "organization_id")
   private Organization organization;
 
   @ManyToOne
+  @JoinColumn(name = "service_id")
   private Service service;
 
+  @Column(name = "source")
   private String source;
 
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
 
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

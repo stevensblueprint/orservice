@@ -1,21 +1,19 @@
 package com.sarapis.orservice.entity.core;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.sarapis.orservice.entity.*;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.List;
+
 @Entity
 @Table(name = "service_at_location")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceAtLocation {
@@ -25,10 +23,37 @@ public class ServiceAtLocation {
   private String id;
 
   @ManyToOne
+  @JoinColumn(name = "service_id")
   private Service service;
 
-  @ManyToOne
+  @Column(name = "description")
+  private String description;
+
+  @OneToMany
+  @JoinColumn(name = "service_at_location_id")
+  private List<ServiceArea> serviceAreas;
+
+  @OneToMany
+  @JoinColumn(name = "service_at_location_id")
+  private List<Contact> contacts;
+
+  @OneToMany
+  @JoinColumn(name = "service_at_location_id")
+  private List<Phone> phones;
+
+  @OneToMany
+  @JoinColumn(name = "service_at_location_id")
+  private List<Schedule> schedules;
+
+  @OneToOne
+  @JoinColumn(name = "location_id")
   private Location location;
 
-  private String description;
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

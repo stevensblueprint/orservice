@@ -1,24 +1,20 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Entity
 @Table(name = "cost_option")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CostOption {
@@ -28,6 +24,7 @@ public class CostOption {
   private String id;
 
   @OneToOne
+  @JoinColumn(name = "service_id")
   private Service service;
 
   @Column(name = "valid_from")
@@ -36,10 +33,23 @@ public class CostOption {
   @Column(name = "valid_to")
   private LocalDate validTo;
 
+  @Column(name = "option")
   private String option;
+
+  @Column(name = "currency")
   private String currency;
+
+  @Column(name = "amount")
   private int amount;
 
   @Column(name = "amount_description")
   private String amountDescription;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

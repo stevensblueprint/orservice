@@ -1,17 +1,15 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.List;
 
 @Entity
 @Table(name = "service_area")
@@ -26,11 +24,34 @@ public class ServiceArea {
   private String id;
 
   @ManyToOne
+  @JoinColumn(name = "service_id")
   private Service service;
 
+  @ManyToOne
+  @JoinColumn(name = "service_at_location_id")
+  private ServiceAtLocation serviceAtLocation;
+
+  @Column(name = "name")
   private String name;
+
+  @Column(name = "description")
   private String description;
+
+  @Column(name = "extent")
   private String extent;
-  private String extentType;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "extent_type")
+  private ExtentType extentType;
+
+  @Column(name = "uri")
   private String uri;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

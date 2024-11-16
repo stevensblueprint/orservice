@@ -1,16 +1,13 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.List;
 
 @Entity
 @Table(name = "meta_table_description")
@@ -24,8 +21,20 @@ public class MetaTableDescription {
   @UuidGenerator
   private String id;
 
+  @Column(name = "name")
   private String name;
+
+  @Column(name = "language")
   private String language;
+
   @Column(name = "character_set")
   private String characterSet;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

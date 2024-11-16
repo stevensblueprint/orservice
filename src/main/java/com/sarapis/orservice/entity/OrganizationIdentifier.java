@@ -1,24 +1,19 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.entity.core.Organization;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.List;
+
 @Entity
 @Table(name = "organization_identifier")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrganizationIdentifier {
@@ -27,7 +22,8 @@ public class OrganizationIdentifier {
   @UuidGenerator
   private String id;
 
-  @OneToOne
+  @ManyToOne
+  @JoinColumn(name = "organization_id")
   private Organization organization;
 
   @Column(name = "identifier_scheme")
@@ -35,4 +31,15 @@ public class OrganizationIdentifier {
 
   @Column(name = "identifier_type")
   private String identifierType;
+
+  @Column(name = "identifier")
+  private String identifier;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

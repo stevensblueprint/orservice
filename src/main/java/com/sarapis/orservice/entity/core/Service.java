@@ -1,22 +1,15 @@
 package com.sarapis.orservice.entity.core;
 
-import com.sarapis.orservice.entity.Program;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
+import com.sarapis.orservice.entity.*;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "service")
@@ -30,24 +23,27 @@ public class Service {
   @UuidGenerator
   private String id;
 
-  @ManyToOne
-  private Organization organization;
-
-  @ManyToOne
-  private Program program;
-
+  @Column(name = "name")
   private String name;
 
   @Column(name = "alternate_name")
   private String alternateName;
 
+  @Column(name = "description")
   private String description;
 
-  private String Url;
+  @Column(name = "url")
+  private String url;
 
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Url> additionUrls;
+
+  @Column(name = "email")
   private String email;
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "status")
   private Status status;
 
   @Column(name = "interpretation_services")
@@ -62,8 +58,10 @@ public class Service {
   @Column(name = "wait_time")
   private String waitTime;
 
+  @Column(name = "fees")
   private String fees;
 
+  @Column(name = "accreditations")
   private String accreditations;
 
   @Column(name = "eligibility_description")
@@ -81,11 +79,68 @@ public class Service {
   @Column(name = "assurer_email")
   private String assurerEmail;
 
+  @Column(name = "licenses")
   private String licenses;
 
+  @Column(name = "alert")
   private String alert;
 
   @Column(name = "last_modified")
   private LocalDate lastModified;
 
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Phone> phones;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Schedule> schedules;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<ServiceArea> serviceAreas;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<ServiceAtLocation> serviceAtLocations;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Language> languages;
+
+  @OneToOne
+  @JoinColumn(name = "organization_id")
+  private Organization organization;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Funding> funding;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<CostOption> costOptions;
+
+  @OneToOne
+  @JoinColumn(name = "program_id")
+  private Program program;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<RequiredDocument> requiredDocuments;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<Contact> contacts;
+
+  @OneToMany
+  @JoinColumn(name = "service_id")
+  private List<ServiceCapacity> capacities;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }

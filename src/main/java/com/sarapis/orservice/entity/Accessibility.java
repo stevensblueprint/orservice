@@ -1,18 +1,14 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.entity.core.Location;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.List;
 
 @Entity
 @Table(name = "accessibility")
@@ -27,9 +23,23 @@ public class Accessibility {
   private String id;
 
   @ManyToOne
+  @JoinColumn(name = "location_id")
   private Location location;
 
+  @Column(name = "description")
   private String description;
+
+  @Column(name = "details")
   private String details;
+
+  @Column(name = "url")
   private String url;
+
+  @OneToMany
+  @JoinColumn(name = "link_id")
+  private List<Attribute> attributes;
+
+  @OneToMany
+  @JoinColumn(name = "resource_id")
+  private List<Metadata> metadata;
 }
