@@ -11,7 +11,7 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.List;
 
 @Entity
-@Table
+@Table(name = "program")
 @Getter
 @Setter
 @AllArgsConstructor
