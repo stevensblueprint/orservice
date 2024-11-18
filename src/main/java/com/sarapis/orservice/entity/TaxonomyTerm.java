@@ -35,17 +35,14 @@ public class TaxonomyTerm {
   private TaxonomyTerm parent;
 
   @Column(name = "taxonomy")
-  private String taxonomy;
+  private String taxonomyName;
 
-  @OneToOne
-  @JoinColumn(name = "taxonomy_detail")
-  private Taxonomy taxonomyDetail;
+  @ManyToOne
+  @JoinColumn(name = "taxonomy_id")
+  private Taxonomy taxonomy;
 
   @Column(name = "language")
   private String language;
-
-  @Column(name = "taxonomy_id", nullable = false, unique = true)
-  private String taxonomyId;
 
   @Column(name = "term_uri")
   private String termUri;
