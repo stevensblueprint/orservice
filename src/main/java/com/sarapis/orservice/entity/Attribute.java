@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,4 +24,18 @@ public class Attribute {
   @GeneratedValue
   @UuidGenerator
   private String id;
+
+  private String linkId;
+  private String linkType;
+  private String linkEntity;
+  private String value;
+
+  @OneToOne
+  @JoinColumn(name="taxonomy_term_id")
+  private TaxonomyTerm taxonomyTerm;
+
+  @OneToOne
+  private Metadata metadata;
+
+  private String label;
 }
