@@ -55,9 +55,11 @@ public class Service {
   @Column(name = "fees_description")
   private String feesDescription;
 
+  // Deprecated
   @Column(name = "wait_time")
   private String waitTime;
 
+  // Deprecated
   @Column(name = "fees")
   private String fees;
 
@@ -79,6 +81,7 @@ public class Service {
   @Column(name = "assurer_email")
   private String assurerEmail;
 
+  // Deprecated
   @Column(name = "licenses")
   private String licenses;
 
