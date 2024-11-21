@@ -19,9 +19,10 @@ public class Unit {
     @Id
     @GeneratedValue
     @UuidGenerator
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "scheme")

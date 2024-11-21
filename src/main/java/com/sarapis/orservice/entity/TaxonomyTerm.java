@@ -19,15 +19,16 @@ public class TaxonomyTerm {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @Column(name = "code")
   private String code;
 
-  @Column(name = "name")
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "description")
+  @Column(name = "description", nullable = false)
   private String description;
 
   @OneToOne

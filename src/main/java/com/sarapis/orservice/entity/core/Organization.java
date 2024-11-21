@@ -19,15 +19,16 @@ public class Organization {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
-  @Column(name = "name")
+  @Column(name = "name", nullable = false)
   private String name;
 
   @Column(name = "alternate_name")
   private String alternateName;
 
-  @Column(name = "description")
+  @Column(name = "description", nullable = false)
   private String description;
 
   @Column(name = "email")

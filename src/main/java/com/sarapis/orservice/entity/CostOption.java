@@ -21,6 +21,7 @@ public class CostOption {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @OneToOne

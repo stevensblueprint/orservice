@@ -21,12 +21,13 @@ public class Url {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @Column(name = "label")
   private String label;
 
-  @Column(name = "url")
+  @Column(name = "url", nullable = false)
   private String url;
 
   @ManyToOne

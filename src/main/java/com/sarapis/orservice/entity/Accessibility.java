@@ -20,6 +20,7 @@ public class Accessibility {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @ManyToOne

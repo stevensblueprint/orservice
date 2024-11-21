@@ -21,9 +21,10 @@ public class Service {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
-  @Column(name = "name")
+  @Column(name = "name", nullable = false)
   private String name;
 
   @Column(name = "alternate_name")
@@ -43,7 +44,7 @@ public class Service {
   private String email;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status")
+  @Column(name = "status", nullable = false)
   private Status status;
 
   @Column(name = "interpretation_services")

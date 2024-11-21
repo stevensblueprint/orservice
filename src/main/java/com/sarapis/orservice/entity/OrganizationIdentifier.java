@@ -20,6 +20,7 @@ public class OrganizationIdentifier {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @ManyToOne
@@ -29,10 +30,10 @@ public class OrganizationIdentifier {
   @Column(name = "identifier_scheme")
   private String identifierScheme;
 
-  @Column(name = "identifier_type")
+  @Column(name = "identifier_type", nullable = false)
   private String identifierType;
 
-  @Column(name = "identifier")
+  @Column(name = "identifier", nullable = false)
   private String identifier;
 
   @OneToMany

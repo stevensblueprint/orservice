@@ -20,6 +20,7 @@ public class Address {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @ManyToOne
@@ -29,29 +30,29 @@ public class Address {
   @Column(name = "attention")
   private String attention;
 
-  @Column(name = "address_1")
+  @Column(name = "address_1", nullable = false)
   private String address_1;
 
   @Column(name = "address_2")
   private String address_2;
 
-  @Column(name = "city")
+  @Column(name = "city", nullable = false)
   private String city;
 
   @Column(name = "region")
   private String region;
 
-  @Column(name = "state_province")
+  @Column(name = "state_province", nullable = false)
   private String stateProvince;
 
-  @Column(name = "postal_code")
+  @Column(name = "postal_code", nullable = false)
   private String postalCode;
 
-  @Column(name = "country")
+  @Column(name = "country", nullable = false)
   private String country;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "address_type")
+  @Column(name = "address_type", nullable = false)
   private AddressType addressType;
 
   @OneToMany

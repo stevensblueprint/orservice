@@ -22,6 +22,7 @@ public class Phone {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @ManyToOne
@@ -40,7 +41,7 @@ public class Phone {
   @JoinColumn(name = "service_at_location_id")
   private ServiceAtLocation serviceAtLocation;
 
-  @Column(name = "number")
+  @Column(name = "number", nullable = false)
   private String number;
 
   @Column(name = "extension")

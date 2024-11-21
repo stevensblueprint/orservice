@@ -19,31 +19,32 @@ public class Metadata {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   // FK Property
-  @Column(name = "resource_id", nullable = false, unique = true)
+  @Column(name = "resource_id")
   private String resourceId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "resource_type")
   private ResourceType resourceType;
 
-  @Column(name = "last_action_date")
+  @Column(name = "last_action_date", nullable = false)
   private LocalDate lastActionDate;
 
-  @Column(name = "last_action_type")
+  @Column(name = "last_action_type", nullable = false)
   private String lastActionType;
 
-  @Column(name = "field_name")
+  @Column(name = "field_name", nullable = false)
   private String fieldName;
 
-  @Column(name = "previous_value")
+  @Column(name = "previous_value", nullable = false)
   private String previousValue;
 
-  @Column(name = "replacement_value")
+  @Column(name = "replacement_value", nullable = false)
   private String replacementValue;
 
-  @Column(name = "updated_by")
+  @Column(name = "updated_by", nullable = false)
   private String updatedBy;
 }

@@ -20,10 +20,11 @@ public class Location {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "location_type")
+  @Column(name = "location_type", nullable = false)
   private LocationType locationType;
 
   @Column(name = "url")

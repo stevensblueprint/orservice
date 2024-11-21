@@ -21,6 +21,7 @@ public class ServiceCapacity {
     @Id
     @GeneratedValue
     @UuidGenerator
+    @Column(name = "id", nullable = false)
     private String id;
 
     @ManyToOne
@@ -28,10 +29,10 @@ public class ServiceCapacity {
     private Service service;
 
     @OneToOne
-    @JoinColumn(name = "unit_id")
+    @JoinColumn(name = "unit_id", nullable = false)
     private Unit unit;
 
-    @Column(name = "available")
+    @Column(name = "available", nullable = false)
     private int available;
 
     @Column(name = "maximum")
@@ -40,7 +41,7 @@ public class ServiceCapacity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "updated")
+    @Column(name = "updated", nullable = false)
     private LocalDate updated;
 
     @OneToMany

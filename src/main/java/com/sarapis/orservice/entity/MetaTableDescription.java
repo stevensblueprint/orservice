@@ -19,6 +19,7 @@ public class MetaTableDescription {
   @Id
   @GeneratedValue
   @UuidGenerator
+  @Column(name = "id", nullable = false)
   private String id;
 
   @Column(name = "name")
