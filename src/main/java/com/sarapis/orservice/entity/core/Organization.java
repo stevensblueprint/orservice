@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity.core;
 
+import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.Url;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +23,7 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Organization {
   @Id
   @GeneratedValue
@@ -52,4 +55,21 @@ public class Organization {
 
   @OneToOne
   private Organization parentOrganization;
+
+  public OrganizationDTO toDTO() {
+    return OrganizationDTO.builder()
+       .id(id)
+       .name(name)
+       .alternateName(alternateName)
+       .description(description)
+       .email(email)
+       .website(website)
+       .additionalWebsites(additionalWebsites)
+       .yearIncorporated(yearIncorporated)
+       .legalStatus(legalStatus)
+       .logo(logo)
+       .uri(uri)
+       .parentOrganization(parentOrganization)
+       .build();
+  }
 }
