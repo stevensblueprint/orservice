@@ -71,7 +71,7 @@ public class AttributeServiceImpl implements AttributeService {
     public AttributeDTO updateAttribute(String id, AttributeDTO attributeDTO) {
         Attribute oldAttr = this.attributeRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("Attribute not found"));
-        oldAttr.setId(attributeDTO.getId());
+
         oldAttr.setLinkId(attributeDTO.getLinkId());
         oldAttr.setLinkType(attributeDTO.getLinkType());
         oldAttr.setLinkEntity(attributeDTO.getLinkEntity());
