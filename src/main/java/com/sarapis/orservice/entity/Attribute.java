@@ -1,12 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,34 +13,31 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Attribute {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  @Column(name = "id", nullable = false)
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  // FK Property
-  @Column(name = "link_id", nullable = false, unique = true)
-  private String linkId;
+    @Column(name = "link_type")
+    private String linkType;
 
-  @Column(name = "link_type")
-  private String linkType;
+    @Column(name = "link_entity")
+    private String linkEntity;
 
-  @Column(name = "link_entity")
-  private String linkEntity;
+    @Column(name = "value")
+    private String value;
 
-  @Column(name = "value")
-  private String value;
+    @OneToOne
+    @JoinColumn(name = "taxonomy_term_id")
+    private TaxonomyTerm taxonomyTerm;
 
-  @OneToOne
-  @JoinColumn(name = "taxonomy_term_id")
-  private TaxonomyTerm taxonomyTerm;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "resource_id")
-  private List<Metadata> metadata;
-
-  @Column(name = "label")
-  private String label;
+    @Column(name = "label")
+    private String label;
 }

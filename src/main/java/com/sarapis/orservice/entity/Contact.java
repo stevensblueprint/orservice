@@ -1,16 +1,10 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,50 +13,35 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Contact {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  @Column(name = "id", nullable = false)
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  @JoinColumn(name = "organization_id")
-  private Organization organization;
+    @Column(name = "name")
+    private String name;
 
-  @ManyToOne
-  @JoinColumn(name = "service_id")
-  private Service service;
+    @Column(name = "title")
+    private String title;
 
-  @ManyToOne
-  @JoinColumn(name = "service_at_location_id")
-  private ServiceAtLocation serviceAtLocation;
+    @Column(name = "department")
+    private String department;
 
-  @ManyToOne
-  @JoinColumn(name = "location_id")
-  private Location location;
+    @Column(name = "email")
+    private String email;
 
-  @Column(name = "name")
-  private String name;
+    @OneToMany
+    @JoinColumn(name = "contact_id")
+    private List<Phone> phones = new ArrayList<>();
 
-  @Column(name = "title")
-  private String title;
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
 
-  @Column(name = "department")
-  private String department;
-
-  @Column(name = "email")
-  private String email;
-
-  @OneToMany
-  @JoinColumn(name = "contact_id")
-  private List<Phone> phones;
-
-  @OneToMany
-  @JoinColumn(name = "link_id")
-  private List<Attribute> attributes;
-
-  @OneToMany
-  @JoinColumn(name = "resource_id")
-  private List<Metadata> metadata;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
 }

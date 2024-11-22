@@ -1,14 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,16 +14,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ServiceCapacity {
     @Id
     @GeneratedValue
     @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id")
-    private Service service;
 
     @OneToOne
     @JoinColumn(name = "unit_id", nullable = false)
@@ -46,9 +40,9 @@ public class ServiceCapacity {
 
     @OneToMany
     @JoinColumn(name = "link_id")
-    private List<Attribute> attributes;
+    private List<Attribute> attributes = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata;
+    private List<Metadata> metadata = new ArrayList<>();
 }

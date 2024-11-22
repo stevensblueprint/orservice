@@ -1,12 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Unit {
     @Id
     @GeneratedValue
@@ -36,9 +35,9 @@ public class Unit {
 
     @OneToMany
     @JoinColumn(name = "link_id")
-    private List<Attribute> attributes;
+    private List<Attribute> attributes = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata;
+    private List<Metadata> metadata = new ArrayList<>();
 }

@@ -1,12 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,27 +13,28 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MetaTableDescription {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  @Column(name = "id", nullable = false)
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @Column(name = "name")
-  private String name;
+    @Column(name = "name")
+    private String name;
 
-  @Column(name = "language")
-  private String language;
+    @Column(name = "language")
+    private String language;
 
-  @Column(name = "character_set")
-  private String characterSet;
+    @Column(name = "character_set")
+    private String characterSet;
 
-  @OneToMany
-  @JoinColumn(name = "link_id")
-  private List<Attribute> attributes;
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "resource_id")
-  private List<Metadata> metadata;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
 }

@@ -2,12 +2,10 @@ package com.sarapis.orservice.entity.core;
 
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,77 +14,74 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Location {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  @Column(name = "id", nullable = false)
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "location_type", nullable = false)
-  private LocationType locationType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "location_type", nullable = false)
+    private LocationType locationType;
 
-  @Column(name = "url")
-  private String url;
+    @Column(name = "url")
+    private String url;
 
-  @ManyToOne
-  @JoinColumn(name = "organization_id")
-  private Organization organization;
+    @Column(name = "name")
+    private String name;
 
-  @Column(name = "name")
-  private String name;
+    @Column(name = "alternate_name")
+    private String alternateName;
 
-  @Column(name = "alternate_name")
-  private String alternateName;
+    @Column(name = "description")
+    private String description;
 
-  @Column(name = "description")
-  private String description;
+    @Column(name = "transportation")
+    private String transportation;
 
-  @Column(name = "transportation")
-  private String transportation;
+    @Column(name = "latitude")
+    private int latitude;
 
-  @Column(name = "latitude")
-  private int latitude;
+    @Column(name = "longitude")
+    private int longitude;
 
-  @Column(name = "longitude")
-  private int longitude;
+    @Column(name = "external_identifier")
+    private String externalIdentifier;
 
-  @Column(name = "external_identifier")
-  private String externalIdentifier;
+    @Column(name = "external_identifier_type")
+    private String externalIdentifierType;
 
-  @Column(name = "external_identifier_type")
-  private String externalIdentifierType;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Language> languages = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Language> languages;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Address> addresses = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Address> addresses;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Contact> contacts = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Contact> contacts;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Accessibility> accessibility = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Accessibility> accessibility;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Phone> phones = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Phone> phones;
+    @OneToMany
+    @JoinColumn(name = "location_id")
+    private List<Schedule> schedules = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "location_id")
-  private List<Schedule> schedules;
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
 
-  @OneToMany
-  @JoinColumn(name = "link_id")
-  private List<Attribute> attributes;
-
-  @OneToMany
-  @JoinColumn(name = "resource_id")
-  private List<Metadata> metadata;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
 }

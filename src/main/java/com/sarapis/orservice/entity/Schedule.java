@@ -1,17 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,89 +15,78 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Schedule {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  @Column(name = "id", nullable = false)
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  @JoinColumn(name = "service_id")
-  private Service service;
+    @Column(name = "valid_from")
+    private Date validFrom;
 
-  @ManyToOne
-  @JoinColumn(name = "location_id")
-  private Location location;
+    @Column(name = "valid_to")
+    private Date validTo;
 
-  @ManyToOne
-  @JoinColumn(name = "service_at_location_id")
-  private ServiceAtLocation serviceAtLocation;
+    @Column(name = "dtstart")
+    private Date dtStart;
 
-  @Column(name = "valid_from")
-  private Date validFrom;
+    @Column(name = "timezone")
+    private int timezone;
 
-  @Column(name = "valid_to")
-  private Date validTo;
+    @Column(name = "until")
+    private Date until;
 
-  @Column(name = "dtstart")
-  private Date dtStart;
+    @Column(name = "count")
+    private int count;
 
-  @Column(name = "timezone")
-  private int timezone;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "wkst")
+    private WkSt wkst;
 
-  @Column(name = "until")
-  private Date until;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "freq")
+    private Freq freq;
 
-  @Column(name = "count")
-  private int count;
+    @Column(name = "interval")
+    private int interval;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "wkst")
-  private WkSt wkst;
+    @Column(name = "byday")
+    private String byday;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "freq")
-  private Freq freq;
+    @Column(name = "byweekno")
+    private String byweekno;
 
-  @Column(name = "interval")
-  private int interval;
+    @Column(name = "bymonthday")
+    private String bymonthday;
 
-  @Column(name = "byday")
-  private String byday;
+    @Column(name = "byyearday")
+    private String byyearday;
 
-  @Column(name = "byweekno")
-  private String byweekno;
+    @Column(name = "description")
+    private String description;
 
-  @Column(name = "bymonthday")
-  private String bymonthday;
+    @Column(name = "opens_at")
+    private Time opensAt;
 
-  @Column(name = "byyearday")
-  private String byyearday;
+    @Column(name = "closes_at")
+    private Time closesAt;
 
-  @Column(name = "description")
-  private String description;
+    @Column(name = "schedule_link")
+    private String scheduleLink;
 
-  @Column(name = "opens_at")
-  private Time opensAt;
+    @Column(name = "attending_type")
+    private String attendingType;
 
-  @Column(name = "closes_at")
-  private Time closesAt;
+    @Column(name = "notes")
+    private String notes;
 
-  @Column(name = "schedule_link")
-  private String scheduleLink;
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
 
-  @Column(name = "attending_type")
-  private String attendingType;
-
-  @Column(name = "notes")
-  private String notes;
-
-  @OneToMany
-  @JoinColumn(name = "link_id")
-  private List<Attribute> attributes;
-
-  @OneToMany
-  @JoinColumn(name = "resource_id")
-  private List<Metadata> metadata;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
 }
