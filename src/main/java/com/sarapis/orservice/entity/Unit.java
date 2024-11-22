@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.UnitDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -40,4 +41,16 @@ public class Unit {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public UnitDTO toDTO() {
+        return UnitDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .scheme(this.scheme)
+                .identifier(this.identifier)
+                .uri(this.uri)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

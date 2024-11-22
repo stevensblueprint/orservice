@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.FundingDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -31,4 +32,13 @@ public class Funding {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public FundingDTO toDTO() {
+        return FundingDTO.builder()
+                .id(this.id)
+                .source(this.source)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

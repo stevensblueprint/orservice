@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -32,14 +33,14 @@ public class TaxonomyTerm {
 
     @OneToOne
     @JoinColumn(name = "parent_id")
-    private TaxonomyTerm parent;
+    private TaxonomyTerm parent = null;
 
     @Column(name = "taxonomy")
-    private String taxonomyName;
+    private String taxonomy;
 
     @ManyToOne
     @JoinColumn(name = "taxonomy_id")
-    private Taxonomy taxonomy;
+    private Taxonomy taxonomyDetail = null;
 
     @Column(name = "language")
     private String language;
@@ -50,4 +51,19 @@ public class TaxonomyTerm {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public TaxonomyTermDTO toDTO() {
+        return TaxonomyTermDTO.builder()
+                .id(this.id)
+                .code(this.code)
+                .name(this.name)
+                .description(this.description)
+                .parent(this.parent != null ? this.parent.toDTO() : null)
+                .taxonomy(this.taxonomy)
+                .taxonomyDetail(this.taxonomyDetail != null ? this.taxonomyDetail.toDTO() : null)
+                .language(this.language)
+                .termUri(this.termUri)
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

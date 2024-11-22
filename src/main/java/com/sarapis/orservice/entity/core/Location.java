@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity.core;
 
+import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -84,4 +85,28 @@ public class Location {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public LocationDTO toDTO() {
+        return LocationDTO.builder()
+                .id(this.id)
+                .locationType(this.locationType)
+                .url(this.url)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .transportation(this.transportation)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .externalIdentifier(this.externalIdentifier)
+                .externalIdentifierType(this.externalIdentifierType)
+                .languages(this.languages.stream().map(Language::toDTO).toList())
+                .addresses(this.addresses.stream().map(Address::toDTO).toList())
+                .contacts(this.contacts.stream().map(Contact::toDTO).toList())
+                .accessibility(this.accessibility.stream().map(Accessibility::toDTO).toList())
+                .phones(this.phones.stream().map(Phone::toDTO).toList())
+                .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

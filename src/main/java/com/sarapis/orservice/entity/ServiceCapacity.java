@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.ServiceCapacityDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -24,7 +25,7 @@ public class ServiceCapacity {
 
     @OneToOne
     @JoinColumn(name = "unit_id", nullable = false)
-    private Unit unit;
+    private Unit unit = null;
 
     @Column(name = "available", nullable = false)
     private int available;
@@ -45,4 +46,17 @@ public class ServiceCapacity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public ServiceCapacityDTO toDTO() {
+        return ServiceCapacityDTO.builder()
+                .id(this.id)
+                .unit(this.unit != null ? this.unit.toDTO() : null)
+                .available(this.available)
+                .maximum(this.maximum)
+                .description(this.description)
+                .updated(this.updated)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

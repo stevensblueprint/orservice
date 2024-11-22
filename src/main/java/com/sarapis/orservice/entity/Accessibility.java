@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.AccessibilityDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -37,4 +38,15 @@ public class Accessibility {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public AccessibilityDTO toDTO() {
+        return AccessibilityDTO.builder()
+                .id(this.id)
+                .description(this.description)
+                .details(this.details)
+                .url(this.url)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.TaxonomyDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -36,4 +37,15 @@ public class Taxonomy {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public TaxonomyDTO toDTO() {
+        return TaxonomyDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .description(this.description)
+                .uri(this.uri)
+                .version(this.version)
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

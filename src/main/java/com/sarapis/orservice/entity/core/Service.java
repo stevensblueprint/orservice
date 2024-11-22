@@ -1,11 +1,13 @@
 package com.sarapis.orservice.entity.core;
 
+import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +91,7 @@ public class Service {
     private String alert;
 
     @Column(name = "last_modified")
-    private LocalDate lastModified;
+    private LocalDateTime lastModified;
 
     @OneToMany
     @JoinColumn(name = "service_id")
@@ -113,7 +115,7 @@ public class Service {
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
-    private Organization organization;
+    private Organization organization = null;
 
     @OneToMany
     @JoinColumn(name = "service_id")
@@ -125,7 +127,7 @@ public class Service {
 
     @ManyToOne
     @JoinColumn(name = "program_id")
-    private Program program;
+    private Program program = null;
 
     @OneToMany
     @JoinColumn(name = "service_id")
@@ -146,4 +148,45 @@ public class Service {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public ServiceDTO toDTO() {
+        return ServiceDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .url(this.url)
+                .additionalUrls(this.additionalUrls.stream().map(Url::toDTO).toList())
+                .email(this.email)
+                .status(this.status)
+                .interpretationServices(this.interpretationServices)
+                .applicationProcess(this.applicationProcess)
+                .feesDescription(this.feesDescription)
+                .waitTime(this.waitTime)
+                .fees(this.fees)
+                .accreditations(this.accreditations)
+                .eligibilityDescription(this.eligibilityDescription)
+                .minimumAge(this.minimumAge)
+                .maximumAge(this.maximumAge)
+                .assuredDate(this.assuredDate)
+                .assurerEmail(this.assurerEmail)
+                .licenses(this.licenses)
+                .alert(this.alert)
+                .lastModified(this.lastModified)
+                .phones(this.phones.stream().map(Phone::toDTO).toList())
+                .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
+                .serviceAreas(this.serviceAreas.stream().map(ServiceArea::toDTO).toList())
+                .serviceAtLocations(this.serviceAtLocations.stream().map(ServiceAtLocation::toDTO).toList())
+                .languages(this.languages.stream().map(Language::toDTO).toList())
+                .organization(this.organization != null ? organization.toDTO() : null)
+                .funding(this.funding.stream().map(Funding::toDTO).toList())
+                .costOptions(this.costOptions.stream().map(CostOption::toDTO).toList())
+                .program(this.program != null ? program.toDTO() : null)
+                .requiredDocuments(this.requiredDocuments.stream().map(RequiredDocument::toDTO).toList())
+                .contacts(this.contacts.stream().map(Contact::toDTO).toList())
+                .capacities(this.capacities.stream().map(ServiceCapacity::toDTO).toList())
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

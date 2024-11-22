@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.AttributeDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -32,7 +33,7 @@ public class Attribute {
 
     @OneToOne
     @JoinColumn(name = "taxonomy_term_id")
-    private TaxonomyTerm taxonomyTerm;
+    private TaxonomyTerm taxonomyTerm = null;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
@@ -40,4 +41,15 @@ public class Attribute {
 
     @Column(name = "label")
     private String label;
+
+    public AttributeDTO toDTO() {
+        return AttributeDTO.builder()
+                .id(this.id)
+                .linkEntity(this.linkEntity)
+                .value(this.value)
+                .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toDTO() : null)
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .label(this.label)
+                .build();
+    }
 }

@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.MetaTableDescriptionDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -37,4 +38,15 @@ public class MetaTableDescription {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public MetaTableDescriptionDTO toDTO() {
+        return MetaTableDescriptionDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .language(this.language)
+                .characterSet(this.characterSet)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

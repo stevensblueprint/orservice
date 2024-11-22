@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.PhoneDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -44,4 +45,17 @@ public class Phone {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public PhoneDTO toDTO() {
+        return PhoneDTO.builder()
+                .id(this.id)
+                .number(this.number)
+                .extension(this.extension)
+                .type(this.type)
+                .description(this.description)
+                .languages(this.languages.stream().map(Language::toDTO).toList())
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

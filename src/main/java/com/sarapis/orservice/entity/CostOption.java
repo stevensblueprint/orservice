@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.CostOptionDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -47,4 +48,18 @@ public class CostOption {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public CostOptionDTO toDTO() {
+        return CostOptionDTO.builder()
+                .id(this.id)
+                .validFrom(this.validFrom)
+                .validTo(this.validTo)
+                .option(this.option)
+                .currency(this.currency)
+                .amount(this.amount)
+                .amountDescription(this.amountDescription)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

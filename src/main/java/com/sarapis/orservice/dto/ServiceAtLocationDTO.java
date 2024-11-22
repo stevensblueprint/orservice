@@ -1,19 +1,38 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ServiceAtLocationDTO {
   private String id;
-  private ServiceDTO service;
-  private Location location;
   private String description;
+  private List<ServiceAreaDTO> serviceAreas = new ArrayList<>();
+  private List<ContactDTO> contacts = new ArrayList<>();
+  private List<PhoneDTO> phones = new ArrayList<>();
+  private List<ScheduleDTO> schedules = new ArrayList<>();
+  private LocationDTO location = null;
+  private List<AttributeDTO> attributes = new ArrayList<>();
+  private List<MetadataDTO> metadata = new ArrayList<>();
+
+  public ServiceAtLocation toEntity() {
+    return ServiceAtLocation.builder()
+            .id(this.id)
+            .description(this.description)
+            .serviceAreas(this.serviceAreas.stream().map(ServiceAreaDTO::toEntity).toList())
+            .contacts(this.contacts.stream().map(ContactDTO::toEntity).toList())
+            .phones(this.phones.stream().map(PhoneDTO::toEntity).toList())
+            .schedules(this.schedules.stream().map(ScheduleDTO::toEntity).toList())
+            .location(this.location != null ? this.location.toEntity() : null)
+            .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
+            .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
+            .build();
+  }
 }

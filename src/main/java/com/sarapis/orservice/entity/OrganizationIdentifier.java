@@ -1,5 +1,6 @@
 package com.sarapis.orservice.entity;
 
+import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -37,4 +38,15 @@ public class OrganizationIdentifier {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public OrganizationIdentifierDTO toDTO() {
+        return OrganizationIdentifierDTO.builder()
+                .id(this.id)
+                .identifierScheme(this.identifierScheme)
+                .identifierType(this.identifierType)
+                .identifier(this.identifier)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

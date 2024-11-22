@@ -1,11 +1,9 @@
 package com.sarapis.orservice.entity.core;
 
+import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
@@ -17,6 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ServiceAtLocation {
     @Id
     @GeneratedValue
@@ -45,7 +44,7 @@ public class ServiceAtLocation {
 
     @OneToOne
     @JoinColumn(name = "location_id")
-    private Location location;
+    private Location location = null;
 
     @OneToMany
     @JoinColumn(name = "link_id")
@@ -54,4 +53,18 @@ public class ServiceAtLocation {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resource_id")
     private List<Metadata> metadata = new ArrayList<>();
+
+    public ServiceAtLocationDTO toDTO() {
+        return ServiceAtLocationDTO.builder()
+                .id(this.id)
+                .description(this.description)
+                .serviceAreas(this.serviceAreas.stream().map(ServiceArea::toDTO).toList())
+                .contacts(this.contacts.stream().map(Contact::toDTO).toList())
+                .phones(this.phones.stream().map(Phone::toDTO).toList())
+                .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
+                .location(this.location != null ? this.location.toDTO() : null)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

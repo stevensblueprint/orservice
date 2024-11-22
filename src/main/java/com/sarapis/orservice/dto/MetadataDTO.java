@@ -1,50 +1,28 @@
-package com.sarapis.orservice.entity;
+package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.dto.MetadataDTO;
-import jakarta.persistence.*;
+import com.sarapis.orservice.entity.Metadata;
+import com.sarapis.orservice.entity.ResourceType;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "metadata")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Metadata {
-    @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(name = "id", nullable = false)
+public class MetadataDTO {
     private String id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "resource_type")
     private ResourceType resourceType;
-
-    @Column(name = "last_action_date", nullable = false)
     private LocalDate lastActionDate;
-
-    @Column(name = "last_action_type", nullable = false)
     private String lastActionType;
-
-    @Column(name = "field_name", nullable = false)
     private String fieldName;
-
-    @Column(name = "previous_value", nullable = false)
     private String previousValue;
-
-    @Column(name = "replacement_value", nullable = false)
     private String replacementValue;
-
-    @Column(name = "updated_by", nullable = false)
     private String updatedBy;
 
-    public MetadataDTO toDTO() {
-        return MetadataDTO.builder()
+    public Metadata toEntity() {
+        return Metadata.builder()
                 .id(this.id)
                 .resourceType(this.resourceType)
                 .lastActionDate(this.lastActionDate)
