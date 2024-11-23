@@ -13,40 +13,6 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   private final OrganizationRepository organizationRepository;
 
-  private OrganizationDTO mapToDTO(Organization organization) {
-    return new OrganizationDTO(
-        organization.getId(),
-        organization.getName(),
-        organization.getAlternateName(),
-        organization.getDescription(),
-        organization.getEmail(),
-        organization.getWebsite(),
-        organization.getAdditionalWebsites(),
-        organization.getYearIncorporated(),
-        organization.getLegalStatus(),
-        organization.getLogo(),
-        organization.getUri(),
-        organization.getParentOrganization()
-    );
-  }
-
-  private Organization mapToEntity(OrganizationDTO organizationDTO) {
-    return new Organization(
-        organizationDTO.getId(),
-        organizationDTO.getName(),
-        organizationDTO.getAlternateName(),
-        organizationDTO.getDescription(),
-        organizationDTO.getEmail(),
-        organizationDTO.getWebsite(),
-        organizationDTO.getAdditionalWebsites(),
-        organizationDTO.getYearIncorporated(),
-        organizationDTO.getLegalStatus(),
-        organizationDTO.getLogo(),
-        organizationDTO.getUri(),
-        organizationDTO.getParentOrganization()
-    );
-  }
-
   @Autowired
   public OrganizationServiceImpl(OrganizationRepository organizationRepository) {
     this.organizationRepository = organizationRepository;
@@ -55,7 +21,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public List<OrganizationDTO> getAllOrganizations() {
     return organizationRepository.findAll().stream()
-        .map(this::mapToDTO)
+        .map(Organization::toDTO)
         .collect(Collectors.toList());
   }
 
@@ -63,14 +29,14 @@ public class OrganizationServiceImpl implements OrganizationService {
   public OrganizationDTO getOrganizationById(String id) {
     Organization organization =  organizationRepository.findById(Long.parseLong(id))
         .orElseThrow(() -> new RuntimeException("Organization not found"));
-    return mapToDTO(organization);
+    return organization.toDTO();
   }
 
   @Override
   public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) {
-    Organization organization = mapToEntity(organizationDTO);
+    Organization organization = organizationDTO.toEntity();
     Organization savedOrganization = organizationRepository.save(organization);
-    return mapToDTO(savedOrganization);
+    return savedOrganization.toDTO();
   }
 
   @Override
@@ -83,7 +49,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     existingOrganization.setEmail(organizationDTO.getEmail());
     existingOrganization.setWebsite(organizationDTO.getWebsite());
     Organization updatedOrganization = organizationRepository.save(existingOrganization);
-    return mapToDTO(updatedOrganization);
+    return updatedOrganization.toDTO();
   }
 
   @Override

@@ -1,17 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.AttributeDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "attribute")
@@ -19,23 +14,42 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Attribute {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  private String linkId;
-  private String linkType;
-  private String linkEntity;
-  private String value;
+    @Column(name = "link_type")
+    private String linkType;
 
-  @OneToOne
-  @JoinColumn(name="taxonomy_term_id")
-  private TaxonomyTerm taxonomyTerm;
+    @Column(name = "link_entity")
+    private String linkEntity;
 
-  @OneToOne
-  private Metadata metadata;
+    @Column(name = "value")
+    private String value;
 
-  private String label;
+    @OneToOne
+    @JoinColumn(name = "taxonomy_term_id")
+    private TaxonomyTerm taxonomyTerm = null;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
+
+    @Column(name = "label")
+    private String label;
+
+    public AttributeDTO toDTO() {
+        return AttributeDTO.builder()
+                .id(this.id)
+                .linkEntity(this.linkEntity)
+                .value(this.value)
+                .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toDTO() : null)
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .label(this.label)
+                .build();
+    }
 }

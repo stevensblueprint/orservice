@@ -1,45 +1,65 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.CostOptionDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "cost_option")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CostOption {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @OneToOne
-  private Service service;
+    @Column(name = "valid_from")
+    private LocalDate validFrom;
 
-  @Column(name = "valid_from")
-  private LocalDate validFrom;
+    @Column(name = "valid_to")
+    private LocalDate validTo;
 
-  @Column(name = "valid_to")
-  private LocalDate validTo;
+    @Column(name = "option")
+    private String option;
 
-  private String option;
-  private String currency;
-  private int amount;
+    @Column(name = "currency")
+    private String currency;
 
-  @Column(name = "amount_description")
-  private String amountDescription;
+    @Column(name = "amount")
+    private int amount;
+
+    @Column(name = "amount_description")
+    private String amountDescription;
+
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
+
+    public CostOptionDTO toDTO() {
+        return CostOptionDTO.builder()
+                .id(this.id)
+                .validFrom(this.validFrom)
+                .validTo(this.validTo)
+                .option(this.option)
+                .currency(this.currency)
+                .amount(this.amount)
+                .amountDescription(this.amountDescription)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

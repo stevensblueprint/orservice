@@ -1,23 +1,32 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Metadata;
-import com.sarapis.orservice.entity.TaxonomyTerm;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.entity.Attribute;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AttributeDTO {
     private String id;
-    private String linkId;
-    private String linkType;
     private String linkEntity;
     private String value;
-    private TaxonomyTerm taxonomyTerm;
-    private Metadata metadata;
+    private TaxonomyTermDTO taxonomyTerm = null;
+    private List<MetadataDTO> metadata = new ArrayList<>();
     private String label;
+
+    public Attribute toEntity() {
+        return Attribute.builder()
+                .id(this.id)
+                .linkEntity(this.linkEntity)
+                .value(this.value)
+                .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toEntity() : null)
+                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
+                .label(this.label)
+                .build();
+    }
 }

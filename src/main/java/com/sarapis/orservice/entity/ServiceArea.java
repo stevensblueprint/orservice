@@ -1,17 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.ServiceAreaDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "service_area")
@@ -19,18 +14,48 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ServiceArea {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Service service;
+    @Column(name = "name")
+    private String name;
 
-  private String name;
-  private String description;
-  private String extent;
-  private String extentType;
-  private String uri;
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "extent")
+    private String extent;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "extent_type")
+    private ExtentType extentType;
+
+    @Column(name = "uri")
+    private String uri;
+
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
+
+    public ServiceAreaDTO toDTO() {
+        return ServiceAreaDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .description(this.description)
+                .extent(this.extent)
+                .extentType(this.extentType)
+                .uri(this.uri)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }
