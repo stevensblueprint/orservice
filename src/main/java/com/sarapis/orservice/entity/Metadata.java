@@ -49,6 +49,7 @@ public class Metadata {
     public MetadataDTO toDTO() {
         return MetadataDTO.builder()
                 .id(this.id)
+                .resourceId(this.resourceId)
                 .resourceType(this.resourceType)
                 .lastActionDate(this.lastActionDate)
                 .lastActionType(this.lastActionType)

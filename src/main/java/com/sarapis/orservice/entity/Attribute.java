@@ -44,6 +44,7 @@ public class Attribute {
     public AttributeDTO toDTO() {
         return AttributeDTO.builder()
                 .id(this.id)
+                .linkId(this.linkId)
                 .linkEntity(this.linkEntity)
                 .value(this.value)
                 .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toDTO() : null)

@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class AttributeDTO {
     private String id;
+    private String linkId;
     private LinkEntity linkEntity;
     private String value;
     private TaxonomyTermDTO taxonomyTerm;

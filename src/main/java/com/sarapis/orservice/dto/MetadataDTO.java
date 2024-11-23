@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 public class MetadataDTO {
     private String id;
+    private String resourceId;
     private ResourceType resourceType;
     private LocalDate lastActionDate;
     private String lastActionType;
