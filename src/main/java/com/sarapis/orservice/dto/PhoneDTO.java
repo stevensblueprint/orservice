@@ -29,8 +29,6 @@ public class PhoneDTO {
                 .type(this.type)
                 .description(this.description)
                 .languages(this.languages.stream().map(LanguageDTO::toEntity).toList())
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

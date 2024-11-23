@@ -26,7 +26,6 @@ public class TaxonomyDTO {
             .description(this.description)
             .uri(this.uri)
             .version(this.version)
-            .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
             .build();
   }
 }

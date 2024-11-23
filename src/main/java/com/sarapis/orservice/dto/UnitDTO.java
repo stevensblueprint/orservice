@@ -27,8 +27,6 @@ public class UnitDTO {
                 .scheme(this.scheme)
                 .identifier(this.identifier)
                 .uri(this.uri)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

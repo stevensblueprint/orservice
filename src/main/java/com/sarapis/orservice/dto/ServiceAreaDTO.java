@@ -30,8 +30,6 @@ public class ServiceAreaDTO {
                 .extent(this.extent)
                 .extentType(this.extentType)
                 .uri(this.uri)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

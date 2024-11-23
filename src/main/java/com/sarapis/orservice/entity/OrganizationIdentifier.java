@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "organization_identifier")
@@ -31,22 +30,14 @@ public class OrganizationIdentifier {
     @Column(name = "identifier", nullable = false)
     private String identifier;
 
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public OrganizationIdentifierDTO toDTO() {
         return OrganizationIdentifierDTO.builder()
                 .id(this.id)
                 .identifierScheme(this.identifierScheme)
                 .identifierType(this.identifierType)
                 .identifier(this.identifier)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

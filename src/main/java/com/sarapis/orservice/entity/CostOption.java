@@ -7,7 +7,6 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "cost_option")
@@ -41,14 +40,6 @@ public class CostOption {
     @Column(name = "amount_description")
     private String amountDescription;
 
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public CostOptionDTO toDTO() {
         return CostOptionDTO.builder()
                 .id(this.id)
@@ -58,8 +49,8 @@ public class CostOption {
                 .currency(this.currency)
                 .amount(this.amount)
                 .amountDescription(this.amountDescription)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

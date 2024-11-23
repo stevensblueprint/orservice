@@ -34,17 +34,9 @@ public class Contact {
     @Column(name = "email")
     private String email;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "contact_id")
     private List<Phone> phones = new ArrayList<>();
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
 
     public ContactDTO toDTO() {
         return ContactDTO.builder()
@@ -54,8 +46,8 @@ public class Contact {
                 .department(this.department)
                 .email(this.email)
                 .phones(this.phones.stream().map(Phone::toDTO).toList())
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

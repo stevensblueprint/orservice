@@ -38,8 +38,6 @@ public class AddressDTO {
                 .postalCode(this.postalCode)
                 .country(this.country)
                 .addressType(this.addressType)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

@@ -32,8 +32,6 @@ public class CostOptionDTO {
                 .currency(this.currency)
                 .amount(this.amount)
                 .amountDescription(this.amountDescription)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

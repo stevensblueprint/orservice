@@ -25,8 +25,6 @@ public class OrganizationIdentifierDTO {
                 .identifierScheme(this.identifierScheme)
                 .identifierType(this.identifierType)
                 .identifier(this.identifier)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

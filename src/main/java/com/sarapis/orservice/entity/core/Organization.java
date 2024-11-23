@@ -38,7 +38,7 @@ public class Organization {
     @Column(name = "website")
     private String website;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organization_id")
     private List<Url> additionalWebsites = new ArrayList<>();
 
@@ -66,37 +66,29 @@ public class Organization {
     @JoinColumn(name = "parent_organization_id")
     private Organization parentOrganization = null;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organization_id")
     private List<Funding> funding = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organization_id")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organization_id")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organization_id")
     private List<Location> locations = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "organization_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "organization_id", nullable = false)
     private List<Program> programs = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "organization_id")
-    private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
+    @JoinColumn(name = "organization_id", nullable = false)
+    private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();
 
     public OrganizationDTO toDTO() {
         return OrganizationDTO.builder()
@@ -120,8 +112,8 @@ public class Organization {
                 .locations(this.locations.stream().map(Location::toDTO).toList())
                 .programs(this.programs.stream().map(Program::toDTO).toList())
                 .organizationIdentifiers(this.organizationIdentifiers.stream().map(OrganizationIdentifier::toDTO).toList())
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

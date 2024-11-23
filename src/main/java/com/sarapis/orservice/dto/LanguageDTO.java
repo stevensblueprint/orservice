@@ -25,8 +25,6 @@ public class LanguageDTO {
                 .name(this.name)
                 .code(this.code)
                 .note(this.note)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

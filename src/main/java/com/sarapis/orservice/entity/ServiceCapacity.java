@@ -7,7 +7,6 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "service_capacity")
@@ -24,7 +23,7 @@ public class ServiceCapacity {
     private String id;
 
     @OneToOne
-    @JoinColumn(name = "unit_id", nullable = false)
+    @JoinColumn(name = "unit_id")
     private Unit unit = null;
 
     @Column(name = "available", nullable = false)
@@ -39,14 +38,6 @@ public class ServiceCapacity {
     @Column(name = "updated", nullable = false)
     private LocalDate updated;
 
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public ServiceCapacityDTO toDTO() {
         return ServiceCapacityDTO.builder()
                 .id(this.id)
@@ -55,8 +46,8 @@ public class ServiceCapacity {
                 .maximum(this.maximum)
                 .description(this.description)
                 .updated(this.updated)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

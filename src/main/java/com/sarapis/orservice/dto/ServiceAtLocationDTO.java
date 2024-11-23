@@ -18,7 +18,7 @@ public class ServiceAtLocationDTO {
   private List<ContactDTO> contacts = new ArrayList<>();
   private List<PhoneDTO> phones = new ArrayList<>();
   private List<ScheduleDTO> schedules = new ArrayList<>();
-  private LocationDTO location = null;
+  private LocationDTO location;
   private List<AttributeDTO> attributes = new ArrayList<>();
   private List<MetadataDTO> metadata = new ArrayList<>();
 
@@ -30,9 +30,7 @@ public class ServiceAtLocationDTO {
             .contacts(this.contacts.stream().map(ContactDTO::toEntity).toList())
             .phones(this.phones.stream().map(PhoneDTO::toEntity).toList())
             .schedules(this.schedules.stream().map(ScheduleDTO::toEntity).toList())
-            .location(this.location != null ? this.location.toEntity() : null)
-            .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-            .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
+            .location(this.location.toEntity())
             .build();
   }
 }

@@ -8,7 +8,6 @@ import org.hibernate.annotations.UuidGenerator;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "schedule")
@@ -83,14 +82,6 @@ public class Schedule {
     @Column(name = "notes")
     private String notes;
 
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public ScheduleDTO toDTO() {
         return ScheduleDTO.builder()
                 .id(this.id)
@@ -113,8 +104,8 @@ public class Schedule {
                 .scheduleLink(this.scheduleLink)
                 .attendingType(this.attendingType)
                 .notes(this.notes)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

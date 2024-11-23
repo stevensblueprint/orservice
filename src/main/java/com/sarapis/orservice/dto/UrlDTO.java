@@ -23,8 +23,6 @@ public class UrlDTO {
                 .id(this.id)
                 .label(this.label)
                 .url(this.url)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

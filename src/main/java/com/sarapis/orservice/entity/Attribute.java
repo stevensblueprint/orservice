@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "attribute")
@@ -22,22 +21,22 @@ public class Attribute {
     @Column(name = "id", nullable = false)
     private String id;
 
+    @Column(name = "link_id", nullable = false)
+    private String linkId;
+
     @Column(name = "link_type")
     private String linkType;
 
-    @Column(name = "link_entity")
-    private String linkEntity;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "link_entity", nullable = false)
+    private LinkEntity linkEntity;
 
     @Column(name = "value")
     private String value;
 
-    @OneToOne
-    @JoinColumn(name = "taxonomy_term_id")
-    private TaxonomyTerm taxonomyTerm = null;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
+    @OneToOne(orphanRemoval = true, optional = false)
+    @JoinColumn(name = "taxonomy_term_id", nullable = false)
+    private TaxonomyTerm taxonomyTerm;
 
     @Column(name = "label")
     private String label;
@@ -48,7 +47,7 @@ public class Attribute {
                 .linkEntity(this.linkEntity)
                 .value(this.value)
                 .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toDTO() : null)
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .metadata(new ArrayList<>())
                 .label(this.label)
                 .build();
     }

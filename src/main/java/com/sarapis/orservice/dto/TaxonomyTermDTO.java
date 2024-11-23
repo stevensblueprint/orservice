@@ -34,7 +34,6 @@ public class TaxonomyTermDTO {
             .taxonomyDetail(this.taxonomyDetail != null ? this.taxonomyDetail.toEntity() : null)
             .language(this.language)
             .termUri(this.termUri)
-            .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
             .build();
   }
 }

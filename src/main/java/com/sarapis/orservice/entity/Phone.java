@@ -34,17 +34,9 @@ public class Phone {
     @Column(name = "description")
     private String description;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "phone_id")
     private List<Language> languages = new ArrayList<>();
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
 
     public PhoneDTO toDTO() {
         return PhoneDTO.builder()
@@ -54,8 +46,8 @@ public class Phone {
                 .type(this.type)
                 .description(this.description)
                 .languages(this.languages.stream().map(Language::toDTO).toList())
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

@@ -25,8 +25,6 @@ public class MetaTableDescriptionDTO {
                 .name(this.name)
                 .language(this.language)
                 .characterSet(this.characterSet)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

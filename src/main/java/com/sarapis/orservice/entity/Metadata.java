@@ -21,8 +21,11 @@ public class Metadata {
     @Column(name = "id", nullable = false)
     private String id;
 
+    @Column(name = "resource_id", nullable = false)
+    private String resourceId;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "resource_type")
+    @Column(name = "resource_type", nullable = false)
     private ResourceType resourceType;
 
     @Column(name = "last_action_date", nullable = false)

@@ -57,8 +57,6 @@ public class OrganizationDTO {
                 .locations(this.locations.stream().map(LocationDTO::toEntity).toList())
                 .programs(this.programs.stream().map(ProgramDTO::toEntity).toList())
                 .organizationIdentifiers(this.organizationIdentifiers.stream().map(OrganizationIdentifierDTO::toEntity).toList())
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

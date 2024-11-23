@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "unit")
@@ -34,14 +33,6 @@ public class Unit {
     @Column(name = "uri")
     private String uri;
 
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public UnitDTO toDTO() {
         return UnitDTO.builder()
                 .id(this.id)
@@ -49,8 +40,8 @@ public class Unit {
                 .scheme(this.scheme)
                 .identifier(this.identifier)
                 .uri(this.uri)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

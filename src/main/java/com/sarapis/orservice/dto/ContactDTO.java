@@ -29,8 +29,6 @@ public class ContactDTO {
                 .department(this.department)
                 .email(this.email)
                 .phones(this.phones.stream().map(PhoneDTO::toEntity).toList())
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

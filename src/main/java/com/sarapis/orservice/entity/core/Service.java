@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
@@ -37,7 +38,7 @@ public class Service {
     @Column(name = "url")
     private String url;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Url> additionalUrls = new ArrayList<>();
 
@@ -93,61 +94,54 @@ public class Service {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Schedule> schedules = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<ServiceArea> serviceAreas = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "service_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "service_id", nullable = false)
     private List<ServiceAtLocation> serviceAtLocations = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Language> languages = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "organization_id")
-    private Organization organization = null;
+    // On Organization delete, all related Services should be deleted.
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Funding> funding = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "service_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "service_id", nullable = false)
     private List<CostOption> costOptions = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "program_id")
     private Program program = null;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<RequiredDocument> requiredDocuments = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_id")
     private List<ServiceCapacity> capacities = new ArrayList<>();
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
 
     public ServiceDTO toDTO() {
         return ServiceDTO.builder()
@@ -185,8 +179,8 @@ public class Service {
                 .requiredDocuments(this.requiredDocuments.stream().map(RequiredDocument::toDTO).toList())
                 .contacts(this.contacts.stream().map(Contact::toDTO).toList())
                 .capacities(this.capacities.stream().map(ServiceCapacity::toDTO).toList())
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

@@ -61,8 +61,6 @@ public class ScheduleDTO {
                 .scheduleLink(this.scheduleLink)
                 .attendingType(this.attendingType)
                 .notes(this.notes)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

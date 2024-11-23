@@ -54,37 +54,29 @@ public class Location {
     @Column(name = "external_identifier_type")
     private String externalIdentifierType;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Language> languages = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Address> addresses = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Accessibility> accessibility = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "location_id")
     private List<Schedule> schedules = new ArrayList<>();
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
 
     public LocationDTO toDTO() {
         return LocationDTO.builder()
@@ -105,8 +97,8 @@ public class Location {
                 .accessibility(this.accessibility.stream().map(Accessibility::toDTO).toList())
                 .phones(this.phones.stream().map(Phone::toDTO).toList())
                 .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

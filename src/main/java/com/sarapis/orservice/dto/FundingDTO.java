@@ -21,8 +21,6 @@ public class FundingDTO {
         return Funding.builder()
                 .id(this.id)
                 .source(this.source)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

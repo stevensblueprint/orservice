@@ -1,7 +1,10 @@
 package com.sarapis.orservice.entity.core;
 
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
-import com.sarapis.orservice.entity.*;
+import com.sarapis.orservice.entity.Contact;
+import com.sarapis.orservice.entity.Phone;
+import com.sarapis.orservice.entity.Schedule;
+import com.sarapis.orservice.entity.ServiceArea;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -26,33 +29,25 @@ public class ServiceAtLocation {
     @Column(name = "description")
     private String description;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_at_location_id")
     private List<ServiceArea> serviceAreas = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_at_location_id")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_at_location_id")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "service_at_location_id")
     private List<Schedule> schedules = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "location_id")
-    private Location location = null;
-
-    @OneToMany
-    @JoinColumn(name = "link_id")
-    private List<Attribute> attributes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
+    @OneToOne(orphanRemoval = true, optional = false)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     public ServiceAtLocationDTO toDTO() {
         return ServiceAtLocationDTO.builder()
@@ -63,8 +58,8 @@ public class ServiceAtLocation {
                 .phones(this.phones.stream().map(Phone::toDTO).toList())
                 .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
                 .location(this.location != null ? this.location.toDTO() : null)
-                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }

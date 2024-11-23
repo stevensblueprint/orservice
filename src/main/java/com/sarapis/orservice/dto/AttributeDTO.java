@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto;
 
 import com.sarapis.orservice.entity.Attribute;
+import com.sarapis.orservice.entity.LinkEntity;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -13,19 +14,19 @@ import java.util.List;
 @Builder
 public class AttributeDTO {
     private String id;
-    private String linkEntity;
+    private LinkEntity linkEntity;
     private String value;
-    private TaxonomyTermDTO taxonomyTerm = null;
-    private List<MetadataDTO> metadata = new ArrayList<>();
+    private TaxonomyTermDTO taxonomyTerm;
     private String label;
+    private List<MetadataDTO> metadata = new ArrayList<>();
 
-    public Attribute toEntity() {
+    public Attribute toEntity(String linkId) {
         return Attribute.builder()
                 .id(this.id)
+                .linkId(linkId)
                 .linkEntity(this.linkEntity)
                 .value(this.value)
-                .taxonomyTerm(this.taxonomyTerm != null ? this.taxonomyTerm.toEntity() : null)
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
+                .taxonomyTerm(this.taxonomyTerm.toEntity())
                 .label(this.label)
                 .build();
     }

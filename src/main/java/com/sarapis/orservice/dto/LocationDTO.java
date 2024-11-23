@@ -52,8 +52,6 @@ public class LocationDTO {
                 .accessibility(this.accessibility.stream().map(AccessibilityDTO::toEntity).toList())
                 .phones(this.phones.stream().map(PhoneDTO::toEntity).toList())
                 .schedules(this.schedules.stream().map(ScheduleDTO::toEntity).toList())
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

@@ -25,8 +25,6 @@ public class ProgramDTO {
                 .name(this.name)
                 .alternateName(this.alternateName)
                 .description(this.description)
-                .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-                .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
                 .build();
     }
 }

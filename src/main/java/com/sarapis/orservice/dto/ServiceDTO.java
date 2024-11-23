@@ -44,7 +44,7 @@ public class ServiceDTO {
   private List<ServiceAreaDTO> serviceAreas = new ArrayList<>();
   private List<ServiceAtLocationDTO> serviceAtLocations = new ArrayList<>();
   private List<LanguageDTO> languages = new ArrayList<>();
-  private OrganizationDTO organization = null;
+  private OrganizationDTO organization;
   private List<FundingDTO> funding = new ArrayList<>();
   private List<CostOptionDTO> costOptions = new ArrayList<>();
   private ProgramDTO program = null;
@@ -83,15 +83,13 @@ public class ServiceDTO {
             .serviceAreas(this.serviceAreas.stream().map(ServiceAreaDTO::toEntity).toList())
             .serviceAtLocations(this.serviceAtLocations.stream().map(ServiceAtLocationDTO::toEntity).toList())
             .languages(this.languages.stream().map(LanguageDTO::toEntity).toList())
-            .organization(this.organization != null ? organization.toEntity() : null)
+            .organization(this.organization.toEntity())
             .funding(this.funding.stream().map(FundingDTO::toEntity).toList())
             .costOptions(this.costOptions.stream().map(CostOptionDTO::toEntity).toList())
-            .program(this.program != null ? program.toEntity() : null)
+            .program(this.program != null ? this.program.toEntity() : null)
             .requiredDocuments(this.requiredDocuments.stream().map(RequiredDocumentDTO::toEntity).toList())
             .contacts(this.contacts.stream().map(ContactDTO::toEntity).toList())
             .capacities(this.capacities.stream().map(ServiceCapacityDTO::toEntity).toList())
-            .attributes(this.attributes.stream().map(AttributeDTO::toEntity).toList())
-            .metadata(this.metadata.stream().map(MetadataDTO::toEntity).toList())
             .build();
   }
 }

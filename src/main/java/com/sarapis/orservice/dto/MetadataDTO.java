@@ -21,9 +21,10 @@ public class MetadataDTO {
     private String replacementValue;
     private String updatedBy;
 
-    public Metadata toEntity() {
+    public Metadata toEntity(String resourceId) {
         return Metadata.builder()
                 .id(this.id)
+                .resourceId(resourceId)
                 .resourceType(this.resourceType)
                 .lastActionDate(this.lastActionDate)
                 .lastActionType(this.lastActionType)

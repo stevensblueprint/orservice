@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "taxonomy")
@@ -34,10 +33,6 @@ public class Taxonomy {
     @Column(name = "version")
     private String version;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "resource_id")
-    private List<Metadata> metadata = new ArrayList<>();
-
     public TaxonomyDTO toDTO() {
         return TaxonomyDTO.builder()
                 .id(this.id)
@@ -45,7 +40,7 @@ public class Taxonomy {
                 .description(this.description)
                 .uri(this.uri)
                 .version(this.version)
-                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .metadata(new ArrayList<>())
                 .build();
     }
 }
