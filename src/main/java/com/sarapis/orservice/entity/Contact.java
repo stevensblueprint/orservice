@@ -1,20 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.ContactDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "contact")
@@ -22,26 +14,48 @@ import org.hibernate.annotations.UuidGenerator;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Contact {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Organization organization;
+    @Column(name = "name")
+    private String name;
 
-  @ManyToOne
-  private Service service;
+    @Column(name = "title")
+    private String title;
 
-  @ManyToOne
-  private ServiceAtLocation serviceAtLocation;
+    @Column(name = "department")
+    private String department;
 
-  @ManyToOne
-  private Location location;
+    @Column(name = "email")
+    private String email;
 
-  private String name;
-  private String title;
-  private String department;
-  private String email;
+    @OneToMany
+    @JoinColumn(name = "contact_id")
+    private List<Phone> phones = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
+
+    public ContactDTO toDTO() {
+        return ContactDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .title(this.title)
+                .department(this.department)
+                .email(this.email)
+                .phones(this.phones.stream().map(Phone::toDTO).toList())
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }

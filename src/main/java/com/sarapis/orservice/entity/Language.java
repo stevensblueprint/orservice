@@ -1,18 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.LanguageDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "language")
@@ -20,22 +14,39 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Language {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Service service;
+    @Column(name = "name")
+    private String name;
 
-  @ManyToOne
-  private Location location;
+    @Column(name = "code")
+    private String code;
 
-  @ManyToOne
-  private Phone phone;
+    @Column(name = "note")
+    private String note;
 
-  private String name;
-  private String code;
-  private String note;
+    @OneToMany
+    @JoinColumn(name = "link_id")
+    private List<Attribute> attributes = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "resource_id")
+    private List<Metadata> metadata = new ArrayList<>();
+
+    public LanguageDTO toDTO() {
+        return LanguageDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .code(this.code)
+                .note(this.note)
+                .attributes(this.attributes.stream().map(Attribute::toDTO).toList())
+                .metadata(this.metadata.stream().map(Metadata::toDTO).toList())
+                .build();
+    }
 }
