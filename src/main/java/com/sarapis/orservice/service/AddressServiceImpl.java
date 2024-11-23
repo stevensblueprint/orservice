@@ -12,38 +12,6 @@ import java.util.stream.Collectors;
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
 
-    private AddressDTO mapToDTO(Address address) {
-        return new AddressDTO(
-                address.getId(),
-                address.getLocation(),
-                address.getAttention(),
-                address.getAddress_1(),
-                address.getAddress_2(),
-                address.getCity(),
-                address.getRegion(),
-                address.getStateProvince(),
-                address.getPostalCode(),
-                address.getCountry(),
-                address.getAddressType()
-        );
-    }
-
-    private Address mapToEntity(AddressDTO addressDTO) {
-        return new Address(
-                addressDTO.getId(),
-                addressDTO.getLocation(),
-                addressDTO.getAttention(),
-                addressDTO.getAddress_1(),
-                addressDTO.getAddress_2(),
-                addressDTO.getCity(),
-                addressDTO.getRegion(),
-                addressDTO.getStateProvince(),
-                addressDTO.getPostalCode(),
-                addressDTO.getCountry(),
-                addressDTO.getAddressType()
-        );
-    }
-
     public AddressServiceImpl(AddressRepository addressRepository) {
         this.addressRepository = addressRepository;
     }
@@ -51,7 +19,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public List<AddressDTO> getAllAddresses() {
         return this.addressRepository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(Address::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -59,14 +27,14 @@ public class AddressServiceImpl implements AddressService {
     public AddressDTO getAddressById(String id) {
         Address address = this.addressRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("Address not found"));
-        return this.mapToDTO(address);
+        return address.toDTO();
     }
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO) {
-        Address address = this.mapToEntity(addressDTO);
+        Address address = addressDTO.toEntity();
         Address savedAddress = this.addressRepository.save(address);
-        return this.mapToDTO(savedAddress);
+        return savedAddress.toDTO();
     }
 
     @Override
@@ -74,7 +42,6 @@ public class AddressServiceImpl implements AddressService {
         Address oldAddress = this.addressRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
-        oldAddress.setLocation(addressDTO.getLocation());
         oldAddress.setAttention(addressDTO.getAttention());
         oldAddress.setAddress_1(addressDTO.getAddress_1());
         oldAddress.setAddress_2(addressDTO.getAddress_2());
@@ -86,7 +53,7 @@ public class AddressServiceImpl implements AddressService {
         oldAddress.setAddressType(addressDTO.getAddressType());
 
         Address updatedAddress = this.addressRepository.save(oldAddress);
-        return this.mapToDTO(updatedAddress);
+        return updatedAddress.toDTO();
     }
 
     @Override
