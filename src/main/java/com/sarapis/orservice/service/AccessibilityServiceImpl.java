@@ -1,14 +1,14 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.dto.AttributeDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.entity.Accessibility;
 import com.sarapis.orservice.entity.Attribute;
 import com.sarapis.orservice.entity.Metadata;
-import com.sarapis.orservice.entity.Accessibility;
+import com.sarapis.orservice.repository.AccessibilityRepository;
 import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.MetadataRepository;
-import com.sarapis.orservice.repository.AccessibilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,6 @@ import java.util.Objects;
 
 @Service
 public class AccessibilityServiceImpl implements AccessibilityService {
-
     private final AccessibilityRepository accessibilityRepository;
     private final AttributeRepository attributeRepository;
     private final MetadataRepository metadataRepository;
@@ -31,55 +30,74 @@ public class AccessibilityServiceImpl implements AccessibilityService {
 
     @Override
     public List<AccessibilityDTO> getAllAccessibilities() {
-        return accessibilityRepository.findAll().stream().map(Accessibility::toDTO).toList();
+        List<AccessibilityDTO> accessibilityDTOs = this.accessibilityRepository.findAll().stream().map(Accessibility::toDTO).toList();
+        accessibilityDTOs.forEach(this::getRelatedData);
+        return accessibilityDTOs;
     }
 
     @Override
     public AccessibilityDTO getAccessibilityById(String id) {
-        Accessibility accessibility = accessibilityRepository.findById(id).orElseThrow(() -> new RuntimeException("Accessibility not found"));
-        return accessibility.toDTO();
+        Accessibility accessibility = this.accessibilityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
+        AccessibilityDTO accessibilityDTO = accessibility.toDTO();
+        getRelatedData(accessibilityDTO);
+        return accessibilityDTO;
     }
 
     @Override
     public AccessibilityDTO createAccessibility(AccessibilityDTO accessibilityDTO) {
-        Accessibility accessibility = accessibilityDTO.toEntity();
+        Accessibility accessibility = this.accessibilityRepository.save(accessibilityDTO.toEntity());
 
         for (AttributeDTO attributeDTO : accessibilityDTO.getAttributes()) {
-            attributeRepository.save(attributeDTO.toEntity(accessibility.getId()));
+            this.attributeRepository.save(attributeDTO.toEntity(accessibility.getId()));
         }
 
         for (MetadataDTO metadataDTO : accessibilityDTO.getMetadata()) {
-            metadataRepository.save(metadataDTO.toEntity(accessibility.getId()));
+            this.metadataRepository.save(metadataDTO.toEntity(accessibility.getId()));
         }
 
-        Accessibility savedAccessibility = accessibilityRepository.save(accessibility);
-        return savedAccessibility.toDTO();
+        AccessibilityDTO savedAccessibilityDTO = this.accessibilityRepository.save(accessibility).toDTO();
+        getRelatedData(savedAccessibilityDTO);
+        return savedAccessibilityDTO;
     }
 
     @Override
     public AccessibilityDTO updateAccessibility(String id, AccessibilityDTO accessibilityDTO) {
-        Accessibility oldAccessibility = accessibilityRepository.findById(id).orElseThrow(() -> new RuntimeException("Accessibility not found"));
+        Accessibility oldAccessibility = this.accessibilityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
 
         oldAccessibility.setDescription(accessibilityDTO.getDescription());
         oldAccessibility.setDetails(accessibilityDTO.getDetails());
         oldAccessibility.setUrl(accessibilityDTO.getUrl());
 
-        Accessibility updatedAccessibility = accessibilityRepository.save(oldAccessibility);
+        Accessibility updatedAccessibility = this.accessibilityRepository.save(oldAccessibility);
         return updatedAccessibility.toDTO();
     }
 
     @Override
     public void deleteAccessibility(String id) {
-        Accessibility accessibility = accessibilityRepository.findById(id).orElseThrow(() -> new RuntimeException("Accessibility not found"));
+        Accessibility accessibility = this.accessibilityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
 
-        List<Attribute> attributes = attributeRepository.findAll();
+        List<Attribute> attributes = this.attributeRepository.findAll();
         List<Attribute> relatedAttributes = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), accessibility.getId())).toList();
-        attributeRepository.deleteAll(relatedAttributes);
+        this.attributeRepository.deleteAll(relatedAttributes);
 
-        List<Metadata> metadatas = metadataRepository.findAll();
+        List<Metadata> metadatas = this.metadataRepository.findAll();
         List<Metadata> relatedMetadatas = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), accessibility.getId())).toList();
-        metadataRepository.deleteAll(relatedMetadatas);
+        this.metadataRepository.deleteAll(relatedMetadatas);
 
-        accessibilityRepository.delete(accessibility);
+        this.accessibilityRepository.delete(accessibility);
+    }
+
+    private void getRelatedData(AccessibilityDTO accessibilityDTO) {
+        List<Attribute> attributes = this.attributeRepository.findAll();
+        List<AttributeDTO> relatedAttributeDTOs = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), accessibilityDTO.getId())).map(Attribute::toDTO).toList();
+
+        List<Metadata> metadatas = this.metadataRepository.findAll();
+        List<MetadataDTO> relatedMetadataDTOs = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), accessibilityDTO.getId())).map(Metadata::toDTO).toList();
+
+        accessibilityDTO.getAttributes().addAll(relatedAttributeDTOs);
+        accessibilityDTO.getMetadata().addAll(relatedMetadataDTOs);
     }
 }

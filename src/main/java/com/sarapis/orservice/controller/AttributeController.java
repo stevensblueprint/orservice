@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/attribute")
+@RequestMapping("/api/attributes")
 public class AttributeController {
     private final AttributeService attributeService;
 

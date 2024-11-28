@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/accessibility")
+@RequestMapping("/api/accessibilities")
 public class AccessibilityController {
     private final AccessibilityService accessibilityService;
 

@@ -34,7 +34,7 @@ public class Attribute {
     @Column(name = "value")
     private String value;
 
-    @OneToOne(orphanRemoval = true, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "taxonomy_term_id", nullable = false)
     private TaxonomyTerm taxonomyTerm;
 

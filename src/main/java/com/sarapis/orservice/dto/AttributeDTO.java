@@ -15,6 +15,7 @@ import java.util.List;
 public class AttributeDTO {
     private String id;
     private String linkId;
+    private String linkType;
     private LinkEntity linkEntity;
     private String value;
     private TaxonomyTermDTO taxonomyTerm;
@@ -25,6 +26,7 @@ public class AttributeDTO {
         return Attribute.builder()
                 .id(this.id)
                 .linkId(linkId)
+                .linkType(this.linkType)
                 .linkEntity(this.linkEntity)
                 .value(this.value)
                 .taxonomyTerm(this.taxonomyTerm.toEntity())
