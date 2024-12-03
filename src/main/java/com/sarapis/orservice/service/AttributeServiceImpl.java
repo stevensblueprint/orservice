@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class AttributeServiceImpl implements AttributeService {
@@ -25,12 +24,8 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public List<AttributeDTO> getAllAttributes() {
-        List<AttributeDTO> attributeDTOs = this.attributeRepository.findAll()
-                .stream()
-                .map(Attribute::toDTO)
-                .toList();
-        attributeDTOs.forEach(this::getRelatedData);
-
+        List<AttributeDTO> attributeDTOs = this.attributeRepository.findAll().stream().map(Attribute::toDTO).toList();
+        attributeDTOs.forEach(this::addRelatedData);
         return attributeDTOs;
     }
 
@@ -39,7 +34,7 @@ public class AttributeServiceImpl implements AttributeService {
         Attribute attribute = this.attributeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Attribute not found."));
         AttributeDTO attributeDTO = attribute.toDTO();
-        this.getRelatedData(attributeDTO);
+        this.addRelatedData(attributeDTO);
         return attributeDTO;
     }
 
@@ -51,9 +46,9 @@ public class AttributeServiceImpl implements AttributeService {
             this.metadataRepository.save(metadataDTO.toEntity(attribute.getId()));
         }
 
-        Attribute savedAttr = this.attributeRepository.save(attribute);
-        getRelatedData(attributeDTO);
-        return savedAttr.toDTO();
+        AttributeDTO savedAttributedDTO = this.attributeRepository.save(attribute).toDTO();
+        this.addRelatedData(savedAttributedDTO);
+        return savedAttributedDTO;
     }
 
     @Override
@@ -76,18 +71,11 @@ public class AttributeServiceImpl implements AttributeService {
     public void deleteAttribute(String id) {
         Attribute attribute = this.attributeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Attribute not found."));
-
-        List<Metadata> metadatas = metadataRepository.findAll();
-        List<Metadata> relatedMetadatas = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), attribute.getId())).toList();
-        this.metadataRepository.deleteAll(relatedMetadatas);
-
+        this.attributeRepository.deleteMetadata(attribute.getId());
         this.attributeRepository.delete(attribute);
     }
 
-    private void getRelatedData(AttributeDTO attributeDTO) {
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<MetadataDTO> relatedMetadataDTOs = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), attributeDTO.getId())).map(Metadata::toDTO).toList();
-
-        attributeDTO.getMetadata().addAll(relatedMetadataDTOs);
+    private void addRelatedData(AttributeDTO attributeDTO) {
+        attributeDTO.getMetadata().addAll(this.attributeRepository.getMetadata(attributeDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }

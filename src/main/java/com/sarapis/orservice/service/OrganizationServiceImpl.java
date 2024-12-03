@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
@@ -31,7 +30,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public List<OrganizationDTO> getAllOrganizations() {
         List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll().stream().map(Organization::toDTO).toList();
-        organizationDTOs.forEach(this::getRelatedData);
+        organizationDTOs.forEach(this::addRelatedData);
         return organizationDTOs;
     }
 
@@ -40,7 +39,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = this.organizationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
         OrganizationDTO organizationDTO = organization.toDTO();
-        getRelatedData(organizationDTO);
+        this.addRelatedData(organizationDTO);
         return organizationDTO;
     }
 
@@ -57,7 +56,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         OrganizationDTO savedOrganizationDTO = this.organizationRepository.save(organization).toDTO();
-        getRelatedData(savedOrganizationDTO);
+        this.addRelatedData(savedOrganizationDTO);
         return savedOrganizationDTO;
     }
 
@@ -87,26 +86,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     public void deleteOrganization(String id) {
         Organization organization = this.organizationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
-
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<Attribute> relatedAttributes = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), organization.getId())).toList();
-        this.attributeRepository.deleteAll(relatedAttributes);
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<Metadata> relatedMetadatas = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), organization.getId())).toList();
-        this.metadataRepository.deleteAll(relatedMetadatas);
-
+        this.organizationRepository.deleteAttributes(organization.getId());
+        this.organizationRepository.deleteMetadata(organization.getId());
         this.organizationRepository.delete(organization);
     }
 
-    private void getRelatedData(OrganizationDTO organizationDTO) {
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<AttributeDTO> relatedAttributeDTOs = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), organizationDTO.getId())).map(Attribute::toDTO).toList();
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<MetadataDTO> relatedMetadataDTOs = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), organizationDTO.getId())).map(Metadata::toDTO).toList();
-
-        organizationDTO.getAttributes().addAll(relatedAttributeDTOs);
-        organizationDTO.getMetadata().addAll(relatedMetadataDTOs);
+    private void addRelatedData(OrganizationDTO organizationDTO) {
+        organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
+        organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }
