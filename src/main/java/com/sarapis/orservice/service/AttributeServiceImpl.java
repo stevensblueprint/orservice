@@ -25,7 +25,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public List<AttributeDTO> getAllAttributes() {
         List<AttributeDTO> attributeDTOs = this.attributeRepository.findAll().stream().map(Attribute::toDTO).toList();
-        attributeDTOs.forEach(attributeDTO -> attributeDTO.getMetadata().addAll(this.attributeRepository.getMetadata(attributeDTO.getId()).stream().map(Metadata::toDTO).toList()));
+        attributeDTOs.forEach(this::addRelatedData);
         return attributeDTOs;
     }
 
@@ -34,7 +34,7 @@ public class AttributeServiceImpl implements AttributeService {
         Attribute attribute = this.attributeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Attribute not found."));
         AttributeDTO attributeDTO = attribute.toDTO();
-        attributeDTO.getMetadata().addAll(this.attributeRepository.getMetadata(attributeDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(attributeDTO);
         return attributeDTO;
     }
 
@@ -47,7 +47,7 @@ public class AttributeServiceImpl implements AttributeService {
         }
 
         AttributeDTO savedAttributedDTO = this.attributeRepository.save(attribute).toDTO();
-        savedAttributedDTO.getMetadata().addAll(this.attributeRepository.getMetadata(savedAttributedDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(savedAttributedDTO);
         return savedAttributedDTO;
     }
 
@@ -73,5 +73,9 @@ public class AttributeServiceImpl implements AttributeService {
                 .orElseThrow(() -> new RuntimeException("Attribute not found."));
         this.attributeRepository.deleteMetadata(attribute.getId());
         this.attributeRepository.delete(attribute);
+    }
+
+    private void addRelatedData(AttributeDTO attributeDTO) {
+        attributeDTO.getMetadata().addAll(this.attributeRepository.getMetadata(attributeDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }

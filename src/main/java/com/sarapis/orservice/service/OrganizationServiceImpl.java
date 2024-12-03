@@ -30,10 +30,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public List<OrganizationDTO> getAllOrganizations() {
         List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll().stream().map(Organization::toDTO).toList();
-        organizationDTOs.forEach(organizationDTO -> {
-            organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
-            organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
-        });
+        organizationDTOs.forEach(this::addRelatedData);
         return organizationDTOs;
     }
 
@@ -42,8 +39,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = this.organizationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
         OrganizationDTO organizationDTO = organization.toDTO();
-        organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
-        organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(organizationDTO);
         return organizationDTO;
     }
 
@@ -60,8 +56,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         OrganizationDTO savedOrganizationDTO = this.organizationRepository.save(organization).toDTO();
-        savedOrganizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(savedOrganizationDTO.getId()).stream().map(Attribute::toDTO).toList());
-        savedOrganizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(savedOrganizationDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(savedOrganizationDTO);
         return savedOrganizationDTO;
     }
 
@@ -94,5 +89,10 @@ public class OrganizationServiceImpl implements OrganizationService {
         this.organizationRepository.deleteAttributes(organization.getId());
         this.organizationRepository.deleteMetadata(organization.getId());
         this.organizationRepository.delete(organization);
+    }
+
+    private void addRelatedData(OrganizationDTO organizationDTO) {
+        organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
+        organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }

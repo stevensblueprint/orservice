@@ -28,10 +28,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public List<AddressDTO> getAllAddresses() {
         List<AddressDTO> addressDTOs = this.addressRepository.findAll().stream().map(Address::toDTO).toList();
-        addressDTOs.forEach(addressDTO -> {
-            addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
-            addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
-        });
+        addressDTOs.forEach(this::addRelatedData);
         return addressDTOs;
     }
 
@@ -40,8 +37,7 @@ public class AddressServiceImpl implements AddressService {
         Address address = this.addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
         AddressDTO addressDTO = address.toDTO();
-        addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
-        addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(addressDTO);
         return addressDTO;
     }
 
@@ -58,8 +54,7 @@ public class AddressServiceImpl implements AddressService {
         }
 
         AddressDTO savedAddressDTO = this.addressRepository.save(address).toDTO();
-        savedAddressDTO.getAttributes().addAll(this.addressRepository.getAttributes(savedAddressDTO.getId()).stream().map(Attribute::toDTO).toList());
-        savedAddressDTO.getMetadata().addAll(this.addressRepository.getMetadata(savedAddressDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(savedAddressDTO);
         return savedAddressDTO;
     }
 
@@ -90,5 +85,10 @@ public class AddressServiceImpl implements AddressService {
         this.addressRepository.deleteAttributes(address.getId());
         this.addressRepository.deleteMetadata(address.getId());
         this.addressRepository.delete(address);
+    }
+
+    private void addRelatedData(AddressDTO addressDTO) {
+        addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
+        addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }

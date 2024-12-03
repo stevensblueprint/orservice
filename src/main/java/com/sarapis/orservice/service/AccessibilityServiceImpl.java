@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class AccessibilityServiceImpl implements AccessibilityService {
@@ -31,20 +30,18 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     @Override
     public List<AccessibilityDTO> getAllAccessibilities() {
         List<AccessibilityDTO> accessibilityDTOs = this.accessibilityRepository.findAll().stream().map(Accessibility::toDTO).toList();
-        accessibilityDTOs.forEach(accessibilityDTO -> {
-            accessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(accessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
-            accessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(accessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
-        });
+        accessibilityDTOs.forEach(this::addRelatedData);
         return accessibilityDTOs;
     }
+
+
 
     @Override
     public AccessibilityDTO getAccessibilityById(String id) {
         Accessibility accessibility = this.accessibilityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accessibility not found."));
         AccessibilityDTO accessibilityDTO = accessibility.toDTO();
-        accessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(accessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
-        accessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(accessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(accessibilityDTO);
         return accessibilityDTO;
     }
 
@@ -61,8 +58,7 @@ public class AccessibilityServiceImpl implements AccessibilityService {
         }
 
         AccessibilityDTO savedAccessibilityDTO = this.accessibilityRepository.save(accessibility).toDTO();
-        savedAccessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(savedAccessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
-        savedAccessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(savedAccessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
+        this.addRelatedData(savedAccessibilityDTO);
         return savedAccessibilityDTO;
     }
 
@@ -86,5 +82,10 @@ public class AccessibilityServiceImpl implements AccessibilityService {
         this.accessibilityRepository.deleteAttributes(accessibility.getId());
         this.accessibilityRepository.deleteMetadata(accessibility.getId());
         this.accessibilityRepository.delete(accessibility);
+    }
+
+    private void addRelatedData(AccessibilityDTO accessibilityDTO) {
+        accessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(accessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
+        accessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(accessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
     }
 }
