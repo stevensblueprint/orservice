@@ -31,7 +31,10 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     @Override
     public List<AccessibilityDTO> getAllAccessibilities() {
         List<AccessibilityDTO> accessibilityDTOs = this.accessibilityRepository.findAll().stream().map(Accessibility::toDTO).toList();
-        accessibilityDTOs.forEach(this::getRelatedData);
+        accessibilityDTOs.forEach(accessibilityDTO -> {
+            accessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(accessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
+            accessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(accessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
+        });
         return accessibilityDTOs;
     }
 
@@ -40,7 +43,8 @@ public class AccessibilityServiceImpl implements AccessibilityService {
         Accessibility accessibility = this.accessibilityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accessibility not found."));
         AccessibilityDTO accessibilityDTO = accessibility.toDTO();
-        getRelatedData(accessibilityDTO);
+        accessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(accessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
+        accessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(accessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
         return accessibilityDTO;
     }
 
@@ -57,7 +61,8 @@ public class AccessibilityServiceImpl implements AccessibilityService {
         }
 
         AccessibilityDTO savedAccessibilityDTO = this.accessibilityRepository.save(accessibility).toDTO();
-        getRelatedData(savedAccessibilityDTO);
+        savedAccessibilityDTO.getAttributes().addAll(this.accessibilityRepository.getAttributes(savedAccessibilityDTO.getId()).stream().map(Attribute::toDTO).toList());
+        savedAccessibilityDTO.getMetadata().addAll(this.accessibilityRepository.getMetadata(savedAccessibilityDTO.getId()).stream().map(Metadata::toDTO).toList());
         return savedAccessibilityDTO;
     }
 
@@ -78,26 +83,8 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     public void deleteAccessibility(String id) {
         Accessibility accessibility = this.accessibilityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accessibility not found."));
-
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<Attribute> relatedAttributes = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), accessibility.getId())).toList();
-        this.attributeRepository.deleteAll(relatedAttributes);
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<Metadata> relatedMetadatas = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), accessibility.getId())).toList();
-        this.metadataRepository.deleteAll(relatedMetadatas);
-
+        this.accessibilityRepository.deleteAttributes(accessibility.getId());
+        this.accessibilityRepository.deleteMetadata(accessibility.getId());
         this.accessibilityRepository.delete(accessibility);
-    }
-
-    private void getRelatedData(AccessibilityDTO accessibilityDTO) {
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<AttributeDTO> relatedAttributeDTOs = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), accessibilityDTO.getId())).map(Attribute::toDTO).toList();
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<MetadataDTO> relatedMetadataDTOs = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), accessibilityDTO.getId())).map(Metadata::toDTO).toList();
-
-        accessibilityDTO.getAttributes().addAll(relatedAttributeDTOs);
-        accessibilityDTO.getMetadata().addAll(relatedMetadataDTOs);
     }
 }

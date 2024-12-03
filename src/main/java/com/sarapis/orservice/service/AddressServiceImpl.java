@@ -12,7 +12,6 @@ import com.sarapis.orservice.repository.MetadataRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -29,7 +28,10 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public List<AddressDTO> getAllAddresses() {
         List<AddressDTO> addressDTOs = this.addressRepository.findAll().stream().map(Address::toDTO).toList();
-        addressDTOs.forEach(this::getRelatedData);
+        addressDTOs.forEach(addressDTO -> {
+            addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
+            addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
+        });
         return addressDTOs;
     }
 
@@ -38,7 +40,8 @@ public class AddressServiceImpl implements AddressService {
         Address address = this.addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
         AddressDTO addressDTO = address.toDTO();
-        getRelatedData(addressDTO);
+        addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
+        addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
         return addressDTO;
     }
 
@@ -55,7 +58,8 @@ public class AddressServiceImpl implements AddressService {
         }
 
         AddressDTO savedAddressDTO = this.addressRepository.save(address).toDTO();
-        getRelatedData(savedAddressDTO);
+        savedAddressDTO.getAttributes().addAll(this.addressRepository.getAttributes(savedAddressDTO.getId()).stream().map(Attribute::toDTO).toList());
+        savedAddressDTO.getMetadata().addAll(this.addressRepository.getMetadata(savedAddressDTO.getId()).stream().map(Metadata::toDTO).toList());
         return savedAddressDTO;
     }
 
@@ -83,25 +87,8 @@ public class AddressServiceImpl implements AddressService {
         Address address = this.addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
 
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<Attribute> relatedAttributes = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), address.getId())).toList();
-        this.attributeRepository.deleteAll(relatedAttributes);
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<Metadata> relatedMetadatas = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), address.getId())).toList();
-        this.metadataRepository.deleteAll(relatedMetadatas);
-
+        this.addressRepository.deleteAttributes(address.getId());
+        this.addressRepository.deleteMetadata(address.getId());
         this.addressRepository.delete(address);
-    }
-
-    private void getRelatedData(AddressDTO addressDTO) {
-        List<Attribute> attributes = this.attributeRepository.findAll();
-        List<AttributeDTO> relatedAttributeDTOs = attributes.stream().filter((e) -> Objects.equals(e.getLinkId(), addressDTO.getId())).map(Attribute::toDTO).toList();
-
-        List<Metadata> metadatas = this.metadataRepository.findAll();
-        List<MetadataDTO> relatedMetadataDTOs = metadatas.stream().filter((e) -> Objects.equals(e.getResourceId(), addressDTO.getId())).map(Metadata::toDTO).toList();
-
-        addressDTO.getAttributes().addAll(relatedAttributeDTOs);
-        addressDTO.getMetadata().addAll(relatedMetadataDTOs);
     }
 }
