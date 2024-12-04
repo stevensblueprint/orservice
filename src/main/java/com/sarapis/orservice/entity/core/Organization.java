@@ -3,7 +3,15 @@ package com.sarapis.orservice.entity.core;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 import lombok.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
@@ -115,5 +123,24 @@ public class Organization {
                 .attributes(new ArrayList<>())
                 .metadata(new ArrayList<>())
                 .build();
+    }
+
+    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
+        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
+            for (Organization organization : organizations) {
+                List<String> data = Arrays.asList(
+                    String.valueOf(organization.getId()),
+                    organization.getName(),
+                    organization.getDescription()
+                );
+                csvPrinter.printRecord(data);
+            }
+            csvPrinter.flush();
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+        }
     }
 }

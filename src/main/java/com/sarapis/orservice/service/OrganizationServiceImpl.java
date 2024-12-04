@@ -9,6 +9,7 @@ import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
+import java.io.ByteArrayInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +90,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         this.organizationRepository.deleteAttributes(organization.getId());
         this.organizationRepository.deleteMetadata(organization.getId());
         this.organizationRepository.delete(organization);
+    }
+
+    @Override
+    public ByteArrayInputStream loadCSV() {
+        List<Organization> organizations = organizationRepository.findAll();
+        return Organization.toCSV(organizations);
     }
 
     private void addRelatedData(OrganizationDTO organizationDTO) {
