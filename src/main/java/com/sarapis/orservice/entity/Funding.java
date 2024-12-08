@@ -1,38 +1,35 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.FundingDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "funding")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Funding {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Organization organization;
+    @Column(name = "source")
+    private String source;
 
-  @ManyToOne
-  private Service service;
-
-  private String source;
-
-
+    public FundingDTO toDTO() {
+        return FundingDTO.builder()
+                .id(this.id)
+                .source(this.source)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

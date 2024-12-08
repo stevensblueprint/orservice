@@ -1,17 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.RequiredDocumentDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "required_document")
@@ -19,14 +13,27 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RequiredDocument {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Service service;
-  private String document;
-  private String uri;
+    @Column(name = "document")
+    private String document;
+
+    @Column(name = "uri")
+    private String uri;
+
+    public RequiredDocumentDTO toDTO() {
+        return RequiredDocumentDTO.builder()
+                .id(this.id)
+                .document(this.document)
+                .uri(this.uri)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

@@ -1,38 +1,43 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Organization;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "organization_identifier")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrganizationIdentifier {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @OneToOne
-  private Organization organization;
+    @Column(name = "identifier_scheme")
+    private String identifierScheme;
 
-  @Column(name = "identifier_scheme")
-  private String identifierScheme;
+    @Column(name = "identifier_type", nullable = false)
+    private String identifierType;
 
-  @Column(name = "identifier_type")
-  private String identifierType;
+    @Column(name = "identifier", nullable = false)
+    private String identifier;
+
+    public OrganizationIdentifierDTO toDTO() {
+        return OrganizationIdentifierDTO.builder()
+                .id(this.id)
+                .identifierScheme(this.identifierScheme)
+                .identifierType(this.identifierType)
+                .identifier(this.identifier)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

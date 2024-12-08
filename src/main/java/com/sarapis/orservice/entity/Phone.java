@@ -1,19 +1,12 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.PhoneDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "phone")
@@ -21,26 +14,40 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Phone {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Location location;
+    @Column(name = "number", nullable = false)
+    private String number;
 
-  @ManyToOne
-  private Service service;
+    @Column(name = "extension")
+    private String extension;
 
-  @ManyToOne
-  private Contact contact;
+    @Column(name = "type")
+    private String type;
 
-  @ManyToOne
-  private ServiceAtLocation serviceAtLocation;
+    @Column(name = "description")
+    private String description;
 
-  private String number;
-  private String extension;
-  private String type;
-  private String description;
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "phone_id")
+    private List<Language> languages = new ArrayList<>();
+
+    public PhoneDTO toDTO() {
+        return PhoneDTO.builder()
+                .id(this.id)
+                .number(this.number)
+                .extension(this.extension)
+                .type(this.type)
+                .description(this.description)
+                .languages(this.languages.stream().map(Language::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

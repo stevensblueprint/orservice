@@ -1,37 +1,43 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Organization;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.ProgramDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
+
 @Entity
-@Table
+@Table(name = "program")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Program {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Organization organization;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  private String name;
+    @Column(name = "alternate_name")
+    private String alternateName;
 
-  @Column(name = "alternate_name")
-  private String alternateName;
+    @Column(name = "description", nullable = false)
+    private String description;
 
-  private String description;
+    public ProgramDTO toDTO() {
+        return ProgramDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

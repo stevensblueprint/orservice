@@ -1,18 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.TaxonomyTermDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "taxonomy_term")
@@ -20,27 +13,52 @@ import org.hibernate.annotations.UuidGenerator;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TaxonomyTerm {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  private String code;
-  private String name;
-  private String description;
+    @Column(name = "code")
+    private String code;
 
-  @OneToOne
-  private TaxonomyTerm parent;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @Column(name = "taxonomy")
-  private String taxonomyName;
+    @Column(name = "description", nullable = false)
+    private String description;
 
-  @ManyToOne
-  private Taxonomy taxonomy;
-  private String language;
+    @OneToOne
+    @JoinColumn(name = "parent_id")
+    private TaxonomyTerm parent = null;
 
-  @Column(name = "term_uri")
-  private String termUri;
+    @Column(name = "taxonomy")
+    private String taxonomy;
 
+    @ManyToOne
+    @JoinColumn(name = "taxonomy_id")
+    private Taxonomy taxonomyDetail = null;
+
+    @Column(name = "language")
+    private String language;
+
+    @Column(name = "term_uri")
+    private String termUri;
+
+    public TaxonomyTermDTO toDTO() {
+        return TaxonomyTermDTO.builder()
+                .id(this.id)
+                .code(this.code)
+                .name(this.name)
+                .description(this.description)
+                .parent(this.parent != null ? this.parent.toDTO() : null)
+                .taxonomy(this.taxonomy)
+                .taxonomyDetail(this.taxonomyDetail != null ? this.taxonomyDetail.toDTO() : null)
+                .language(this.language)
+                .termUri(this.termUri)
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

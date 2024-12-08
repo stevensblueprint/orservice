@@ -1,18 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Location;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import com.sarapis.orservice.dto.AccessibilityDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "accessibility")
@@ -20,16 +13,31 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Accessibility {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Location location;
+    @Column(name = "description")
+    private String description;
 
-  private String description;
-  private String details;
-  private String url;
+    @Column(name = "details")
+    private String details;
+
+    @Column(name = "url")
+    private String url;
+
+    public AccessibilityDTO toDTO() {
+        return AccessibilityDTO.builder()
+                .id(this.id)
+                .description(this.description)
+                .details(this.details)
+                .url(this.url)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

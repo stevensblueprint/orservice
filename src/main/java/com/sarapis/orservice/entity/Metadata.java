@@ -1,20 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.MetadataDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "metadata")
@@ -22,29 +13,50 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Metadata {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @Column(name = "resource_id", nullable = false, unique = true)
-  private String resourceId;
+    @Column(name = "resource_id", nullable = false)
+    private String resourceId;
 
-  @Enumerated(EnumType.STRING)
-  private ResourceType resourceType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "resource_type", nullable = false)
+    private ResourceType resourceType;
 
-  @Column(name = "last_action_date")
-  private LocalDate lastActionDate;
+    @Column(name = "last_action_date", nullable = false)
+    private LocalDate lastActionDate;
 
-  @Column(name = "last_action_type")
-  private String lastActionType;
+    @Column(name = "last_action_type", nullable = false)
+    private String lastActionType;
 
-  private String fieldName;
+    @Column(name = "field_name", nullable = false)
+    private String fieldName;
 
-  private String previousValue;
+    @Column(name = "previous_value", nullable = false)
+    private String previousValue;
 
-  private String replacementValue;
+    @Column(name = "replacement_value", nullable = false)
+    private String replacementValue;
 
-  private String updatedBy;
+    @Column(name = "updated_by", nullable = false)
+    private String updatedBy;
+
+    public MetadataDTO toDTO() {
+        return MetadataDTO.builder()
+                .id(this.id)
+                .resourceId(this.resourceId)
+                .resourceType(this.resourceType)
+                .lastActionDate(this.lastActionDate)
+                .lastActionType(this.lastActionType)
+                .fieldName(this.fieldName)
+                .previousValue(this.previousValue)
+                .replacementValue(this.replacementValue)
+                .updatedBy(this.updatedBy)
+                .build();
+    }
 }

@@ -1,60 +1,104 @@
 package com.sarapis.orservice.entity.core;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.LocationDTO;
+import com.sarapis.orservice.entity.*;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "location")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Location {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @Column(name = "location_type")
-  @Enumerated(EnumType.STRING)
-  private LocationType locationType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "location_type", nullable = false)
+    private LocationType locationType;
 
-  @Column(name = "url")
-  private String Url;
+    @Column(name = "url")
+    private String url;
 
-  @ManyToOne
-  private Organization organization;
+    @Column(name = "name")
+    private String name;
 
-  private String name;
+    @Column(name = "alternate_name")
+    private String alternateName;
 
-  @Column(name = "alternate_name")
-  private String alternateName;
+    @Column(name = "description")
+    private String description;
 
-  private String description;
+    @Column(name = "transportation")
+    private String transportation;
 
-  private String transportation;
+    @Column(name = "latitude")
+    private int latitude;
 
-  private int latitude;
+    @Column(name = "longitude")
+    private int longitude;
 
-  private int longitude;
+    @Column(name = "external_identifier")
+    private String externalIdentifier;
 
-  @Column(name = "external_identifier")
-  private String externalIdentifier;
+    @Column(name = "external_identifier_type")
+    private String externalIdentifierType;
 
-  @Column(name = "external_identifier_type")
-  private String externalIdentifierType;
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Language> languages = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Address> addresses = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Contact> contacts = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Accessibility> accessibility = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Phone> phones = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "location_id")
+    private List<Schedule> schedules = new ArrayList<>();
+
+    public LocationDTO toDTO() {
+        return LocationDTO.builder()
+                .id(this.id)
+                .locationType(this.locationType)
+                .url(this.url)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .transportation(this.transportation)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .externalIdentifier(this.externalIdentifier)
+                .externalIdentifierType(this.externalIdentifierType)
+                .languages(this.languages.stream().map(Language::toDTO).toList())
+                .addresses(this.addresses.stream().map(Address::toDTO).toList())
+                .contacts(this.contacts.stream().map(Contact::toDTO).toList())
+                .accessibility(this.accessibility.stream().map(Accessibility::toDTO).toList())
+                .phones(this.phones.stream().map(Phone::toDTO).toList())
+                .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

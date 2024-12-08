@@ -1,33 +1,46 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.TaxonomyDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "taxonomy")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Taxonomy {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  private String name;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  private String description;
+    @Column(name = "description", nullable = false)
+    private String description;
 
-  private String uri;
+    @Column(name = "uri")
+    private String uri;
 
-  private String version;
+    @Column(name = "version")
+    private String version;
+
+    public TaxonomyDTO toDTO() {
+        return TaxonomyDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .description(this.description)
+                .uri(this.uri)
+                .version(this.version)
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

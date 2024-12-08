@@ -1,95 +1,105 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.AttributeDTO;
+import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
+import com.sarapis.orservice.entity.Attribute;
+import com.sarapis.orservice.entity.Metadata;
 import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.repository.AttributeRepository;
+import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.ByteArrayInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
+    private final OrganizationRepository organizationRepository;
+    private final AttributeRepository attributeRepository;
+    private final MetadataRepository metadataRepository;
 
-  private final OrganizationRepository organizationRepository;
+    @Autowired
+    public OrganizationServiceImpl(OrganizationRepository organizationRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+        this.organizationRepository = organizationRepository;
+        this.attributeRepository = attributeRepository;
+        this.metadataRepository = metadataRepository;
+    }
 
-  private OrganizationDTO mapToDTO(Organization organization) {
-    return new OrganizationDTO(
-        organization.getId(),
-        organization.getName(),
-        organization.getAlternateName(),
-        organization.getDescription(),
-        organization.getEmail(),
-        organization.getWebsite(),
-        organization.getAdditionalWebsites(),
-        organization.getYearIncorporated(),
-        organization.getLegalStatus(),
-        organization.getLogo(),
-        organization.getUri(),
-        organization.getParentOrganization()
-    );
-  }
+    @Override
+    public List<OrganizationDTO> getAllOrganizations() {
+        List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll().stream().map(Organization::toDTO).toList();
+        organizationDTOs.forEach(this::addRelatedData);
+        return organizationDTOs;
+    }
 
-  private Organization mapToEntity(OrganizationDTO organizationDTO) {
-    return new Organization(
-        organizationDTO.getId(),
-        organizationDTO.getName(),
-        organizationDTO.getAlternateName(),
-        organizationDTO.getDescription(),
-        organizationDTO.getEmail(),
-        organizationDTO.getWebsite(),
-        organizationDTO.getAdditionalWebsites(),
-        organizationDTO.getYearIncorporated(),
-        organizationDTO.getLegalStatus(),
-        organizationDTO.getLogo(),
-        organizationDTO.getUri(),
-        organizationDTO.getParentOrganization()
-    );
-  }
+    @Override
+    public OrganizationDTO getOrganizationById(String id) {
+        Organization organization = this.organizationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organization not found."));
+        OrganizationDTO organizationDTO = organization.toDTO();
+        this.addRelatedData(organizationDTO);
+        return organizationDTO;
+    }
 
-  @Autowired
-  public OrganizationServiceImpl(OrganizationRepository organizationRepository) {
-    this.organizationRepository = organizationRepository;
-  }
+    @Override
+    public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) {
+        Organization organization = this.organizationRepository.save(organizationDTO.toEntity());
 
-  @Override
-  public List<OrganizationDTO> getAllOrganizations() {
-    return organizationRepository.findAll().stream()
-        .map(this::mapToDTO)
-        .collect(Collectors.toList());
-  }
+        for (AttributeDTO attributeDTO : organizationDTO.getAttributes()) {
+            this.attributeRepository.save(attributeDTO.toEntity(organization.getId()));
+        }
 
-  @Override
-  public OrganizationDTO getOrganizationById(String id) {
-    Organization organization =  organizationRepository.findById(Long.parseLong(id))
-        .orElseThrow(() -> new RuntimeException("Organization not found"));
-    return mapToDTO(organization);
-  }
+        for (MetadataDTO metadataDTO : organizationDTO.getMetadata()) {
+            this.metadataRepository.save(metadataDTO.toEntity(organization.getId()));
+        }
 
-  @Override
-  public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) {
-    Organization organization = mapToEntity(organizationDTO);
-    Organization savedOrganization = organizationRepository.save(organization);
-    return mapToDTO(savedOrganization);
-  }
+        OrganizationDTO savedOrganizationDTO = this.organizationRepository.save(organization).toDTO();
+        this.addRelatedData(savedOrganizationDTO);
+        return savedOrganizationDTO;
+    }
 
-  @Override
-  public OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO) {
-    Organization existingOrganization = organizationRepository.findById(Long.parseLong(id))
-        .orElseThrow(() -> new RuntimeException("Could not find organization"));
-    existingOrganization.setName(organizationDTO.getName());
-    existingOrganization.setAlternateName(organizationDTO.getAlternateName());
-    existingOrganization.setDescription(organizationDTO.getDescription());
-    existingOrganization.setEmail(organizationDTO.getEmail());
-    existingOrganization.setWebsite(organizationDTO.getWebsite());
-    Organization updatedOrganization = organizationRepository.save(existingOrganization);
-    return mapToDTO(updatedOrganization);
-  }
+    @Override
+    public OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO) {
+        Organization organization = this.organizationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organization not found."));
 
-  @Override
-  public void deleteOrganization(String id) {
-    Organization organization = organizationRepository.findById(Long.parseLong(id))
-        .orElseThrow(() -> new RuntimeException("Could not find organization"));
-    organizationRepository.delete(organization);
-  }
+        organization.setName(organizationDTO.getName());
+        organization.setAlternateName(organizationDTO.getAlternateName());
+        organization.setDescription(organizationDTO.getDescription());
+        organization.setEmail(organizationDTO.getEmail());
+        organization.setWebsite(organizationDTO.getWebsite());
+        organization.setTaxStatus(organizationDTO.getTaxStatus());
+        organization.setTaxId(organizationDTO.getTaxId());
+        organization.setYearIncorporated(organizationDTO.getYearIncorporated());
+        organization.setLegalStatus(organizationDTO.getLegalStatus());
+        organization.setLogo(organizationDTO.getLogo());
+        organization.setUri(organizationDTO.getUri());
+        organization.setParentOrganization(organizationDTO.getParentOrganization().toEntity());
+
+        Organization updatedOrganization = this.organizationRepository.save(organization);
+        return updatedOrganization.toDTO();
+    }
+
+    @Override
+    public void deleteOrganization(String id) {
+        Organization organization = this.organizationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organization not found."));
+        this.organizationRepository.deleteAttributes(organization.getId());
+        this.organizationRepository.deleteMetadata(organization.getId());
+        this.organizationRepository.delete(organization);
+    }
+
+    @Override
+    public ByteArrayInputStream loadCSV() {
+        List<Organization> organizations = organizationRepository.findAll();
+        return Organization.toCSV(organizations);
+    }
+
+    private void addRelatedData(OrganizationDTO organizationDTO) {
+        organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
+        organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
+    }
 }

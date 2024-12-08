@@ -1,16 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.MetaTableDescriptionDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "meta_table_description")
@@ -18,14 +13,31 @@ import org.hibernate.annotations.UuidGenerator;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MetaTableDescription {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  private String name;
-  private String language;
-  @Column(name = "character_set")
-  private String characterSet;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "language")
+    private String language;
+
+    @Column(name = "character_set")
+    private String characterSet;
+
+    public MetaTableDescriptionDTO toDTO() {
+        return MetaTableDescriptionDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .language(this.language)
+                .characterSet(this.characterSet)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }

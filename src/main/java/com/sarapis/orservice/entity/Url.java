@@ -1,18 +1,11 @@
 package com.sarapis.orservice.entity;
 
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.sarapis.orservice.dto.UrlDTO;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "url")
@@ -20,18 +13,27 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Url {
-  @Id
-  @GeneratedValue
-  @UuidGenerator
-  private String id;
-  private String label;
-  private String url;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", nullable = false)
+    private String id;
 
-  @ManyToOne
-  private Organization organization;
+    @Column(name = "label")
+    private String label;
 
-  @ManyToOne
-  private Service service;
+    @Column(name = "url", nullable = false)
+    private String url;
 
+    public UrlDTO toDTO() {
+        return UrlDTO.builder()
+                .id(this.id)
+                .label(this.label)
+                .url(this.url)
+                .attributes(new ArrayList<>())
+                .metadata(new ArrayList<>())
+                .build();
+    }
 }
