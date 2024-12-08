@@ -37,3 +37,6 @@ mvnw
 mvnw.cmd
 
 postgres-data
+
+### env ###
+.env
