@@ -17,6 +17,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
+          cache: 'maven'
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4
         with:
@@ -35,5 +36,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
+          cache: 'maven'
       - name: Generate and submit dependecy graph
         uses: advanced-security/maven-dependency-submission-action@v4
