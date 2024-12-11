@@ -31,17 +31,20 @@ public class ServiceAtLocationController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ServiceAtLocationDTO> getServiceAtLocationById(@PathVariable String id) {
-    return null;
+    ServiceAtLocationDTO servLocDTO = this.serviceAtLocationService.getServiceAtLocationById(id);
+    return ResponseEntity.ok(servLocDTO);
   }
 
   @PostMapping
   public ResponseEntity<ServiceAtLocationDTO> createServiceAtLocation(@RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    return null;
+    ServiceAtLocationDTO createdServLocDTO = this.serviceAtLocationService.createServiceAtLocation(serviceAtLocationDTO);
+    return ResponseEntity.ok(createdServLocDTO);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ServiceAtLocationDTO> updateServiceAtLocation(@PathVariable String id, @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    return null;
+    ServiceAtLocationDTO updatedServLocDTO = this.serviceAtLocationService.updateServiceAtLocation(id, serviceAtLocationDTO);
+    return ResponseEntity.ok(updatedServLocDTO);
   }
 
   @DeleteMapping("/{id}")
