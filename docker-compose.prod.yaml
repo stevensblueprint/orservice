@@ -1,0 +1,97 @@
+services:
+  orservice_db:
+    container_name: orservice_db
+    env_file: ".env"
+    restart: unless-stopped
+    image: postgres:latest
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      orservice:
+        - ipv4_address: 10.10.2.2
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test:
+        ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+  orservice_backend:
+    container_name: orservice_backend
+    env_file: ".env"
+    restart: unless-stopped
+    image: ghcr.io/stevensblueprint/orservice
+    ports:
+      - "8080:8080"
+    networks:
+      orservice:
+        - ipv4_address: 10.10.2.3
+    environment:
+      - ORSERVICE_DB_HOST=orservice_db
+      - ORSERVICE_DB_USER=${POSTGRES_USER}
+      - ORSERVICE_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - ORSERVICE_DB_NAME=${POSTGRES_DB}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: "curl --fail --silent --max-time 5 localhost:8080/actuator/health | grep UP || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    labels:
+      - "com.centurylinklabs.watchtower.scope=orservice"
+    depends_on:
+      - orservice_db
+  orservice_ui:
+    container_name: orservice_ui
+    restart: unless-stopped
+    image: ghcr.io/stevensblueprint/orservice_admin
+    ports:
+      - "80:3000"
+    networks:
+      orservice:
+        - ipv4_address: 10.10.2.4
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.centurylinklabs.watchtower.scope=orservice"
+    healthcheck:
+      test: "curl --fail --silent -- max-time 5 localhost:3000 || exit 1"
+    depends_on:
+      - orservice_backend
+  wt:
+    image: containrrr/watchtower
+    labels:
+      - "com.centurylinklabs.watchtower.scope=orservice"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --scope orservice
+
+volumes:
+  postgres-data:
+
+networks:
+  orservice:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.2.0/24
+          gateway: 10.10.2.1
