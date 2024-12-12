@@ -7,7 +7,7 @@ services:
     expose:
       - "5432"
     networks:
-      orservice:
+      orservice_network:
         ipv4_address: 10.10.2.2
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -37,7 +37,7 @@ services:
     expose:
       - "8080"
     networks:
-      orservice:
+      orservice_network:
         ipv4_address: 10.10.2.3
     environment:
       - ORSERVICE_DB_HOST=orservice_db
@@ -65,7 +65,7 @@ services:
     ports:
       - "80:5173"
     networks:
-      orservice:
+      orservice_network:
         ipv4_address: 10.10.2.4
     logging:
       options:
@@ -89,8 +89,9 @@ volumes:
   postgres-data:
 
 networks:
-  orservice:
+  orservice_network:
     driver: bridge
+    name: orservice_network
     ipam:
       config:
         - subnet: 10.10.2.0/24
