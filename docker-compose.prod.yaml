@@ -38,7 +38,7 @@ services:
       - "8080"
     networks:
       orservice:
-        - ipv4_address: 10.10.2.3
+        - ipv4_address: 10.10.2.x
     environment:
       - ORSERVICE_DB_HOST=orservice_db
       - ORSERVICE_DB_USER=${POSTGRES_USER}
@@ -66,7 +66,7 @@ services:
       - "80:5173"
     networks:
       orservice:
-        - ipv4_address: 10.10.2.4
+        - ipv4_address: 10.10.2.x
     logging:
       options:
         max-size: "10m"
@@ -74,7 +74,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=orservice"
     healthcheck:
-      test: "curl --fail --silent -- max-time 5 localhost:3000 || exit 1"
+      test: "curl --fail --silent --max-time 5 localhost:5173 || exit 1"
     depends_on:
       - orservice_backend
   wt:
