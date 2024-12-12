@@ -75,6 +75,9 @@ services:
       - "com.centurylinklabs.watchtower.scope=orservice"
     healthcheck:
       test: "curl --fail --silent --max-time 5 localhost:5173 || exit 1"
+    environment:
+      - REACT_APP_USER_POOL_ID = ${USER_POOL_ID}
+      - REACT_APP_CLIENT_ID = ${CLIENT_ID}
     depends_on:
       - orservice_backend
   wt:
