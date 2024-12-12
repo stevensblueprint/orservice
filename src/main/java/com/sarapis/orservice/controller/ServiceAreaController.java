@@ -16,19 +16,19 @@ public class ServiceAreaController {
     private final ServiceAreaService serviceAreaService;
 
     @Autowired
-    public ServiceAreaController(ServiceAreaService serviceAreaService) { //stack overflow the dependency injection paste error and then @autowire
+    public ServiceAreaController(ServiceAreaService serviceAreaService) {
         this.serviceAreaService = serviceAreaService;
     }
 
     @GetMapping
     public ResponseEntity<List<ServiceAreaDTO>> getAllServiceAreas() {
-        List<ServiceAreaDTO> serviceAreaDTOs = this.serviceAreaService.getAllServiceAreas();
+        List<ServiceAreaDTO> serviceAreaDTOs = serviceAreaService.getAllServiceAreas();
         return ResponseEntity.ok(serviceAreaDTOs);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceAreaDTO> getServiceAreaById(@PathVariable String id) {
-        ServiceAreaDTO serviceArea = this.serviceAreaService.getServiceAreaById(id);
+        ServiceAreaDTO serviceArea = serviceAreaService.getServiceAreaById(id);
         return ResponseEntity.ok(serviceArea);
     }
 
@@ -37,19 +37,19 @@ public class ServiceAreaController {
         if (serviceAreaDTO.getId() == null) {
             serviceAreaDTO.setId(UUID.randomUUID().toString());
         }
-        ServiceAreaDTO createdServiceArea = this.serviceAreaService.createServiceArea(serviceAreaDTO);
+        ServiceAreaDTO createdServiceArea = serviceAreaService.createServiceArea(serviceAreaDTO);
         return ResponseEntity.ok(createdServiceArea);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ServiceAreaDTO> updateServiceArea(@PathVariable String id, @RequestBody ServiceAreaDTO serviceAreaDTO) {
-        ServiceAreaDTO updatedAccessibility = this.serviceAreaService.updateServiceArea(id, serviceAreaDTO);
+        ServiceAreaDTO updatedAccessibility = serviceAreaService.updateServiceArea(id, serviceAreaDTO);
         return ResponseEntity.ok(updatedAccessibility);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteServiceArea(@PathVariable String id) {
-        this.serviceAreaService.deleteServiceArea(id);
+        serviceAreaService.deleteServiceArea(id);
         return ResponseEntity.noContent().build();
     }
 
