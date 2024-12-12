@@ -63,7 +63,7 @@ services:
     restart: unless-stopped
     image: ghcr.io/stevensblueprint/orservice_admin
     ports:
-      - "80:5173"
+      - "80:8080"
     networks:
       orservice_network:
         ipv4_address: 10.10.2.4
