@@ -13,6 +13,9 @@ import java.util.List;
 
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, String> {
+    @Query(value = "SELECT * FROM organization WHERE to_tsvector(name || ' ' || description) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
+    List<Organization> getAllOrganizations(String search);
+
     @Query("SELECT new Attribute(id, linkId, linkType, linkEntity, value, taxonomyTerm, label) FROM Attribute WHERE linkId = ?1")
     List<Attribute> getAttributes(String organizationId);
 

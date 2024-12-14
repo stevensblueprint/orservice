@@ -1,12 +1,11 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
-import com.sarapis.orservice.entity.core.Organization;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public interface OrganizationService {
-  List<OrganizationDTO> getAllOrganizations();
+  List<OrganizationDTO> getAllOrganizations(String search);
 
   OrganizationDTO getOrganizationById(String id);
 
@@ -17,5 +16,4 @@ public interface OrganizationService {
   void deleteOrganization(String id);
 
   ByteArrayInputStream loadCSV();
-
 }

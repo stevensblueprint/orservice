@@ -2,7 +2,7 @@ package com.sarapis.orservice.repository;
 
 import com.sarapis.orservice.entity.Attribute;
 import com.sarapis.orservice.entity.Metadata;
-import com.sarapis.orservice.entity.core.Service;
+import com.sarapis.orservice.entity.core.Location;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Service, String> {
-    @Query(value = "SELECT * FROM service WHERE to_tsvector(name || ' ' || description) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
-    List<Service> getAllServices(String search);
+public interface LocationRepository extends JpaRepository<Location, String> {
+    @Query(value = "SELECT * FROM location WHERE to_tsvector(name || ' ' || description) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
+    List<Location> getAllLocations(String search);
 
     @Query("SELECT new Attribute(id, linkId, linkType, linkEntity, value, taxonomyTerm, label) FROM Attribute WHERE linkId = ?1")
     List<Attribute> getAttributes(String organizationId);

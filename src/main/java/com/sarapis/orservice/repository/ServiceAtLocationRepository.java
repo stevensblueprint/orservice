@@ -13,19 +13,22 @@ import java.util.List;
 
 @Repository
 public interface ServiceAtLocationRepository extends JpaRepository<ServiceAtLocation, String> {
+    @Query(value = "SELECT * FROM service_at_location WHERE to_tsvector(description) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
+    List<ServiceAtLocation> getAllServiceAtLocations(String search);
+
     @Query("SELECT new Attribute(id, linkId, linkType, linkEntity, value, taxonomyTerm, label) FROM Attribute WHERE linkId = ?1")
-    List<Attribute> getAttributes(String id);
+    List<Attribute> getAttributes(String organizationId);
 
     @Query("SELECT new Metadata(id, resourceId, resourceType, lastActionDate, lastActionType, fieldName, previousValue, replacementValue, updatedBy) FROM Metadata WHERE resourceId = ?1")
-    List<Metadata> getMetadata(String id);
+    List<Metadata> getMetadata(String organizationId);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM Attribute WHERE linkId = ?1")
-    void deleteAttributes(String id);
+    void deleteAttributes(String organizationId);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM Metadata WHERE resourceId = ?1")
-    void deleteMetadata(String id);
+    void deleteMetadata(String organizationId);
 }

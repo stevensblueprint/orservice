@@ -1,31 +1,34 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.entity.Attribute;
+import com.sarapis.orservice.entity.Metadata;
+import com.sarapis.orservice.repository.AttributeRepository;
+import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ServiceServiceImpl implements ServiceService {
   private final ServiceRepository serviceRepository;
+  private final AttributeRepository attributeRepository;
+  private final MetadataRepository metadataRepository;
 
   @Autowired
-  public ServiceServiceImpl(ServiceRepository serviceRepository) {
+  public ServiceServiceImpl(ServiceRepository serviceRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
     this.serviceRepository = serviceRepository;
-  }
-
-  private ServiceDTO mapToDTO(ServiceDTO serviceDTO) {
-    return null;
-  }
-
-  private com.sarapis.orservice.entity.core.Service mapToEntity(ServiceDTO serviceDTO) {
-    return null;
+    this.attributeRepository = attributeRepository;
+    this.metadataRepository = metadataRepository;
   }
 
   @Override
-  public List<ServiceDTO> getAllServices() {
-    return List.of();
+  public List<ServiceDTO> getAllServices(String search) {
+    List<ServiceDTO> serviceDTOs = this.serviceRepository.getAllServices(search).stream().map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
+    serviceDTOs.forEach(this::addRelatedData);
+    return serviceDTOs;
   }
 
   @Override
@@ -46,5 +49,10 @@ public class ServiceServiceImpl implements ServiceService {
   @Override
   public void deleteService(String id) {
 
+  }
+
+  private void addRelatedData(ServiceDTO serviceDTO) {
+    serviceDTO.getAttributes().addAll(this.serviceRepository.getAttributes(serviceDTO.getId()).stream().map(Attribute::toDTO).toList());
+    serviceDTO.getMetadata().addAll(this.serviceRepository.getMetadata(serviceDTO.getId()).stream().map(Metadata::toDTO).toList());
   }
 }

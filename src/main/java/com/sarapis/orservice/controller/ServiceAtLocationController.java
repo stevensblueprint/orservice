@@ -5,14 +5,7 @@ import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.service.ServiceAtLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,8 +20,8 @@ public class ServiceAtLocationController {
   }
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations() {
-    List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocation();
+  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(required = false) String search) {
+    List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocations(search);
     PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
             servLocDTOs.size(),
             1,
@@ -66,5 +59,4 @@ public class ServiceAtLocationController {
     serviceAtLocationService.deleteServiceAtLocation(id);
     return ResponseEntity.noContent().build();
   }
-
 }

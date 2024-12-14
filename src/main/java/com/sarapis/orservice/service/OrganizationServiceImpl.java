@@ -29,8 +29,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public List<OrganizationDTO> getAllOrganizations() {
-        List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll().stream().map(Organization::toDTO).toList();
+    public List<OrganizationDTO> getAllOrganizations(String search) {
+        List<OrganizationDTO> organizationDTOs = this.organizationRepository.getAllOrganizations(search).stream().map(Organization::toDTO).toList();
         organizationDTOs.forEach(this::addRelatedData);
         return organizationDTOs;
     }
