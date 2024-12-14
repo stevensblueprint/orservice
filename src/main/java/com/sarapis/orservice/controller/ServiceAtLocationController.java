@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/service_at_locations")
 public class ServiceAtLocationController {
@@ -26,22 +28,37 @@ public class ServiceAtLocationController {
 
   @GetMapping
   public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations() {
-    return null;
+    List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocation();
+    PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
+            servLocDTOs.size(),
+            1,
+            1,
+            servLocDTOs.size(),
+            true,
+            false,
+            false,
+            servLocDTOs
+    );
+
+    return ResponseEntity.ok(paginationDTO);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<ServiceAtLocationDTO> getServiceAtLocationById(@PathVariable String id) {
-    return null;
+    ServiceAtLocationDTO servLocDTO = this.serviceAtLocationService.getServiceAtLocationById(id);
+    return ResponseEntity.ok(servLocDTO);
   }
 
   @PostMapping
   public ResponseEntity<ServiceAtLocationDTO> createServiceAtLocation(@RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    return null;
+    ServiceAtLocationDTO createdServLocDTO = this.serviceAtLocationService.createServiceAtLocation(serviceAtLocationDTO);
+    return ResponseEntity.ok(createdServLocDTO);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ServiceAtLocationDTO> updateServiceAtLocation(@PathVariable String id, @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    return null;
+    ServiceAtLocationDTO updatedServLocDTO = this.serviceAtLocationService.updateServiceAtLocation(id, serviceAtLocationDTO);
+    return ResponseEntity.ok(updatedServLocDTO);
   }
 
   @DeleteMapping("/{id}")
