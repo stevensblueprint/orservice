@@ -48,7 +48,7 @@ public class ProgramController {
     return ResponseEntity.ok(updatedProgramDTO);
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteProgram(@PathVariable String id) {
     this.programService.deleteProgram(id);
     return ResponseEntity.noContent().build();
