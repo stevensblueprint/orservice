@@ -6,8 +6,10 @@ import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.entity.Attribute;
 import com.sarapis.orservice.entity.Metadata;
 import com.sarapis.orservice.entity.Program;
+import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ProgramRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
+  private final OrganizationRepository organizationRepository;
   private final AttributeRepository attributeRepository;
   private final MetadataRepository metadataRepository;
 
-  public ProgramServiceImpl(ProgramRepository programRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+  public ProgramServiceImpl(ProgramRepository programRepository, OrganizationRepository organizationRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
     this.programRepository = programRepository;
+    this.organizationRepository = organizationRepository;
     this.attributeRepository = attributeRepository;
     this.metadataRepository = metadataRepository;
   }
@@ -43,7 +47,13 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ProgramDTO createProgram(ProgramDTO programDTO) {
-    Program program = this.programRepository.save(programDTO.toEntity());
+    Organization organization = this.organizationRepository.findById(programDTO.getOrganizationId()).orElseThrow(
+            () -> new RuntimeException("Organization not found.")
+    );
+
+    Program program = programDTO.toEntity();
+    organization.getPrograms().add(program);
+
     for (AttributeDTO attributeDTO : programDTO.getAttributes()) {
       this.attributeRepository.save(attributeDTO.toEntity(program.getId()));
     }
@@ -52,7 +62,8 @@ public class ProgramServiceImpl implements ProgramService {
       this.metadataRepository.save(metadataDTO.toEntity(program.getId()));
     }
 
-    ProgramDTO savedProgramDTO = this.programRepository.save(program).toDTO();
+    this.organizationRepository.save(organization);
+    ProgramDTO savedProgramDTO = this.getProgramDTOById(program.getId());
     this.addRelatedData(savedProgramDTO);
     return savedProgramDTO;
   }

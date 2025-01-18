@@ -16,6 +16,7 @@ public class ProgramDTO {
     private String name;
     private String alternateName;
     private String description;
+    private String organizationId;
     private List<AttributeDTO> attributes = new ArrayList<>();
     private List<MetadataDTO> metadata = new ArrayList<>();
 

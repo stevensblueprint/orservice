@@ -16,8 +16,6 @@ import java.util.ArrayList;
 @Builder
 public class Program {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
 

@@ -3,6 +3,8 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.service.ProgramService;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,6 +40,9 @@ public class ProgramController {
 
   @PostMapping
   public ResponseEntity<ProgramDTO> createProgram(@RequestBody ProgramDTO programDTO) {
+    if (programDTO.getId() == null) {
+      programDTO.setId(UUID.randomUUID().toString());
+    }
     ProgramDTO createdProgramDTO = this.programService.createProgram(programDTO);
     return ResponseEntity.ok(createdProgramDTO);
   }
