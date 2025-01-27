@@ -1,6 +1,5 @@
 package com.sarapis.orservice.config;
 
-import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,22 +11,29 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private static final List<String> ALLOWED_ORIGINS_DEV = List.of("http://localhost:5173/");
-    private static final List<String> ALLOWED_ORIGINS_PROD = List
-            .of("http://ec2-34-229-138-80.compute-1.amazonaws.com/");
+    private static final List<String> ALLOWED_ORIGINS_PROD = List.of("http://ec2-34-229-138-80.compute-1.amazonaws.com/");
 
     @Bean
     @Profile("prod")
     public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/actuator/**")
+                        .permitAll()
+                        .requestMatchers("/")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
                         .configurationSource(corsConfigurationSource(ALLOWED_ORIGINS_PROD)))
-                .csrf(AbstractHttpConfigurer::disable).build();
+                .csrf(AbstractHttpConfigurer::disable)
+                .build();
     }
 
     @Bean
@@ -36,7 +42,10 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
                         .configurationSource(corsConfigurationSource(ALLOWED_ORIGINS_DEV)))
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll()).build();
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/**")
+                        .permitAll())
+                .build();
     }
 
     @Bean
