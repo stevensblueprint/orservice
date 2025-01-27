@@ -58,11 +58,11 @@ public class AttributeServiceImpl implements AttributeService {
                 .orElseThrow(() -> new RuntimeException("Attribute not found."));
 
         attribute.setLinkId(attributeDTO.getLinkId());
-        attribute.setTaxonomyTerm(attributeDTO.getTaxonomyTerm().toEntity(null));
         attribute.setLinkType(attributeDTO.getLinkType());
         attribute.setLinkEntity(attributeDTO.getLinkEntity());
         attribute.setValue(attributeDTO.getValue());
         attribute.setLabel(attributeDTO.getLabel());
+        attribute.setTaxonomyTerm(attributeDTO.getTaxonomyTerm().toEntity(null));
 
         Attribute updatedAttribute = this.attributeRepository.save(attribute);
         return this.getAttributeById(updatedAttribute.getId());

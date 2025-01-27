@@ -1,6 +1,10 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.entity.Program;
+import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.repository.OrganizationRepository;
+import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 
 import java.util.List;
@@ -11,14 +15,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceServiceImpl implements ServiceService {
     private final ServiceRepository serviceRepository;
+    private final OrganizationRepository organizationRepository;
+    private final ProgramRepository programRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     @Autowired
     public ServiceServiceImpl(ServiceRepository serviceRepository,
+                              OrganizationRepository organizationRepository,
+                              ProgramRepository programRepository,
                               AttributeService attributeService,
                               MetadataService metadataService) {
         this.serviceRepository = serviceRepository;
+        this.organizationRepository = organizationRepository;
+        this.programRepository = programRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -42,7 +52,19 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public ServiceDTO createService(ServiceDTO serviceDTO) {
-        com.sarapis.orservice.entity.core.Service service = serviceDTO.toEntity(null, null);
+        Organization organization = null;
+        Program program = null;
+
+        if (serviceDTO.getOrganizationId() != null) {
+            organization = this.organizationRepository.findById(serviceDTO.getOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+        }
+        if (serviceDTO.getProgramId() != null) {
+            program = this.programRepository.findById(serviceDTO.getProgramId())
+                    .orElseThrow(() -> new RuntimeException("Program not found."));
+        }
+
+        com.sarapis.orservice.entity.core.Service service = serviceDTO.toEntity(organization, program);
         serviceDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(service.getId(), attributeDTO));
         serviceDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(service.getId(), e));

@@ -2,7 +2,12 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.entity.Language;
+import com.sarapis.orservice.entity.Phone;
+import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.repository.LanguageRepository;
+import com.sarapis.orservice.repository.LocationRepository;
+import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +15,22 @@ import java.util.List;
 @Service
 public class LanguageServiceImpl implements LanguageService {
     private final LanguageRepository languageRepository;
+    private final ServiceRepository serviceRepository;
+    private final LocationRepository locationRepository;
+    private final PhoneRepository phoneRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     public LanguageServiceImpl(LanguageRepository languageRepository,
+                               ServiceRepository serviceRepository,
+                               LocationRepository locationRepository,
+                               PhoneRepository phoneRepository,
                                AttributeService attributeService,
                                MetadataService metadataService) {
         this.languageRepository = languageRepository;
+        this.serviceRepository = serviceRepository;
+        this.locationRepository = locationRepository;
+        this.phoneRepository = phoneRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -39,7 +53,24 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public LanguageDTO createLanguage(LanguageDTO languageDTO) {
-        Language language = this.languageRepository.save(languageDTO.toEntity(null, null, null));
+        com.sarapis.orservice.entity.core.Service service = null;
+        Location location = null;
+        Phone phone = null;
+
+        if (languageDTO.getServiceId() != null) {
+            service = this.serviceRepository.findById(languageDTO.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Service not found."));
+        }
+        if (languageDTO.getLocationId() != null) {
+            location = this.locationRepository.findById(languageDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+        }
+        if (languageDTO.getPhoneId() != null) {
+            phone = this.phoneRepository.findById(languageDTO.getPhoneId())
+                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+        }
+
+        Language language = this.languageRepository.save(languageDTO.toEntity(service, location, phone));
         languageDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(language.getId(), attributeDTO));
         languageDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(language.getId(), e));

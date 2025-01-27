@@ -2,7 +2,10 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceAreaDTO;
 import com.sarapis.orservice.entity.ServiceArea;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import com.sarapis.orservice.repository.ServiceAreaRepository;
+import com.sarapis.orservice.repository.ServiceAtLocationRepository;
+import com.sarapis.orservice.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +14,20 @@ import java.util.List;
 @Service
 public class ServiceAreaServiceImpl implements ServiceAreaService {
     private final ServiceAreaRepository serviceAreaRepository;
+    private final ServiceRepository serviceRepository;
+    private final ServiceAtLocationRepository serviceAtLocationRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     @Autowired
     public ServiceAreaServiceImpl(ServiceAreaRepository serviceAreaRepository,
+                                  ServiceRepository serviceRepository,
+                                  ServiceAtLocationRepository serviceAtLocationRepository,
                                   AttributeService attributeService,
                                   MetadataService metadataService) {
         this.serviceAreaRepository = serviceAreaRepository;
+        this.serviceRepository = serviceRepository;
+        this.serviceAtLocationRepository = serviceAtLocationRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -42,7 +51,19 @@ public class ServiceAreaServiceImpl implements ServiceAreaService {
 
     @Override
     public ServiceAreaDTO createServiceArea(ServiceAreaDTO serviceAreaDTO) {
-        ServiceArea serviceArea = this.serviceAreaRepository.save(serviceAreaDTO.toEntity(null, null));
+        com.sarapis.orservice.entity.core.Service service = null;
+        ServiceAtLocation serviceAtLocation = null;
+
+        if (serviceAreaDTO.getServiceId() != null) {
+            service = this.serviceRepository.findById(serviceAreaDTO.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Service not found."));
+        }
+        if (serviceAreaDTO.getServiceAtLocationId() != null) {
+            serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAreaDTO.getServiceAtLocationId())
+                    .orElseThrow(() -> new RuntimeException("Service atlocation not found."));
+        }
+
+        ServiceArea serviceArea = this.serviceAreaRepository.save(serviceAreaDTO.toEntity(service, serviceAtLocation));
         serviceAreaDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(serviceArea.getId(), attributeDTO));
         serviceAreaDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(serviceArea.getId(), e));

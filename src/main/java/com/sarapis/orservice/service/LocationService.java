@@ -7,7 +7,7 @@ import java.util.List;
 public interface LocationService {
     List<LocationDTO> getAllLocations();
 
-    LocationDTO getLocation(String locationId);
+    LocationDTO getLocationById(String locationId);
 
     LocationDTO createLocation(LocationDTO locationDTO);
 

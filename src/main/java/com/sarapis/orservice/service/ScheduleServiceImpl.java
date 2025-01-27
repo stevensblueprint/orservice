@@ -2,7 +2,12 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.entity.Schedule;
+import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
+import com.sarapis.orservice.repository.ServiceAtLocationRepository;
+import com.sarapis.orservice.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +15,22 @@ import java.util.List;
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleRepository scheduleRepository;
+    private final ServiceRepository serviceRepository;
+    private final LocationRepository locationRepository;
+    private final ServiceAtLocationRepository serviceAtLocationRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     public ScheduleServiceImpl(ScheduleRepository scheduleRepository,
+                               ServiceRepository serviceRepository,
+                               LocationRepository locationRepository,
+                               ServiceAtLocationRepository serviceAtLocationRepository,
                                AttributeService attributeService,
                                MetadataService metadataService) {
         this.scheduleRepository = scheduleRepository;
+        this.serviceRepository = serviceRepository;
+        this.locationRepository = locationRepository;
+        this.serviceAtLocationRepository = serviceAtLocationRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -39,7 +53,24 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity(null, null, null));
+        com.sarapis.orservice.entity.core.Service service = null;
+        Location location = null;
+        ServiceAtLocation serviceAtLocation = null;
+
+        if (scheduleDTO.getServiceId() != null) {
+            service = this.serviceRepository.findById(scheduleDTO.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Service not found."));
+        }
+        if (scheduleDTO.getLocationId() != null) {
+            location = this.locationRepository.findById(scheduleDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+        }
+        if (scheduleDTO.getServiceAtLocationId() != null) {
+            serviceAtLocation = this.serviceAtLocationRepository.findById(scheduleDTO.getServiceAtLocationId())
+                    .orElseThrow(() -> new RuntimeException("Service at location not found."));
+        }
+
+        Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity(service, location, serviceAtLocation));
         scheduleDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(schedule.getId(), attributeDTO));
         scheduleDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(schedule.getId(), e));

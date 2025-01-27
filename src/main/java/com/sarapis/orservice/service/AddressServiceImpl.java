@@ -2,7 +2,9 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.AddressDTO;
 import com.sarapis.orservice.entity.Address;
+import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.repository.AddressRepository;
+import com.sarapis.orservice.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +12,16 @@ import java.util.List;
 @Service
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
+    private final LocationRepository locationRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     public AddressServiceImpl(AddressRepository addressRepository,
+                              LocationRepository locationRepository,
                               AttributeService attributeService,
                               MetadataService metadataService) {
         this.addressRepository = addressRepository;
+        this.locationRepository = locationRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -40,7 +45,14 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO) {
-        Address address = this.addressRepository.save(addressDTO.toEntity(null));
+        Location location = null;
+
+        if (addressDTO.getLocationId() != null) {
+            location = this.locationRepository.findById(addressDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+        }
+
+        Address address = this.addressRepository.save(addressDTO.toEntity(location));
         addressDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(address.getId(), attributeDTO));
         addressDTO.getMetadata()

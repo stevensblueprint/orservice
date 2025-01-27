@@ -2,7 +2,9 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.entity.Accessibility;
+import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.repository.AccessibilityRepository;
+import com.sarapis.orservice.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +13,17 @@ import java.util.List;
 @Service
 public class AccessibilityServiceImpl implements AccessibilityService {
     private final AccessibilityRepository accessibilityRepository;
+    private final LocationRepository locationRepository;
     private final AttributeService attributeService;
     private final MetadataService metadataService;
 
     @Autowired
     public AccessibilityServiceImpl(AccessibilityRepository accessibilityRepository,
+                                    LocationRepository locationRepository,
                                     AttributeService attributeService,
                                     MetadataService metadataService) {
         this.accessibilityRepository = accessibilityRepository;
+        this.locationRepository = locationRepository;
         this.attributeService = attributeService;
         this.metadataService = metadataService;
     }
@@ -42,7 +47,14 @@ public class AccessibilityServiceImpl implements AccessibilityService {
 
     @Override
     public AccessibilityDTO createAccessibility(AccessibilityDTO accessibilityDTO) {
-        Accessibility accessibility = this.accessibilityRepository.save(accessibilityDTO.toEntity(null));
+        Location location = null;
+
+        if (accessibilityDTO.getLocationId() != null) {
+            location = this.locationRepository.findById(accessibilityDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+        }
+
+        Accessibility accessibility = this.accessibilityRepository.save(accessibilityDTO.toEntity(location));
         accessibilityDTO.getAttributes()
                 .forEach(attributeDTO -> this.attributeService.createAttribute(accessibility.getId(), attributeDTO));
         accessibilityDTO.getMetadata()

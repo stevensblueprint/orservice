@@ -39,7 +39,14 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
     @Override
     public TaxonomyTermDTO createTaxonomyTerm(TaxonomyTermDTO taxonomyTermDTO) {
-        TaxonomyTerm taxonomyTerm = taxonomyTermDTO.toEntity(null);
+        TaxonomyTerm parent = null;
+
+        if (taxonomyTermDTO.getParentId() != null) {
+            parent = this.taxonomyTermRepository.findById(taxonomyTermDTO.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Taxonomy term not found."));
+        }
+
+        TaxonomyTerm taxonomyTerm = taxonomyTermDTO.toEntity(parent);
         taxonomyTermDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(taxonomyTerm.getId(), e));
 
         TaxonomyTerm createdTaxonomyTerm = this.taxonomyTermRepository.save(taxonomyTerm);
