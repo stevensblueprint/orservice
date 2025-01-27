@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,19 +14,22 @@ import java.util.List;
 @Builder
 public class OrganizationDTO {
     private String id;
+
+    private String parentOrganizationId;
+
     private String name;
     private String alternateName;
     private String description;
     private String email;
     private String website;
-    private List<UrlDTO> additionalWebsites = new ArrayList<>();
     private String taxStatus;
     private String taxId;
     private int yearIncorporated;
     private String legalStatus;
     private String logo;
     private String uri;
-    private OrganizationDTO parentOrganization = null;
+
+    private List<UrlDTO> additionalWebsites = new ArrayList<>();
     private List<FundingDTO> funding = new ArrayList<>();
     private List<ContactDTO> contacts = new ArrayList<>();
     private List<PhoneDTO> phones = new ArrayList<>();
@@ -35,28 +39,29 @@ public class OrganizationDTO {
     private List<AttributeDTO> attributes = new ArrayList<>();
     private List<MetadataDTO> metadata = new ArrayList<>();
 
-    public Organization toEntity() {
-        return Organization.builder()
-                .id(this.id)
+    public Organization toEntity(Organization parentOrganization) {
+        Organization organization = Organization.builder()
+                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
+                .parentOrganization(parentOrganization)
                 .name(this.name)
                 .alternateName(this.alternateName)
                 .description(this.description)
                 .email(this.email)
                 .website(this.website)
-                .additionalWebsites(this.additionalWebsites.stream().map(UrlDTO::toEntity).toList())
                 .taxStatus(this.taxStatus)
                 .taxId(this.taxId)
                 .yearIncorporated(this.yearIncorporated)
                 .legalStatus(this.legalStatus)
                 .logo(this.logo)
                 .uri(this.uri)
-                .parentOrganization(this.parentOrganization != null ? this.parentOrganization.toEntity() : null)
-                .funding(this.funding.stream().map(FundingDTO::toEntity).toList())
-                .contacts(this.contacts.stream().map(ContactDTO::toEntity).toList())
-                .phones(this.phones.stream().map(PhoneDTO::toEntity).toList())
-                .locations(this.locations.stream().map(LocationDTO::toEntity).toList())
-                .programs(this.programs.stream().map(ProgramDTO::toEntity).toList())
-                .organizationIdentifiers(this.organizationIdentifiers.stream().map(OrganizationIdentifierDTO::toEntity).toList())
                 .build();
+        organization.setAdditionalWebsites(this.additionalWebsites.stream().map(e -> e.toEntity(organization, null)).toList());
+        organization.setFunding(this.funding.stream().map(e -> e.toEntity(organization, null)).toList());
+        organization.setContacts(this.contacts.stream().map(e -> e.toEntity(organization, null, null, null)).toList());
+        organization.setPhones(this.phones.stream().map(e -> e.toEntity(null, null, organization, null, null)).toList());
+        organization.setLocations(this.locations.stream().map(e -> e.toEntity(organization)).toList());
+        organization.setPrograms(this.programs.stream().map(e -> e.toEntity(organization)).toList());
+        organization.setOrganizationIdentifiers(this.organizationIdentifiers.stream().map(e -> e.toEntity(organization)).toList());
+        return organization;
     }
 }

@@ -20,14 +20,14 @@ public class AddressController {
 
     @GetMapping
     public ResponseEntity<List<AddressDTO>> getAllAddresses() {
-        List<AddressDTO> addressDTOs = this.addressService.getAllAddresses();
-        return ResponseEntity.ok(addressDTOs);
+        List<AddressDTO> addresses = this.addressService.getAllAddresses();
+        return ResponseEntity.ok(addresses);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AddressDTO> getAddressById(@PathVariable String id) {
-        AddressDTO queried = this.addressService.getAddressById(id);
-        return ResponseEntity.ok(queried);
+    @GetMapping("/{addressId}")
+    public ResponseEntity<AddressDTO> getAddressById(@PathVariable String addressId) {
+        AddressDTO address = this.addressService.getAddressById(addressId);
+        return ResponseEntity.ok(address);
     }
 
     @PostMapping
@@ -36,15 +36,16 @@ public class AddressController {
         return ResponseEntity.ok(createdAddress);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AddressDTO> updateAddress(@PathVariable String id, @RequestBody AddressDTO addressDTO) {
-        AddressDTO updateAddress = this.addressService.updateAddress(id, addressDTO);
-        return ResponseEntity.ok(updateAddress);
+    @PutMapping("/{addressId}")
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable String addressId,
+                                                    @RequestBody AddressDTO addressDTO) {
+        AddressDTO updatedAddress = this.addressService.updateAddress(addressId, addressDTO);
+        return ResponseEntity.ok(updatedAddress);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable String id) {
-        this.addressService.deleteAddress(id);
+    @DeleteMapping("/{addressId}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable String addressId) {
+        this.addressService.deleteAddress(addressId);
         return ResponseEntity.noContent().build();
     }
 }

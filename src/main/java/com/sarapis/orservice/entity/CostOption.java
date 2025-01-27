@@ -1,9 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.CostOptionDTO;
+import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,10 +18,12 @@ import java.util.ArrayList;
 @Builder
 public class CostOption {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
 
     @Column(name = "valid_from")
     private LocalDate validFrom;
@@ -43,6 +46,7 @@ public class CostOption {
     public CostOptionDTO toDTO() {
         return CostOptionDTO.builder()
                 .id(this.id)
+                .serviceId(this.service.getId())
                 .validFrom(this.validFrom)
                 .validTo(this.validTo)
                 .option(this.option)

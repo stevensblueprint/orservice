@@ -1,9 +1,11 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.MetaTableDescriptionDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,8 +18,6 @@ import java.util.ArrayList;
 @Builder
 public class MetaTableDescription {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
 

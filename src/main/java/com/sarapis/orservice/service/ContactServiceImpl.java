@@ -1,14 +1,8 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.AttributeDTO;
 import com.sarapis.orservice.dto.ContactDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.entity.Attribute;
 import com.sarapis.orservice.entity.Contact;
-import com.sarapis.orservice.entity.Metadata;
-import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.ContactRepository;
-import com.sarapis.orservice.repository.MetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +11,16 @@ import java.util.List;
 @Service
 public class ContactServiceImpl implements ContactService {
     private final ContactRepository contactRepository;
-    private final AttributeRepository attributeRepository;
-    private final MetadataRepository metadataRepository;
+    private final AttributeService attributeService;
+    private final MetadataService metadataService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+    public ContactServiceImpl(ContactRepository contactRepository,
+                              AttributeService attributeService,
+                              MetadataService metadataService) {
         this.contactRepository = contactRepository;
-        this.attributeRepository = attributeRepository;
-        this.metadataRepository = metadataRepository;
+        this.attributeService = attributeService;
+        this.metadataService = metadataService;
     }
 
     @Override
@@ -35,8 +31,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactDTO getContactById(String id) {
-        Contact contact = this.contactRepository.findById(id)
+    public ContactDTO getContactById(String contactId) {
+        Contact contact = this.contactRepository.findById(contactId)
                 .orElseThrow(() -> new RuntimeException("Contact not found."));
         ContactDTO contactDTO = contact.toDTO();
         this.addRelatedData(contactDTO);
@@ -45,46 +41,40 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDTO createContact(ContactDTO contactDTO) {
-        Contact contact = this.contactRepository.save(contactDTO.toEntity());
+        Contact contact = this.contactRepository.save(contactDTO.toEntity(null, null, null, null));
+        contactDTO.getAttributes()
+                .forEach(attributeDTO -> this.attributeService.createAttribute(contact.getId(), attributeDTO));
+        contactDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(contact.getId(), e));
 
-        for (AttributeDTO attributeDTO : contactDTO.getAttributes()) {
-            this.attributeRepository.save(attributeDTO.toEntity(contact.getId()));
-        }
-
-        for (MetadataDTO metadataDTO : contactDTO.getMetadata()) {
-            this.metadataRepository.save(metadataDTO.toEntity(contact.getId()));
-        }
-
-        ContactDTO savedContactDTO = this.contactRepository.save(contact).toDTO();
-        this.addRelatedData(savedContactDTO);
-        return savedContactDTO;
+        Contact createdContact = this.contactRepository.save(contact);
+        return this.getContactById(createdContact.getId());
     }
 
     @Override
-    public ContactDTO updateContact(String id, ContactDTO contactDTO) {
-        Contact oldContact = this.contactRepository.findById(id)
+    public ContactDTO updateContact(String contactId, ContactDTO contactDTO) {
+        Contact contact = this.contactRepository.findById(contactId)
                 .orElseThrow(() -> new RuntimeException("Contact not found."));
 
-        oldContact.setName(contactDTO.getName());
-        oldContact.setTitle(contactDTO.getTitle());
-        oldContact.setDepartment(contactDTO.getDepartment());
-        oldContact.setEmail(contactDTO.getEmail());
+        contact.setName(contactDTO.getName());
+        contact.setTitle(contactDTO.getTitle());
+        contact.setDepartment(contactDTO.getDepartment());
+        contact.setEmail(contactDTO.getEmail());
 
-        Contact updatedContactDTO = this.contactRepository.save(oldContact);
-        return updatedContactDTO.toDTO();
+        Contact updatedContact = this.contactRepository.save(contact);
+        return this.getContactById(updatedContact.getId());
     }
 
     @Override
-    public void deleteContact(String id) {
-        Contact contact = this.contactRepository.findById(id)
+    public void deleteContact(String contactId) {
+        Contact contact = this.contactRepository.findById(contactId)
                 .orElseThrow(() -> new RuntimeException("Contact not found."));
-        this.contactRepository.deleteAttributes(contact.getId());
-        this.contactRepository.deleteMetadata(contact.getId());
+        this.attributeService.deleteRelatedAttributes(contact.getId());
+        this.metadataService.deleteRelatedMetadata(contact.getId());
         this.contactRepository.delete(contact);
     }
 
     private void addRelatedData(ContactDTO contactDTO) {
-        contactDTO.getAttributes().addAll(this.contactRepository.getAttributes(contactDTO.getId()).stream().map(Attribute::toDTO).toList());
-        contactDTO.getMetadata().addAll(this.contactRepository.getMetadata(contactDTO.getId()).stream().map(Metadata::toDTO).toList());
+        contactDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(contactDTO.getId()));
+        contactDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(contactDTO.getId()));
     }
 }

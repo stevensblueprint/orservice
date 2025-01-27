@@ -1,13 +1,7 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.AttributeDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.ScheduleDTO;
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.Metadata;
 import com.sarapis.orservice.entity.Schedule;
-import com.sarapis.orservice.repository.AttributeRepository;
-import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,30 +10,28 @@ import java.util.List;
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleRepository scheduleRepository;
-    private final AttributeRepository attributeRepository;
-    private final MetadataRepository metadataRepository;
+    private final AttributeService attributeService;
+    private final MetadataService metadataService;
 
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository,
+                               AttributeService attributeService,
+                               MetadataService metadataService) {
         this.scheduleRepository = scheduleRepository;
-        this.attributeRepository = attributeRepository;
-        this.metadataRepository = metadataRepository;
+        this.attributeService = attributeService;
+        this.metadataService = metadataService;
     }
 
     @Override
     public List<ScheduleDTO> getAllSchedules() {
-        List<ScheduleDTO> scheduleDTOs = this.scheduleRepository.findAll()
-                .stream()
-                .map(Schedule::toDTO)
-                .toList();
+        List<ScheduleDTO> scheduleDTOs = this.scheduleRepository.findAll().stream().map(Schedule::toDTO).toList();
         scheduleDTOs.forEach(this::addRelatedData);
         return scheduleDTOs;
     }
 
     @Override
-    public ScheduleDTO getScheduleById(String id) {
-        Schedule schedule = this.scheduleRepository.findById(id)
+    public ScheduleDTO getScheduleById(String scheduleId) {
+        Schedule schedule = this.scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found."));
-
         ScheduleDTO scheduleDTO = schedule.toDTO();
         this.addRelatedData(scheduleDTO);
         return scheduleDTO;
@@ -47,24 +39,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity());
+        Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity(null, null, null));
+        scheduleDTO.getAttributes()
+                .forEach(attributeDTO -> this.attributeService.createAttribute(schedule.getId(), attributeDTO));
+        scheduleDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(schedule.getId(), e));
 
-        for (AttributeDTO attributeDTO : scheduleDTO.getAttributes()) {
-            this.attributeRepository.save(attributeDTO.toEntity(schedule.getId()));
-        }
-
-        for (MetadataDTO metadataDTO : scheduleDTO.getMetadata()) {
-            this.metadataRepository.save(metadataDTO.toEntity(schedule.getId()));
-        }
-
-        ScheduleDTO savedScheduleDTO = this.scheduleRepository.save(schedule).toDTO();
-        this.addRelatedData(savedScheduleDTO);
-        return savedScheduleDTO;
+        Schedule createdSchedule = this.scheduleRepository.save(schedule);
+        return this.getScheduleById(createdSchedule.getId());
     }
 
     @Override
-    public ScheduleDTO updateSchedule(String id, ScheduleDTO scheduleDTO) {
-        Schedule schedule = this.scheduleRepository.findById(id)
+    public ScheduleDTO updateSchedule(String scheduleId, ScheduleDTO scheduleDTO) {
+        Schedule schedule = this.scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found."));
 
         schedule.setValidFrom(scheduleDTO.getValidFrom());
@@ -88,30 +74,20 @@ public class ScheduleServiceImpl implements ScheduleService {
         schedule.setNotes(schedule.getNotes());
 
         Schedule updatedSchedule = this.scheduleRepository.save(schedule);
-        return  updatedSchedule.toDTO();
+        return this.getScheduleById(updatedSchedule.getId());
     }
 
     @Override
-    public void deleteSchedule(String id) {
-        Schedule schedule = this.scheduleRepository.findById(id)
+    public void deleteSchedule(String scheduleId) {
+        Schedule schedule = this.scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found."));
-
-        this.scheduleRepository.deleteAttributes(schedule.getId());
-        this.scheduleRepository.deleteMetadata(schedule.getId());
+        this.attributeService.deleteRelatedAttributes(schedule.getId());
+        this.metadataService.deleteRelatedMetadata(schedule.getId());
         this.scheduleRepository.delete(schedule);
     }
 
     private void addRelatedData(ScheduleDTO scheduleDTO) {
-        List<AttributeDTO> attributeDTOs = this.scheduleRepository.getAttributes(scheduleDTO.getId())
-                .stream()
-                .map(Attribute::toDTO)
-                .toList();
-
-        List<MetadataDTO> metadataDTOs = this.scheduleRepository.getMetadata(scheduleDTO.getId())
-                .stream()
-                .map(Metadata::toDTO)
-                .toList();
-        scheduleDTO.getAttributes().addAll(attributeDTOs);
-        scheduleDTO.getMetadata().addAll(metadataDTOs);
+        scheduleDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(scheduleDTO.getId()));
+        scheduleDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(scheduleDTO.getId()));
     }
 }

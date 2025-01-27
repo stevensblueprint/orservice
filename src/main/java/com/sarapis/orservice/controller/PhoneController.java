@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/phones")
@@ -21,34 +20,31 @@ public class PhoneController {
 
     @GetMapping
     public ResponseEntity<List<PhoneDTO>> getAllPhones() {
-        List<PhoneDTO> phoneDTOs = this.phoneService.getAllPhones();
-        return ResponseEntity.ok(phoneDTOs);
+        List<PhoneDTO> phones = this.phoneService.getAllPhones();
+        return ResponseEntity.ok(phones);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PhoneDTO> getPhoneById(@PathVariable String id) {
-        PhoneDTO phoneDTO = this.phoneService.getPhoneById(id);
-        return ResponseEntity.ok(phoneDTO);
+    @GetMapping("/{phoneId}")
+    public ResponseEntity<PhoneDTO> getPhoneById(@PathVariable String phoneId) {
+        PhoneDTO phone = this.phoneService.getPhoneById(phoneId);
+        return ResponseEntity.ok(phone);
     }
 
     @PostMapping
     public ResponseEntity<PhoneDTO> createPhone(@RequestBody PhoneDTO phoneDTO) {
-        if (phoneDTO.getId() == null) {
-            phoneDTO.setId(UUID.randomUUID().toString());
-        }
         PhoneDTO createdPhone = this.phoneService.createPhone(phoneDTO);
         return ResponseEntity.ok(createdPhone);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PhoneDTO> updatePhone(@PathVariable String id, @RequestBody PhoneDTO phoneDTO) {
-        PhoneDTO updatedAccessibility = this.phoneService.updatePhone(id, phoneDTO);
-        return ResponseEntity.ok(updatedAccessibility);
+    @PutMapping("/{phoneId}")
+    public ResponseEntity<PhoneDTO> updatePhone(@PathVariable String phoneId, @RequestBody PhoneDTO phoneDTO) {
+        PhoneDTO updatedPhone = this.phoneService.updatePhone(phoneId, phoneDTO);
+        return ResponseEntity.ok(updatedPhone);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePhone(@PathVariable String id) {
-        this.phoneService.deletePhone(id);
+    @DeleteMapping("/{phoneId}")
+    public ResponseEntity<Void> deletePhone(@PathVariable String phoneId) {
+        this.phoneService.deletePhone(phoneId);
         return ResponseEntity.noContent().build();
     }
 }

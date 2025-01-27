@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.core.io.InputStreamResource;
 
 public interface ExportService {
-  InputStreamResource createCsvZip() throws IOException;
+    InputStreamResource createCsvZip() throws IOException;
 
-  InputStreamResource createPdfZip() throws IOException;
+    InputStreamResource createPdfZip() throws IOException;
 }

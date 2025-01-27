@@ -4,7 +4,6 @@ import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +17,12 @@ import java.util.List;
 @Builder
 public class Location {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "location_type", nullable = false)
@@ -54,33 +55,54 @@ public class Location {
     @Column(name = "external_identifier_type")
     private String externalIdentifierType;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "location")
+    private ServiceAtLocation serviceAtLocation;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Language> languages = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Address> addresses = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Accessibility> accessibility = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "location_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
     private List<Schedule> schedules = new ArrayList<>();
+
+    @PreRemove
+    public void preRemove() {
+        // Sets optional foreign keys to null since we're not using CascadeType.ALL
+        for (Language language : languages) {
+            language.setLocation(null);
+        }
+        for (Address address : addresses) {
+            address.setLocation(null);
+        }
+        for (Contact contact : contacts) {
+            contact.setLocation(null);
+        }
+        for (Accessibility accessibility : accessibility) {
+            accessibility.setLocation(null);
+        }
+        for (Phone phone : phones) {
+            phone.setLocation(null);
+        }
+        for (Schedule schedule : schedules) {
+            schedule.setLocation(null);
+        }
+    }
 
     public LocationDTO toDTO() {
         return LocationDTO.builder()
                 .id(this.id)
+                .organizationId(this.organization == null ? null : this.organization.getId())
                 .locationType(this.locationType)
                 .url(this.url)
                 .name(this.name)

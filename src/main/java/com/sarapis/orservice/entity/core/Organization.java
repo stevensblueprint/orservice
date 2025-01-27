@@ -3,18 +3,17 @@ package com.sarapis.orservice.entity.core;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
 import lombok.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
-import org.hibernate.annotations.UuidGenerator;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -26,10 +25,12 @@ import java.util.List;
 @Builder
 public class Organization {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_organization_id")
+    private Organization parentOrganization = null;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -45,10 +46,6 @@ public class Organization {
 
     @Column(name = "website")
     private String website;
-
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "organization_id")
-    private List<Url> additionalWebsites = new ArrayList<>();
 
     // Deprecated
     @Column(name = "tax_status")
@@ -70,50 +67,85 @@ public class Organization {
     @Column(name = "uri")
     private String uri;
 
-    @OneToOne
-    @JoinColumn(name = "parent_organization_id")
-    private Organization parentOrganization = null;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "parentOrganization")
+    private List<Organization> childOrganizations = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "organization_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Url> additionalWebsites = new ArrayList<>();
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
     private List<Funding> funding = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "organization_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
     private List<Contact> contacts = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "organization_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
     private List<Phone> phones = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "organization_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
     private List<Location> locations = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
     private List<Program> programs = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
     private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();
+
+    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
+        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format)) {
+            for (Organization organization : organizations) {
+                List<String> data = Arrays.asList(String.valueOf(organization.getId()), organization.getName(),
+                        organization.getDescription());
+                csvPrinter.printRecord(data);
+            }
+            csvPrinter.flush();
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+        }
+    }
+
+    @PreRemove
+    public void preRemove() {
+        // Sets optional foreign keys to null since we're not using CascadeType.ALL
+        for (Organization organization : childOrganizations) {
+            organization.setParentOrganization(null);
+        }
+        for (Url url : additionalWebsites) {
+            url.setOrganization(null);
+        }
+        for (Funding funding : funding) {
+            funding.setOrganization(null);
+        }
+        for (Contact contact : contacts) {
+            contact.setOrganization(null);
+        }
+        for (Phone phone : phones) {
+            phone.setOrganization(null);
+        }
+        for (Location location : locations) {
+            location.setOrganization(null);
+        }
+    }
 
     public OrganizationDTO toDTO() {
         return OrganizationDTO.builder()
                 .id(this.id)
+                .parentOrganizationId(this.parentOrganization == null ? null : this.parentOrganization.getId())
                 .name(this.name)
                 .alternateName(this.alternateName)
                 .description(this.description)
                 .email(this.email)
                 .website(this.website)
-                .additionalWebsites(this.additionalWebsites.stream().map(Url::toDTO).toList())
                 .taxStatus(this.taxStatus)
                 .taxId(this.taxId)
                 .yearIncorporated(this.yearIncorporated)
                 .legalStatus(this.legalStatus)
                 .logo(this.logo)
                 .uri(this.uri)
-                .parentOrganization(this.parentOrganization != null ? this.parentOrganization.toDTO() : null)
+                .additionalWebsites(this.additionalWebsites.stream().map(Url::toDTO).toList())
                 .funding(this.funding.stream().map(Funding::toDTO).toList())
                 .contacts(this.contacts.stream().map(Contact::toDTO).toList())
                 .phones(this.phones.stream().map(Phone::toDTO).toList())
@@ -123,24 +155,5 @@ public class Organization {
                 .attributes(new ArrayList<>())
                 .metadata(new ArrayList<>())
                 .build();
-    }
-
-    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
-        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-            CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
-            for (Organization organization : organizations) {
-                List<String> data = Arrays.asList(
-                    String.valueOf(organization.getId()),
-                    organization.getName(),
-                    organization.getDescription()
-                );
-                csvPrinter.printRecord(data);
-            }
-            csvPrinter.flush();
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
-        }
     }
 }

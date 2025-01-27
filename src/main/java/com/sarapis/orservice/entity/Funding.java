@@ -1,9 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.FundingDTO;
+import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +17,16 @@ import java.util.ArrayList;
 @Builder
 public class Funding {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
 
     @Column(name = "source")
     private String source;
@@ -27,6 +34,8 @@ public class Funding {
     public FundingDTO toDTO() {
         return FundingDTO.builder()
                 .id(this.id)
+                .organizationId(this.organization == null ? null : this.organization.getId())
+                .serviceId(this.service == null ? null : this.service.getId())
                 .source(this.source)
                 .attributes(new ArrayList<>())
                 .metadata(new ArrayList<>())

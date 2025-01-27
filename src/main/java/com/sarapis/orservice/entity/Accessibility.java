@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.entity.core.Location;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 @Builder
 public class Accessibility {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @Column(name = "description")
     private String description;
@@ -33,6 +35,7 @@ public class Accessibility {
     public AccessibilityDTO toDTO() {
         return AccessibilityDTO.builder()
                 .id(this.id)
+                .locationId(this.location == null ? null : this.location.getId())
                 .description(this.description)
                 .details(this.details)
                 .url(this.url)

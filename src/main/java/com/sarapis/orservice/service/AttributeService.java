@@ -7,11 +7,15 @@ import java.util.List;
 public interface AttributeService {
     List<AttributeDTO> getAllAttributes();
 
-    AttributeDTO getAttributeById(String id);
+    List<AttributeDTO> getRelatedAttributes(String linkId);
 
-    AttributeDTO createAttribute(AttributeDTO attributeDTO);
+    AttributeDTO getAttributeById(String attributeId);
 
-    AttributeDTO updateAttribute(String id, AttributeDTO attributeDTO);
+    AttributeDTO createAttribute(String linkId, AttributeDTO attributeDTO);
 
-    void deleteAttribute(String id);
+    AttributeDTO updateAttribute(String attributeId, AttributeDTO attributeDTO);
+
+    void deleteAttribute(String attributeId);
+
+    void deleteRelatedAttributes(String linkId);
 }

@@ -4,13 +4,13 @@ import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import java.util.List;
 
 public interface TaxonomyTermService {
-  List<TaxonomyTermDTO> getAllTaxonomyTerms();
+    List<TaxonomyTermDTO> getAllTaxonomyTerms();
 
-  TaxonomyTermDTO getTaxonomyTermById(String id);
+    TaxonomyTermDTO getTaxonomyTermById(String taxonomyTermId);
 
-  TaxonomyTermDTO createTaxonomyTerm(TaxonomyTermDTO taxonomyTermDTO);
+    TaxonomyTermDTO createTaxonomyTerm(TaxonomyTermDTO taxonomyTermDTO);
 
-  TaxonomyTermDTO updateTaxonomyTerm(String id, TaxonomyTermDTO taxonomyTermDTO);
+    TaxonomyTermDTO updateTaxonomyTerm(String taxonomyTermId, TaxonomyTermDTO taxonomyTermDTO);
 
-  void deleteTaxonomyTerm(String id);
+    void deleteTaxonomyTerm(String taxonomyTermId);
 }

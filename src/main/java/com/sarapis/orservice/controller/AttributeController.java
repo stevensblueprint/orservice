@@ -20,31 +20,32 @@ public class AttributeController {
 
     @GetMapping
     public ResponseEntity<List<AttributeDTO>> getAllAttributes() {
-        List<AttributeDTO> attributeDTOs = this.attributeService.getAllAttributes();
-        return ResponseEntity.ok(attributeDTOs);
+        List<AttributeDTO> attributes = this.attributeService.getAllAttributes();
+        return ResponseEntity.ok(attributes);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AttributeDTO> getAttributeById(@PathVariable String id) {
-        AttributeDTO queried = this.attributeService.getAttributeById(id);
-        return ResponseEntity.ok(queried);
+    @GetMapping("/{attributeId}")
+    public ResponseEntity<AttributeDTO> getAttributeById(@PathVariable String attributeId) {
+        AttributeDTO attribute = this.attributeService.getAttributeById(attributeId);
+        return ResponseEntity.ok(attribute);
     }
 
     @PostMapping
     public ResponseEntity<AttributeDTO> createAttribute(@RequestBody AttributeDTO attributeDTO) {
-        AttributeDTO createdAttribute = this.attributeService.createAttribute(attributeDTO);
+        AttributeDTO createdAttribute = this.attributeService.createAttribute(attributeDTO.getLinkId(), attributeDTO);
         return ResponseEntity.ok(createdAttribute);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AttributeDTO> updateAttribute(@PathVariable String id, @RequestBody AttributeDTO attributeDTO) {
-        AttributeDTO updatedAttribute = this.attributeService.updateAttribute(id, attributeDTO);
+    @PutMapping("/{attributeId}")
+    public ResponseEntity<AttributeDTO> updateAttribute(@PathVariable String attributeId,
+                                                        @RequestBody AttributeDTO attributeDTO) {
+        AttributeDTO updatedAttribute = this.attributeService.updateAttribute(attributeId, attributeDTO);
         return ResponseEntity.ok(updatedAttribute);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttribute(@PathVariable String id) {
-        this.attributeService.deleteAttribute(id);
+    @DeleteMapping("/{attributeId}")
+    public ResponseEntity<Void> deleteAttribute(@PathVariable String attributeId) {
+        this.attributeService.deleteAttribute(attributeId);
         return ResponseEntity.noContent().build();
     }
 }
