@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
+import com.sarapis.orservice.entity.core.Organization;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 @Builder
 public class OrganizationIdentifier {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
     @Column(name = "identifier_scheme")
     private String identifierScheme;
@@ -33,6 +35,7 @@ public class OrganizationIdentifier {
     public OrganizationIdentifierDTO toDTO() {
         return OrganizationIdentifierDTO.builder()
                 .id(this.id)
+                .organizationId(this.organization.getId())
                 .identifierScheme(this.identifierScheme)
                 .identifierType(this.identifierType)
                 .identifier(this.identifier)

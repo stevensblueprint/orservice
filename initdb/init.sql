@@ -22,7 +22,7 @@ CREATE TYPE public.address_address_type_enum AS ENUM (
     'physical',
     'postal',
     'virtual'
-);
+    );
 
 
 ALTER TYPE public.address_address_type_enum OWNER TO postgres;
@@ -35,7 +35,7 @@ CREATE TYPE public.location_location_type_enum AS ENUM (
     'physical',
     'postal',
     'virtual'
-);
+    );
 
 
 ALTER TYPE public.location_location_type_enum OWNER TO postgres;
@@ -47,7 +47,7 @@ ALTER TYPE public.location_location_type_enum OWNER TO postgres;
 CREATE TYPE public.schedule_freq_enum AS ENUM (
     'WEEKLY',
     'MONTHLY'
-);
+    );
 
 
 ALTER TYPE public.schedule_freq_enum OWNER TO postgres;
@@ -64,7 +64,7 @@ CREATE TYPE public.schedule_wkst_enum AS ENUM (
     'FR',
     'SA',
     'SU'
-);
+    );
 
 
 ALTER TYPE public.schedule_wkst_enum OWNER TO postgres;
@@ -78,7 +78,7 @@ CREATE TYPE public.service_status_enum AS ENUM (
     'inactive',
     'defunct',
     'temporarily closed'
-);
+    );
 
 
 ALTER TYPE public.service_status_enum OWNER TO postgres;
@@ -91,16 +91,18 @@ SET default_table_access_method = heap;
 -- Name: accessibility; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.accessibility (
-    id character varying(250) NOT NULL,
+CREATE TABLE public.accessibility
+(
+    id          character varying(250) NOT NULL,
     location_id character varying(250),
     description text,
-    details text,
-    url text
+    details     text,
+    url         text
 );
 
 
-ALTER TABLE public.accessibility OWNER TO postgres;
+ALTER TABLE public.accessibility
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN accessibility.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -141,22 +143,24 @@ COMMENT ON COLUMN public.accessibility.url IS 'The URL of a page giving more inf
 -- Name: address; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.address (
-    id character varying(250) NOT NULL,
-    location_id character varying(250),
-    attention text,
-    address_1 text NOT NULL,
-    address_2 text,
-    city text NOT NULL,
-    region text,
-    state_province text NOT NULL,
-    postal_code text NOT NULL,
-    country text NOT NULL,
-    address_type public.address_address_type_enum NOT NULL
+CREATE TABLE public.address
+(
+    id             character varying(250)           NOT NULL,
+    location_id    character varying(250),
+    attention      text,
+    address_1      text                             NOT NULL,
+    address_2      text,
+    city           text                             NOT NULL,
+    region         text,
+    state_province text                             NOT NULL,
+    postal_code    text                             NOT NULL,
+    country        text                             NOT NULL,
+    address_type   public.address_address_type_enum NOT NULL
 );
 
 
-ALTER TABLE public.address OWNER TO postgres;
+ALTER TABLE public.address
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN address.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -239,17 +243,20 @@ COMMENT ON COLUMN public.address.address_type IS 'The type of address which may 
 -- Name: attribute; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.attribute (
-    id character varying(250) NOT NULL,
-    link_id text NOT NULL,
+CREATE TABLE public.attribute
+(
+    id               character varying(250) NOT NULL,
+    link_id          text                   NOT NULL,
     taxonomy_term_id character varying(250) NOT NULL,
-    link_type text,
-    link_entity text NOT NULL,
-    value text
+    link_type        text,
+    link_entity      text                   NOT NULL,
+    value            text,
+    label            text
 );
 
 
-ALTER TABLE public.attribute OWNER TO postgres;
+ALTER TABLE public.attribute
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN attribute.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -294,23 +301,32 @@ COMMENT ON COLUMN public.attribute.value IS 'The value (if any) of an attribute.
 
 
 --
+-- Name: COLUMN attribute.label; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.attribute.label IS 'A free text label of the attribute.';
+
+
+--
 -- Name: contact; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.contact (
-    id character varying(250) NOT NULL,
-    organization_id character varying(250),
-    service_id character varying(250),
+CREATE TABLE public.contact
+(
+    id                     character varying(250) NOT NULL,
+    organization_id        character varying(250),
+    service_id             character varying(250),
     service_at_location_id character varying(250),
-    location_id character varying(250),
-    name text,
-    title text,
-    department text,
-    email text
+    location_id            character varying(250),
+    name                   text,
+    title                  text,
+    department             text,
+    email                  text
 );
 
 
-ALTER TABLE public.contact OWNER TO postgres;
+ALTER TABLE public.contact
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN contact.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -379,19 +395,21 @@ COMMENT ON COLUMN public.contact.email IS 'The email address of the contact.';
 -- Name: cost_option; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.cost_option (
-    id character varying(250) NOT NULL,
-    service_id character varying(250) NOT NULL,
-    valid_from date,
-    valid_to date,
-    option text,
-    currency text,
-    amount numeric,
+CREATE TABLE public.cost_option
+(
+    id                 character varying(250) NOT NULL,
+    service_id         character varying(250) NOT NULL,
+    valid_from         date,
+    valid_to           date,
+    option             text,
+    currency           text,
+    amount             numeric,
     amount_description text
 );
 
 
-ALTER TABLE public.cost_option OWNER TO postgres;
+ALTER TABLE public.cost_option
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN cost_option.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -453,15 +471,17 @@ COMMENT ON COLUMN public.cost_option.amount_description IS 'Specific details qua
 -- Name: funding; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.funding (
-    id character varying(250) NOT NULL,
+CREATE TABLE public.funding
+(
+    id              character varying(250) NOT NULL,
     organization_id character varying(250),
-    service_id character varying(250),
-    source text
+    service_id      character varying(250),
+    source          text
 );
 
 
-ALTER TABLE public.funding OWNER TO postgres;
+ALTER TABLE public.funding
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN funding.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -495,18 +515,20 @@ COMMENT ON COLUMN public.funding.source IS 'A free text description of the sourc
 -- Name: language; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.language (
-    id character varying(250) NOT NULL,
-    service_id character varying(250),
+CREATE TABLE public.language
+(
+    id          character varying(250) NOT NULL,
+    service_id  character varying(250),
     location_id character varying(250),
-    phone_id character varying(250),
-    name text,
-    code text,
-    note text
+    phone_id    character varying(250),
+    name        text,
+    code        text,
+    note        text
 );
 
 
-ALTER TABLE public.language OWNER TO postgres;
+ALTER TABLE public.language
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN language.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -561,23 +583,25 @@ COMMENT ON COLUMN public.language.note IS 'A free text description of any additi
 -- Name: location; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.location (
-    id character varying(250) NOT NULL,
-    location_type public.location_location_type_enum NOT NULL,
-    url text,
-    organization_id character varying(250),
-    name text,
-    alternate_name text,
-    description text,
-    transportation text,
-    latitude numeric,
-    longitude numeric,
-    external_identifier text,
+CREATE TABLE public.location
+(
+    id                       character varying(250)             NOT NULL,
+    location_type            public.location_location_type_enum NOT NULL,
+    url                      text,
+    organization_id          character varying(250),
+    name                     text,
+    alternate_name           text,
+    description              text,
+    transportation           text,
+    latitude                 numeric,
+    longitude                numeric,
+    external_identifier      text,
     external_identifier_type text
 );
 
 
-ALTER TABLE public.location OWNER TO postgres;
+ALTER TABLE public.location
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN location.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -667,15 +691,17 @@ COMMENT ON COLUMN public.location.external_identifier_type IS 'The scheme used f
 -- Name: meta_table_description; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.meta_table_description (
-    id character varying(250) NOT NULL,
-    name text,
-    language text,
+CREATE TABLE public.meta_table_description
+(
+    id            character varying(250) NOT NULL,
+    name          text,
+    language      text,
     character_set text
 );
 
 
-ALTER TABLE public.meta_table_description OWNER TO postgres;
+ALTER TABLE public.meta_table_description
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN meta_table_description.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -709,20 +735,22 @@ COMMENT ON COLUMN public.meta_table_description.character_set IS 'The character 
 -- Name: metadata; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.metadata (
-    id character varying(250) NOT NULL,
-    resource_id text NOT NULL,
-    resource_type text NOT NULL,
-    last_action_date date NOT NULL,
-    last_action_type text NOT NULL,
-    field_name text NOT NULL,
-    previous_value text NOT NULL,
-    replacement_value text NOT NULL,
-    updated_by text NOT NULL
+CREATE TABLE public.metadata
+(
+    id                character varying(250) NOT NULL,
+    resource_id       text                   NOT NULL,
+    resource_type     text                   NOT NULL,
+    last_action_date  date                   NOT NULL,
+    last_action_type  text                   NOT NULL,
+    field_name        text                   NOT NULL,
+    previous_value    text                   NOT NULL,
+    replacement_value text                   NOT NULL,
+    updated_by        text                   NOT NULL
 );
 
 
-ALTER TABLE public.metadata OWNER TO postgres;
+ALTER TABLE public.metadata
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN metadata.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -791,24 +819,26 @@ COMMENT ON COLUMN public.metadata.updated_by IS 'The name of the person who modi
 -- Name: organization; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.organization (
-    id character varying(250) NOT NULL,
-    name text NOT NULL,
-    alternate_name text,
-    description text NOT NULL,
-    email text,
-    website text,
-    tax_status text,
-    tax_id text,
-    year_incorporated numeric,
-    legal_status text,
-    logo text,
-    uri text,
+CREATE TABLE public.organization
+(
+    id                     character varying(250) NOT NULL,
+    name                   text                   NOT NULL,
+    alternate_name         text,
+    description            text                   NOT NULL,
+    email                  text,
+    website                text,
+    tax_status             text,
+    tax_id                 text,
+    year_incorporated      numeric,
+    legal_status           text,
+    logo                   text,
+    uri                    text,
     parent_organization_id text
 );
 
 
-ALTER TABLE public.organization OWNER TO postgres;
+ALTER TABLE public.organization
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN organization.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -905,16 +935,18 @@ COMMENT ON COLUMN public.organization.parent_organization_id IS 'The identifier 
 -- Name: organization_identifier; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.organization_identifier (
-    id character varying(250) NOT NULL,
-    organization_id character varying(250) NOT NULL,
+CREATE TABLE public.organization_identifier
+(
+    id                character varying(250) NOT NULL,
+    organization_id   character varying(250) NOT NULL,
     identifier_scheme text,
-    identifier_type text NOT NULL,
-    identifier text NOT NULL
+    identifier_type   text                   NOT NULL,
+    identifier        text                   NOT NULL
 );
 
 
-ALTER TABLE public.organization_identifier OWNER TO postgres;
+ALTER TABLE public.organization_identifier
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN organization_identifier.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -955,21 +987,23 @@ COMMENT ON COLUMN public.organization_identifier.identifier IS 'The third-party 
 -- Name: phone; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.phone (
-    id character varying(250) NOT NULL,
-    location_id character varying(250),
-    service_id character varying(250),
-    organization_id character varying(250),
-    contact_id character varying(250),
+CREATE TABLE public.phone
+(
+    id                     character varying(250) NOT NULL,
+    location_id            character varying(250),
+    service_id             character varying(250),
+    organization_id        character varying(250),
+    contact_id             character varying(250),
     service_at_location_id character varying(250),
-    number text NOT NULL,
-    extension numeric,
-    type text,
-    description text
+    number                 text                   NOT NULL,
+    extension              numeric,
+    type                   text,
+    description            text
 );
 
 
-ALTER TABLE public.phone OWNER TO postgres;
+ALTER TABLE public.phone
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN phone.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1045,16 +1079,18 @@ COMMENT ON COLUMN public.phone.description IS 'A free text description providing
 -- Name: program; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.program (
-    id character varying(250) NOT NULL,
+CREATE TABLE public.program
+(
+    id              character varying(250) NOT NULL,
     organization_id character varying(250) NOT NULL,
-    name text NOT NULL,
-    alternate_name text,
-    description text NOT NULL
+    name            text                   NOT NULL,
+    alternate_name  text,
+    description     text                   NOT NULL
 );
 
 
-ALTER TABLE public.program OWNER TO postgres;
+ALTER TABLE public.program
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN program.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1095,15 +1131,17 @@ COMMENT ON COLUMN public.program.description IS 'A free text description of the 
 -- Name: required_document; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.required_document (
-    id character varying(250) NOT NULL,
+CREATE TABLE public.required_document
+(
+    id         character varying(250) NOT NULL,
     service_id character varying(250),
-    document text,
-    uri text
+    document   text,
+    uri        text
 );
 
 
-ALTER TABLE public.required_document OWNER TO postgres;
+ALTER TABLE public.required_document
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN required_document.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1137,34 +1175,36 @@ COMMENT ON COLUMN public.required_document.uri IS 'A web link to the document.';
 -- Name: schedule; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.schedule (
-    id character varying(250) NOT NULL,
-    service_id character varying(250),
-    location_id character varying(250),
+CREATE TABLE public.schedule
+(
+    id                     character varying(250) NOT NULL,
+    service_id             character varying(250),
+    location_id            character varying(250),
     service_at_location_id character varying(250),
-    valid_from date,
-    valid_to date,
-    dtstart date,
-    timezone numeric,
-    until date,
-    count numeric,
-    wkst public.schedule_wkst_enum,
-    freq public.schedule_freq_enum,
-    "interval" numeric,
-    byday text,
-    byweekno text,
-    bymonthday text,
-    byyearday text,
-    description text,
-    opens_at time without time zone,
-    closes_at time without time zone,
-    schedule_link text,
-    attending_type text,
-    notes text
+    valid_from             date,
+    valid_to               date,
+    dtstart                date,
+    timezone               numeric,
+    until                  date,
+    count                  numeric,
+    wkst                   public.schedule_wkst_enum,
+    freq                   public.schedule_freq_enum,
+    "interval"             numeric,
+    byday                  text,
+    byweekno               text,
+    bymonthday             text,
+    byyearday              text,
+    description            text,
+    opens_at               time without time zone,
+    closes_at              time without time zone,
+    schedule_link          text,
+    attending_type         text,
+    notes                  text
 );
 
 
-ALTER TABLE public.schedule OWNER TO postgres;
+ALTER TABLE public.schedule
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN schedule.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1331,34 +1371,36 @@ COMMENT ON COLUMN public.schedule.notes IS 'Free text notes on the schedule.';
 -- Name: service; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.service (
-    id character varying(250) NOT NULL,
-    organization_id character varying(250) NOT NULL,
-    program_id character varying(250),
-    name text NOT NULL,
-    alternate_name text,
-    description text,
-    url text,
-    email text,
-    status public.service_status_enum NOT NULL,
+CREATE TABLE public.service
+(
+    id                      character varying(250)     NOT NULL,
+    organization_id         character varying(250)     NOT NULL,
+    program_id              character varying(250),
+    name                    text                       NOT NULL,
+    alternate_name          text,
+    description             text,
+    url                     text,
+    email                   text,
+    status                  public.service_status_enum NOT NULL,
     interpretation_services text,
-    application_process text,
-    fees_description text,
-    wait_time text,
-    fees text,
-    accreditations text,
+    application_process     text,
+    fees_description        text,
+    wait_time               text,
+    fees                    text,
+    accreditations          text,
     eligibility_description text,
-    minimum_age numeric,
-    maximum_age numeric,
-    assured_date date,
-    assurer_email text,
-    licenses text,
-    alert text,
-    last_modified timestamp without time zone
+    minimum_age             numeric,
+    maximum_age             numeric,
+    assured_date            date,
+    assurer_email           text,
+    licenses                text,
+    alert                   text,
+    last_modified           timestamp without time zone
 );
 
 
-ALTER TABLE public.service OWNER TO postgres;
+ALTER TABLE public.service
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN service.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1525,18 +1567,21 @@ COMMENT ON COLUMN public.service.last_modified IS 'The datetime when the service
 -- Name: service_area; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.service_area (
-    id character varying(250) NOT NULL,
-    service_id character varying(250),
-    name text,
-    description text,
-    extent text,
-    extent_type text,
-    uri text
+CREATE TABLE public.service_area
+(
+    id                     character varying(250) NOT NULL,
+    service_id             character varying(250),
+    service_at_location_id character varying(250),
+    name                   text,
+    description            text,
+    extent                 text,
+    extent_type            text,
+    uri                    text
 );
 
 
-ALTER TABLE public.service_area OWNER TO postgres;
+ALTER TABLE public.service_area
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN service_area.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1550,6 +1595,13 @@ COMMENT ON COLUMN public.service_area.id IS 'The identifier for the service area
 --
 
 COMMENT ON COLUMN public.service_area.service_id IS 'The identifier of the service for which this entry describes the service area';
+
+
+--
+-- Name: COLUMN service_area.service_at_location_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_area.service_at_location_id IS 'The identifier of the service at location object linked to this object.';
 
 
 --
@@ -1591,15 +1643,17 @@ COMMENT ON COLUMN public.service_area.uri IS 'A URI which acts as a persistent i
 -- Name: service_at_location; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.service_at_location (
-    id character varying(250) NOT NULL,
-    service_id character varying(250) NOT NULL,
+CREATE TABLE public.service_at_location
+(
+    id          character varying(250) NOT NULL,
+    service_id  character varying(250) NOT NULL,
     location_id character varying(250) NOT NULL,
     description text
 );
 
 
-ALTER TABLE public.service_at_location OWNER TO postgres;
+ALTER TABLE public.service_at_location
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN service_at_location.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1630,19 +1684,89 @@ COMMENT ON COLUMN public.service_at_location.description IS 'A free text descrip
 
 
 --
--- Name: taxonomy; Type: TABLE; Schema: public; Owner: postgres
+-- Name: service_capacity; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.taxonomy (
-    id character varying(250) NOT NULL,
-    name text NOT NULL,
-    description text NOT NULL,
-    uri text,
-    version text
+CREATE TABLE public.service_capacity
+(
+    id          character varying(250)      NOT NULL,
+    service_id  character varying(250)      NOT NULL,
+    unit_id     character varying(250)      NOT NULL,
+    available   numeric                     NOT NULL,
+    maximum     numeric,
+    description text,
+    updated     timestamp without time zone NOT NULL
 );
 
 
-ALTER TABLE public.taxonomy OWNER TO postgres;
+ALTER TABLE public.service_capacity
+    OWNER TO postgres;
+
+--
+-- Name: COLUMN service_capacity.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.id IS 'The identifier for the service_capacity object. Each service_capacity must have a unique identifier.';
+
+
+--
+-- Name: COLUMN service_capacity.service_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.service_id IS 'The identifier for the Service object associated with this service capacity object. Only required in the tabular representation.';
+
+
+--
+-- Name: COLUMN service_capacity.unit_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.unit_id IS 'The identifier for the unit object.';
+
+
+--
+-- Name: COLUMN service_capacity.available; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.available IS 'The number of units available as of the last update.';
+
+
+--
+-- Name: COLUMN service_capacity.maximum; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.maximum IS 'The maximum number of units that can be available for this service, if applicable';
+
+
+--
+-- Name: COLUMN service_capacity.description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.description IS 'A Human-Friendly description of this service capacity e.g. “Beds available for people experiencing homelessness”';
+
+
+--
+-- Name: COLUMN service_capacity.updated; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_capacity.updated IS 'The datetime when this service_capacit y object was last updated or changed. Should have millisecond accuracy. ';
+
+
+--
+-- Name: taxonomy; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.taxonomy
+(
+    id          character varying(250) NOT NULL,
+    name        text                   NOT NULL,
+    description text                   NOT NULL,
+    uri         text,
+    version     text
+);
+
+
+ALTER TABLE public.taxonomy
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN taxonomy.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1683,20 +1807,22 @@ COMMENT ON COLUMN public.taxonomy.version IS 'The version of the taxonomy.';
 -- Name: taxonomy_term; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.taxonomy_term (
-    id character varying(250) NOT NULL,
-    code text,
-    name text NOT NULL,
-    description text NOT NULL,
-    parent_id text,
-    taxonomy text,
-    language text,
+CREATE TABLE public.taxonomy_term
+(
+    id          character varying(250) NOT NULL,
+    code        text,
+    name        text                   NOT NULL,
+    description text                   NOT NULL,
+    parent_id   text,
+    taxonomy    text,
+    language    text,
     taxonomy_id character varying(250),
-    term_uri text
+    term_uri    text
 );
 
 
-ALTER TABLE public.taxonomy_term OWNER TO postgres;
+ALTER TABLE public.taxonomy_term
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN taxonomy_term.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1744,7 +1870,7 @@ COMMENT ON COLUMN public.taxonomy_term.taxonomy IS 'If this is an established ta
 -- Name: COLUMN taxonomy_term.language; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.taxonomy_term.language IS 'An ISO 639-1, or ISO 639-2 [language code](available at http://www.loc.gov/standards/iso639-2/php/code_list.php) to represent the language of the term. The three-letter codes from ISO 639-2 provide greater accuracy when describing variants of languages, which may be relevant to particular communities.';
+COMMENT ON COLUMN public.taxonomy_term.language IS 'An ISO 639-1, ISO 639-2, or ISO 639-3 [language code](http://www.loc.gov/standards/iso639-2/php/code_list.php) to represent the language of the term. The three-letter codes from ISO 639-2 and ISO 639-3 provide greater accuracy when describing variants of languages, which may be relevant to particular communities.';
 
 
 --
@@ -1762,19 +1888,73 @@ COMMENT ON COLUMN public.taxonomy_term.term_uri IS 'URI of the term.';
 
 
 --
--- Name: url; Type: TABLE; Schema: public; Owner: postgres
+-- Name: unit; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.url (
-    id character varying(250) NOT NULL,
-    label text,
-    url text NOT NULL,
-    organization_id character varying(250),
-    service_id character varying(250)
+CREATE TABLE public.unit
+(
+    id         character varying(250) NOT NULL,
+    name       text                   NOT NULL,
+    scheme     text,
+    identifier text,
+    uri        text
 );
 
 
-ALTER TABLE public.url OWNER TO postgres;
+ALTER TABLE public.unit
+    OWNER TO postgres;
+
+--
+-- Name: COLUMN unit.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.unit.id IS 'The identifier for the unit object. Each unit must have a unique identifier.';
+
+
+--
+-- Name: COLUMN unit.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.unit.name IS 'The human-readable name for this unit e.g. “Bed” or “Hours”';
+
+
+--
+-- Name: COLUMN unit.scheme; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.unit.scheme IS 'The scheme which formalizes the unit, if applicable e.g. “SI” for Standard International Units such as Kilogram, Litre, etc.';
+
+
+--
+-- Name: COLUMN unit.identifier; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.unit.identifier IS 'The identifier of the unit taken from the scheme if applicable e.g. `kgm` for Kilogram.';
+
+
+--
+-- Name: COLUMN unit.uri; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.unit.uri IS 'The URI to the definition of the unit, if applicable';
+
+
+--
+-- Name: url; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.url
+(
+    id              character varying(250) NOT NULL,
+    label           text,
+    url             text                   NOT NULL,
+    organization_id character varying(250),
+    service_id      character varying(250)
+);
+
+
+ALTER TABLE public.url
+    OWNER TO postgres;
 
 --
 -- Name: COLUMN url.id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1964,6 +2144,14 @@ ALTER TABLE ONLY public.service_at_location
 
 
 --
+-- Name: service_capacity service_capacity_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_capacity
+    ADD CONSTRAINT service_capacity_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: service service_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1996,6 +2184,14 @@ ALTER TABLE ONLY public.taxonomy_term
 
 
 --
+-- Name: unit unit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.unit
+    ADD CONSTRAINT unit_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: url url_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2008,7 +2204,7 @@ ALTER TABLE ONLY public.url
 --
 
 ALTER TABLE ONLY public.accessibility
-    ADD CONSTRAINT accessibility_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT accessibility_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2016,7 +2212,7 @@ ALTER TABLE ONLY public.accessibility
 --
 
 ALTER TABLE ONLY public.address
-    ADD CONSTRAINT address_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT address_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2024,7 +2220,7 @@ ALTER TABLE ONLY public.address
 --
 
 ALTER TABLE ONLY public.attribute
-    ADD CONSTRAINT attribute_taxonomy_term_id_fkey FOREIGN KEY (taxonomy_term_id) REFERENCES public.taxonomy_term(id);
+    ADD CONSTRAINT attribute_taxonomy_term_id_fkey FOREIGN KEY (taxonomy_term_id) REFERENCES public.taxonomy_term (id);
 
 
 --
@@ -2032,7 +2228,7 @@ ALTER TABLE ONLY public.attribute
 --
 
 ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT contact_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2040,7 +2236,7 @@ ALTER TABLE ONLY public.contact
 --
 
 ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT contact_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2048,7 +2244,7 @@ ALTER TABLE ONLY public.contact
 --
 
 ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location(id);
+    ADD CONSTRAINT contact_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location (id);
 
 
 --
@@ -2056,7 +2252,7 @@ ALTER TABLE ONLY public.contact
 --
 
 ALTER TABLE ONLY public.contact
-    ADD CONSTRAINT contact_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT contact_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2064,7 +2260,7 @@ ALTER TABLE ONLY public.contact
 --
 
 ALTER TABLE ONLY public.cost_option
-    ADD CONSTRAINT cost_option_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT cost_option_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2072,7 +2268,7 @@ ALTER TABLE ONLY public.cost_option
 --
 
 ALTER TABLE ONLY public.funding
-    ADD CONSTRAINT funding_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT funding_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2080,7 +2276,7 @@ ALTER TABLE ONLY public.funding
 --
 
 ALTER TABLE ONLY public.funding
-    ADD CONSTRAINT funding_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT funding_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2088,7 +2284,7 @@ ALTER TABLE ONLY public.funding
 --
 
 ALTER TABLE ONLY public.language
-    ADD CONSTRAINT language_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT language_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2096,7 +2292,7 @@ ALTER TABLE ONLY public.language
 --
 
 ALTER TABLE ONLY public.language
-    ADD CONSTRAINT language_phone_id_fkey FOREIGN KEY (phone_id) REFERENCES public.phone(id);
+    ADD CONSTRAINT language_phone_id_fkey FOREIGN KEY (phone_id) REFERENCES public.phone (id);
 
 
 --
@@ -2104,7 +2300,7 @@ ALTER TABLE ONLY public.language
 --
 
 ALTER TABLE ONLY public.language
-    ADD CONSTRAINT language_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT language_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2112,7 +2308,7 @@ ALTER TABLE ONLY public.language
 --
 
 ALTER TABLE ONLY public.location
-    ADD CONSTRAINT location_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT location_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2120,7 +2316,7 @@ ALTER TABLE ONLY public.location
 --
 
 ALTER TABLE ONLY public.organization_identifier
-    ADD CONSTRAINT organization_identifier_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT organization_identifier_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2128,7 +2324,7 @@ ALTER TABLE ONLY public.organization_identifier
 --
 
 ALTER TABLE ONLY public.phone
-    ADD CONSTRAINT phone_contact_id_fkey FOREIGN KEY (contact_id) REFERENCES public.contact(id);
+    ADD CONSTRAINT phone_contact_id_fkey FOREIGN KEY (contact_id) REFERENCES public.contact (id);
 
 
 --
@@ -2136,7 +2332,7 @@ ALTER TABLE ONLY public.phone
 --
 
 ALTER TABLE ONLY public.phone
-    ADD CONSTRAINT phone_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT phone_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2144,7 +2340,7 @@ ALTER TABLE ONLY public.phone
 --
 
 ALTER TABLE ONLY public.phone
-    ADD CONSTRAINT phone_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT phone_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2152,7 +2348,7 @@ ALTER TABLE ONLY public.phone
 --
 
 ALTER TABLE ONLY public.phone
-    ADD CONSTRAINT phone_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location(id);
+    ADD CONSTRAINT phone_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location (id);
 
 
 --
@@ -2160,7 +2356,7 @@ ALTER TABLE ONLY public.phone
 --
 
 ALTER TABLE ONLY public.phone
-    ADD CONSTRAINT phone_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT phone_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2168,7 +2364,7 @@ ALTER TABLE ONLY public.phone
 --
 
 ALTER TABLE ONLY public.program
-    ADD CONSTRAINT program_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT program_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2176,7 +2372,7 @@ ALTER TABLE ONLY public.program
 --
 
 ALTER TABLE ONLY public.required_document
-    ADD CONSTRAINT required_document_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT required_document_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2184,7 +2380,7 @@ ALTER TABLE ONLY public.required_document
 --
 
 ALTER TABLE ONLY public.schedule
-    ADD CONSTRAINT schedule_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT schedule_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2192,7 +2388,7 @@ ALTER TABLE ONLY public.schedule
 --
 
 ALTER TABLE ONLY public.schedule
-    ADD CONSTRAINT schedule_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location(id);
+    ADD CONSTRAINT schedule_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location (id);
 
 
 --
@@ -2200,7 +2396,15 @@ ALTER TABLE ONLY public.schedule
 --
 
 ALTER TABLE ONLY public.schedule
-    ADD CONSTRAINT schedule_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT schedule_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
+
+
+--
+-- Name: service_area service_area_service_at_location_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_area
+    ADD CONSTRAINT service_area_service_at_location_id_fkey FOREIGN KEY (service_at_location_id) REFERENCES public.service_at_location (id);
 
 
 --
@@ -2208,7 +2412,7 @@ ALTER TABLE ONLY public.schedule
 --
 
 ALTER TABLE ONLY public.service_area
-    ADD CONSTRAINT service_area_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT service_area_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
@@ -2216,7 +2420,7 @@ ALTER TABLE ONLY public.service_area
 --
 
 ALTER TABLE ONLY public.service_at_location
-    ADD CONSTRAINT service_at_location_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location(id);
+    ADD CONSTRAINT service_at_location_location_id_fkey FOREIGN KEY (location_id) REFERENCES public.location (id);
 
 
 --
@@ -2224,7 +2428,23 @@ ALTER TABLE ONLY public.service_at_location
 --
 
 ALTER TABLE ONLY public.service_at_location
-    ADD CONSTRAINT service_at_location_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT service_at_location_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
+
+
+--
+-- Name: service_capacity service_capacity_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_capacity
+    ADD CONSTRAINT service_capacity_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
+
+
+--
+-- Name: service_capacity service_capacity_unit_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_capacity
+    ADD CONSTRAINT service_capacity_unit_id_fkey FOREIGN KEY (unit_id) REFERENCES public.unit (id);
 
 
 --
@@ -2232,7 +2452,7 @@ ALTER TABLE ONLY public.service_at_location
 --
 
 ALTER TABLE ONLY public.service
-    ADD CONSTRAINT service_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT service_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2240,7 +2460,7 @@ ALTER TABLE ONLY public.service
 --
 
 ALTER TABLE ONLY public.service
-    ADD CONSTRAINT service_program_id_fkey FOREIGN KEY (program_id) REFERENCES public.program(id);
+    ADD CONSTRAINT service_program_id_fkey FOREIGN KEY (program_id) REFERENCES public.program (id);
 
 
 --
@@ -2248,7 +2468,7 @@ ALTER TABLE ONLY public.service
 --
 
 ALTER TABLE ONLY public.taxonomy_term
-    ADD CONSTRAINT taxonomy_term_taxonomy_id_fkey FOREIGN KEY (taxonomy_id) REFERENCES public.taxonomy(id);
+    ADD CONSTRAINT taxonomy_term_taxonomy_id_fkey FOREIGN KEY (taxonomy_id) REFERENCES public.taxonomy (id);
 
 
 --
@@ -2256,7 +2476,7 @@ ALTER TABLE ONLY public.taxonomy_term
 --
 
 ALTER TABLE ONLY public.url
-    ADD CONSTRAINT url_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+    ADD CONSTRAINT url_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization (id);
 
 
 --
@@ -2264,10 +2484,9 @@ ALTER TABLE ONLY public.url
 --
 
 ALTER TABLE ONLY public.url
-    ADD CONSTRAINT url_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service(id);
+    ADD CONSTRAINT url_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
 
 --
 -- PostgreSQL database dump complete
 --
-

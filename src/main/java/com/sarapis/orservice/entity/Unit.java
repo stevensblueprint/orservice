@@ -3,7 +3,6 @@ package com.sarapis.orservice.entity;
 import com.sarapis.orservice.dto.UnitDTO;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,8 +15,6 @@ import java.util.ArrayList;
 @Builder
 public class Unit {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
 
@@ -32,6 +29,9 @@ public class Unit {
 
     @Column(name = "uri")
     private String uri;
+
+    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "unit")
+    private ServiceCapacity serviceCapacity;
 
     public UnitDTO toDTO() {
         return UnitDTO.builder()

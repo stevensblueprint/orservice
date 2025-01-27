@@ -1,58 +1,98 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.Metadata;
-import com.sarapis.orservice.repository.AttributeRepository;
-import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.entity.Program;
+import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.repository.OrganizationRepository;
+import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 @Service
 public class ServiceServiceImpl implements ServiceService {
-  private final ServiceRepository serviceRepository;
-  private final AttributeRepository attributeRepository;
-  private final MetadataRepository metadataRepository;
+    private final ServiceRepository serviceRepository;
+    private final OrganizationRepository organizationRepository;
+    private final ProgramRepository programRepository;
+    private final AttributeService attributeService;
+    private final MetadataService metadataService;
 
-  @Autowired
-  public ServiceServiceImpl(ServiceRepository serviceRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
-    this.serviceRepository = serviceRepository;
-    this.attributeRepository = attributeRepository;
-    this.metadataRepository = metadataRepository;
-  }
+    @Autowired
+    public ServiceServiceImpl(ServiceRepository serviceRepository,
+                              OrganizationRepository organizationRepository,
+                              ProgramRepository programRepository,
+                              AttributeService attributeService,
+                              MetadataService metadataService) {
+        this.serviceRepository = serviceRepository;
+        this.organizationRepository = organizationRepository;
+        this.programRepository = programRepository;
+        this.attributeService = attributeService;
+        this.metadataService = metadataService;
+    }
 
-  @Override
-  public List<ServiceDTO> getAllServices(String search) {
-    List<ServiceDTO> serviceDTOs = this.serviceRepository.getAllServices(search).stream().map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
-    serviceDTOs.forEach(this::addRelatedData);
-    return serviceDTOs;
-  }
+    @Override
+    public List<ServiceDTO> getAllServices(String search) {
+        List<ServiceDTO> serviceDTOs = this.serviceRepository.getAllServices(search)
+                .stream().map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
+        serviceDTOs.forEach(this::addRelatedData);
+        return serviceDTOs;
+    }
 
-  @Override
-  public ServiceDTO getServiceById(String id) {
-    return null;
-  }
+    @Override
+    public ServiceDTO getServiceById(String serviceId) {
+        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found."));
+        ServiceDTO serviceDTO = service.toDTO();
+        this.addRelatedData(serviceDTO);
+        return serviceDTO;
+    }
 
-  @Override
-  public ServiceDTO createService(ServiceDTO serviceDTO) {
-    return null;
-  }
+    @Override
+    public ServiceDTO createService(ServiceDTO serviceDTO) {
+        Organization organization = null;
+        Program program = null;
 
-  @Override
-  public ServiceDTO updateService(String id, ServiceDTO serviceDTO) {
-    return null;
-  }
+        if (serviceDTO.getOrganizationId() != null) {
+            organization = this.organizationRepository.findById(serviceDTO.getOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+        }
+        if (serviceDTO.getProgramId() != null) {
+            program = this.programRepository.findById(serviceDTO.getProgramId())
+                    .orElseThrow(() -> new RuntimeException("Program not found."));
+        }
 
-  @Override
-  public void deleteService(String id) {
+        com.sarapis.orservice.entity.core.Service service = serviceDTO.toEntity(organization, program);
+        serviceDTO.getAttributes()
+                .forEach(attributeDTO -> this.attributeService.createAttribute(service.getId(), attributeDTO));
+        serviceDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(service.getId(), e));
 
-  }
+        com.sarapis.orservice.entity.core.Service createdService = this.serviceRepository.save(service);
+        return this.getServiceById(createdService.getId());
+    }
 
-  private void addRelatedData(ServiceDTO serviceDTO) {
-    serviceDTO.getAttributes().addAll(this.serviceRepository.getAttributes(serviceDTO.getId()).stream().map(Attribute::toDTO).toList());
-    serviceDTO.getMetadata().addAll(this.serviceRepository.getMetadata(serviceDTO.getId()).stream().map(Metadata::toDTO).toList());
-  }
+    @Override
+    public ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO) {
+        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found."));
+
+        com.sarapis.orservice.entity.core.Service updatedService = this.serviceRepository.save(service);
+        return this.getServiceById(updatedService.getId());
+    }
+
+    @Override
+    public void deleteService(String serviceId) {
+        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found."));
+        this.attributeService.deleteRelatedAttributes(service.getId());
+        this.metadataService.deleteRelatedMetadata(service.getId());
+        this.serviceRepository.delete(service);
+    }
+
+    private void addRelatedData(ServiceDTO serviceDTO) {
+        serviceDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(serviceDTO.getId()));
+        serviceDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(serviceDTO.getId()));
+    }
 }

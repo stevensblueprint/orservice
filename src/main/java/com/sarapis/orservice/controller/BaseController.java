@@ -17,43 +17,43 @@ import java.util.List;
 @RestController
 @RequestMapping("/")
 public class BaseController {
-  private final OrganizationService organizationService;
-  private final ServiceService serviceService;
-  private final LocationService locationService;
-  private final ServiceAtLocationService serviceAtLocationService;
+    private final OrganizationService organizationService;
+    private final ServiceService serviceService;
+    private final LocationService locationService;
+    private final ServiceAtLocationService serviceAtLocationService;
 
-  @Autowired
-  public BaseController(OrganizationService organizationService, ServiceService serviceService, LocationService locationService, ServiceAtLocationService serviceAtLocationService) {
-    this.organizationService = organizationService;
-    this.serviceService = serviceService;
-    this.locationService = locationService;
-    this.serviceAtLocationService = serviceAtLocationService;
-  }
+    @Autowired
+    public BaseController(OrganizationService organizationService, ServiceService serviceService, LocationService locationService, ServiceAtLocationService serviceAtLocationService) {
+        this.organizationService = organizationService;
+        this.serviceService = serviceService;
+        this.locationService = locationService;
+        this.serviceAtLocationService = serviceAtLocationService;
+    }
 
-  @GetMapping
-  public ResponseEntity<RootDTO> getRoot() {
-    RootDTO root = RootDTO.builder()
-        .version("3.0")
-        .profile("https://docs.openreferraluk.org/en/latest/")
-        .openapiUrl("https://raw.githubusercontent.com/openreferral/specification/3.0/schema/openapi.json")
-        .build();
-    return ResponseEntity.ok(root);
-  }
+    @GetMapping
+    public ResponseEntity<RootDTO> getRoot() {
+        RootDTO root = RootDTO.builder()
+                .version("3.0")
+                .profile("https://docs.openreferraluk.org/en/latest/")
+                .openapiUrl("https://raw.githubusercontent.com/openreferral/specification/3.0/schema/openapi.json")
+                .build();
+        return ResponseEntity.ok(root);
+    }
 
-  @GetMapping("/search")
-  public ResponseEntity<FullTextSearchDTO> fullTextSearch(@RequestParam(required = false) String search) {
-    List<OrganizationDTO> organizationDTOs = this.organizationService.getAllOrganizations(search);
-    List<ServiceDTO> serviceDTOs = this.serviceService.getAllServices(search);
-    List<LocationDTO> locationDTOs = this.locationService.getAllLocations(search);
-    List<ServiceAtLocationDTO> serviceAtLocationDTOs = this.serviceAtLocationService.getAllServicesAtLocations(search);
+    @GetMapping("/search")
+    public ResponseEntity<FullTextSearchDTO> fullTextSearch(@RequestParam(required = false) String search) {
+        List<OrganizationDTO> organizationDTOs = this.organizationService.getAllOrganizations(search);
+        List<ServiceDTO> serviceDTOs = this.serviceService.getAllServices(search);
+        List<LocationDTO> locationDTOs = this.locationService.getAllLocations(search);
+        List<ServiceAtLocationDTO> serviceAtLocationDTOs = this.serviceAtLocationService.getAllServicesAtLocations(search);
 
-      FullTextSearchDTO fullTextSearchDTO = FullTextSearchDTO.builder()
-            .organizations(organizationDTOs)
-            .services(serviceDTOs)
-            .locations(locationDTOs)
-            .serviceAtLocations(serviceAtLocationDTOs)
-            .build();
+        FullTextSearchDTO fullTextSearchDTO = FullTextSearchDTO.builder()
+                .organizations(organizationDTOs)
+                .services(serviceDTOs)
+                .locations(locationDTOs)
+                .serviceAtLocations(serviceAtLocationDTOs)
+                .build();
 
-      return ResponseEntity.ok(fullTextSearchDTO);
-  }
+        return ResponseEntity.ok(fullTextSearchDTO);
+    }
 }

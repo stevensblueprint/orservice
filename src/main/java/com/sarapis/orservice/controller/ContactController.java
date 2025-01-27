@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/contacts")
@@ -21,34 +20,32 @@ public class ContactController {
 
     @GetMapping
     public ResponseEntity<List<ContactDTO>> getAllContacts() {
-        List<ContactDTO> contactDTOs = this.contactService.getAllContacts();
-        return ResponseEntity.ok(contactDTOs);
+        List<ContactDTO> contacts = this.contactService.getAllContacts();
+        return ResponseEntity.ok(contacts);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ContactDTO> getContactById(@PathVariable String id) {
-        ContactDTO contactDTO = this.contactService.getContactById(id);
-        return ResponseEntity.ok(contactDTO);
+    @GetMapping("/{contactId}")
+    public ResponseEntity<ContactDTO> getContactById(@PathVariable String contactId) {
+        ContactDTO contact = this.contactService.getContactById(contactId);
+        return ResponseEntity.ok(contact);
     }
 
     @PostMapping
     public ResponseEntity<ContactDTO> createContact(@RequestBody ContactDTO contactDTO) {
-        if (contactDTO.getId() == null) {
-            contactDTO.setId(UUID.randomUUID().toString());
-        }
         ContactDTO createdContact = this.contactService.createContact(contactDTO);
         return ResponseEntity.ok(createdContact);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ContactDTO> updateContact(@PathVariable String id, @RequestBody ContactDTO contactDTO) {
-        ContactDTO updatedAccessibility = this.contactService.updateContact(id, contactDTO);
-        return ResponseEntity.ok(updatedAccessibility);
+    @PutMapping("/{contactId}")
+    public ResponseEntity<ContactDTO> updateContact(@PathVariable String contactId,
+                                                    @RequestBody ContactDTO contactDTO) {
+        ContactDTO updatedContact = this.contactService.updateContact(contactId, contactDTO);
+        return ResponseEntity.ok(updatedContact);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteContact(@PathVariable String id) {
-        this.contactService.deleteContact(id);
+    @DeleteMapping("/{contactId}")
+    public ResponseEntity<Void> deleteContact(@PathVariable String contactId) {
+        this.contactService.deleteContact(contactId);
         return ResponseEntity.noContent().build();
     }
 }

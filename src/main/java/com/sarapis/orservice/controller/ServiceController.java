@@ -7,39 +7,56 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/services")
 public class ServiceController {
-  private final ServiceService serviceService;
+    private final ServiceService serviceService;
 
-  @Autowired
-  public ServiceController(ServiceService serviceService) {
-    this.serviceService = serviceService;
-  }
+    @Autowired
+    public ServiceController(ServiceService serviceService) {
+        this.serviceService = serviceService;
+    }
 
-  @GetMapping
-  public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices() {
-    return null;
-  }
+    @GetMapping
+    public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices(@RequestParam(required = false, name = "search") String search) {
+        List<ServiceDTO> services = this.serviceService.getAllServices(search);
+        PaginationDTO<ServiceDTO> pagination = PaginationDTO.of(
+                services.size(),
+                1,
+                1,
+                services.size(),
+                true,
+                false,
+                false,
+                services
+        );
+        return ResponseEntity.ok(pagination);
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String id) {
-    return null;
-  }
+    @GetMapping("/{serviceId}")
+    public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String serviceId) {
+        ServiceDTO service = this.serviceService.getServiceById(serviceId);
+        return ResponseEntity.ok(service);
+    }
 
-  @PostMapping
-  public ResponseEntity<ServiceDTO> createService(@RequestBody ServiceDTO serviceDTO) {
-    return null;
-  }
+    @PostMapping
+    public ResponseEntity<ServiceDTO> createService(@RequestBody ServiceDTO serviceDTO) {
+        ServiceDTO createdService = this.serviceService.createService(serviceDTO);
+        return ResponseEntity.ok(createdService);
+    }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<ServiceDTO> updateService(@PathVariable String id, @RequestBody ServiceDTO serviceDTO) {
-    return null;
-  }
+    @PutMapping("/{serviceId}")
+    public ResponseEntity<ServiceDTO> updateService(@PathVariable String serviceId,
+                                                    @RequestBody ServiceDTO serviceDTO) {
+        ServiceDTO updatedService = this.serviceService.updateService(serviceId, serviceDTO);
+        return ResponseEntity.ok(updatedService);
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteService(@PathVariable String id) {
-    serviceService.deleteService(id);
-    return ResponseEntity.noContent().build();
-  }
+    @DeleteMapping("/{serviceId}")
+    public ResponseEntity<Void> deleteService(@PathVariable String serviceId) {
+        this.serviceService.deleteService(serviceId);
+        return ResponseEntity.noContent().build();
+    }
 }

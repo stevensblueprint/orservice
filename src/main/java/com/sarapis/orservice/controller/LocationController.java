@@ -5,10 +5,7 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,9 +20,9 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(required = false) String search) {
+    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(required = false, name = "search") String search) {
         List<LocationDTO> locations = this.locationService.getAllLocations(search);
-        PaginationDTO<LocationDTO> paginationDTO = PaginationDTO.of(
+        PaginationDTO<LocationDTO> pagination = PaginationDTO.of(
                 locations.size(),
                 1,
                 1,
@@ -35,6 +32,31 @@ public class LocationController {
                 false,
                 locations
         );
-        return ResponseEntity.ok(paginationDTO);
+        return ResponseEntity.ok(pagination);
+    }
+
+    @GetMapping("/{locationId}")
+    public ResponseEntity<LocationDTO> getLocation(@PathVariable String locationId) {
+        LocationDTO location = this.locationService.getLocationById(locationId);
+        return ResponseEntity.ok(location);
+    }
+
+    @PostMapping
+    public ResponseEntity<LocationDTO> createLocation(@RequestBody LocationDTO locationDTO) {
+        LocationDTO createdLocation = this.locationService.createLocation(locationDTO);
+        return ResponseEntity.ok(createdLocation);
+    }
+
+    @PutMapping("/{locationId}")
+    public ResponseEntity<LocationDTO> updateLocation(@PathVariable String locationId,
+                                                      @RequestBody LocationDTO locationDTO) {
+        LocationDTO updatedLocation = this.locationService.updateLocation(locationId, locationDTO);
+        return ResponseEntity.ok(updatedLocation);
+    }
+
+    @DeleteMapping("/{locationId}")
+    public ResponseEntity<Void> deleteLocation(@PathVariable String locationId) {
+        this.locationService.deleteLocation(locationId);
+        return ResponseEntity.noContent().build();
     }
 }

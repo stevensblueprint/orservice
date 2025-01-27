@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.ProgramDTO;
+import com.sarapis.orservice.entity.core.Organization;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 @Builder
 public class Program {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id", nullable = false, unique = true)
+    private Organization organization;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -33,6 +35,7 @@ public class Program {
     public ProgramDTO toDTO() {
         return ProgramDTO.builder()
                 .id(this.id)
+                .organizationId(this.organization.getId())
                 .name(this.name)
                 .alternateName(this.alternateName)
                 .description(this.description)

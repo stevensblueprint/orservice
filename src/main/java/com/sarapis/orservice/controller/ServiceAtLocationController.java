@@ -12,51 +12,56 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/service_at_locations")
 public class ServiceAtLocationController {
-  private final ServiceAtLocationService serviceAtLocationService;
+    private final ServiceAtLocationService serviceAtLocationService;
 
-  @Autowired
-  public ServiceAtLocationController(ServiceAtLocationService serviceAtLocationService) {
-    this.serviceAtLocationService = serviceAtLocationService;
-  }
+    @Autowired
+    public ServiceAtLocationController(ServiceAtLocationService serviceAtLocationService) {
+        this.serviceAtLocationService = serviceAtLocationService;
+    }
 
-  @GetMapping
-  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(required = false) String search) {
-    List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocations(search);
-    PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
-            servLocDTOs.size(),
-            1,
-            1,
-            servLocDTOs.size(),
-            true,
-            false,
-            false,
-            servLocDTOs
-    );
+    @GetMapping
+    public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(required = false, name = "search") String search) {
+        List<ServiceAtLocationDTO> servicesAtLocations = this.serviceAtLocationService.getAllServicesAtLocations(search);
+        PaginationDTO<ServiceAtLocationDTO> pagination = PaginationDTO.of(
+                servicesAtLocations.size(),
+                1,
+                1,
+                servicesAtLocations.size(),
+                true,
+                false,
+                false,
+                servicesAtLocations
+        );
+        return ResponseEntity.ok(pagination);
+    }
 
-    return ResponseEntity.ok(paginationDTO);
-  }
+    @GetMapping("/{serviceAtLocationId}")
+    public ResponseEntity<ServiceAtLocationDTO> getServiceAtLocationById(@PathVariable String serviceAtLocationId) {
+        ServiceAtLocationDTO serviceAtLocation = this.serviceAtLocationService
+                .getServiceAtLocationById(serviceAtLocationId);
+        return ResponseEntity.ok(serviceAtLocation);
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ServiceAtLocationDTO> getServiceAtLocationById(@PathVariable String id) {
-    ServiceAtLocationDTO servLocDTO = this.serviceAtLocationService.getServiceAtLocationById(id);
-    return ResponseEntity.ok(servLocDTO);
-  }
+    @PostMapping
+    public ResponseEntity<ServiceAtLocationDTO> createServiceAtLocation(
+            @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
+        ServiceAtLocationDTO createdServiceAtLocation = this.serviceAtLocationService
+                .createServiceAtLocation(serviceAtLocationDTO);
+        return ResponseEntity.ok(createdServiceAtLocation);
+    }
 
-  @PostMapping
-  public ResponseEntity<ServiceAtLocationDTO> createServiceAtLocation(@RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    ServiceAtLocationDTO createdServLocDTO = this.serviceAtLocationService.createServiceAtLocation(serviceAtLocationDTO);
-    return ResponseEntity.ok(createdServLocDTO);
-  }
+    @PutMapping("/{serviceAtLocationId}")
+    public ResponseEntity<ServiceAtLocationDTO> updateServiceAtLocation(@PathVariable String serviceAtLocationId,
+                                                                        @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
+        ServiceAtLocationDTO updatedServiceAtLocation = this.serviceAtLocationService
+                .updateServiceAtLocation(serviceAtLocationId, serviceAtLocationDTO);
+        return ResponseEntity.ok(updatedServiceAtLocation);
+    }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<ServiceAtLocationDTO> updateServiceAtLocation(@PathVariable String id, @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
-    ServiceAtLocationDTO updatedServLocDTO = this.serviceAtLocationService.updateServiceAtLocation(id, serviceAtLocationDTO);
-    return ResponseEntity.ok(updatedServLocDTO);
-  }
+    @DeleteMapping("/{serviceAtLocationId}")
+    public ResponseEntity<Void> deleteServiceAtLocation(@PathVariable String serviceAtLocationId) {
+        this.serviceAtLocationService.deleteServiceAtLocation(serviceAtLocationId);
+        return ResponseEntity.noContent().build();
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteServiceAtLocation(@PathVariable String id) {
-    serviceAtLocationService.deleteServiceAtLocation(id);
-    return ResponseEntity.noContent().build();
-  }
 }

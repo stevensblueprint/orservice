@@ -1,19 +1,20 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public interface OrganizationService {
-  List<OrganizationDTO> getAllOrganizations(String search);
+    List<OrganizationDTO> getAllOrganizations(String search);
 
-  OrganizationDTO getOrganizationById(String id);
+    OrganizationDTO getOrganizationById(String organizationId);
 
-  OrganizationDTO createOrganization(OrganizationDTO organizationDTO);
+    OrganizationDTO createOrganization(OrganizationDTO organizationDTO);
 
-  OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO);
+    OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO);
 
-  void deleteOrganization(String id);
+    void deleteOrganization(String organizationId);
 
-  ByteArrayInputStream loadCSV();
+    ByteArrayInputStream loadCSV();
 }

@@ -5,6 +5,7 @@ import com.sarapis.orservice.entity.ResourceType;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,7 +14,9 @@ import java.time.LocalDate;
 @Builder
 public class MetadataDTO {
     private String id;
+
     private String resourceId;
+
     private ResourceType resourceType;
     private LocalDate lastActionDate;
     private String lastActionType;
@@ -24,7 +27,7 @@ public class MetadataDTO {
 
     public Metadata toEntity(String resourceId) {
         return Metadata.builder()
-                .id(this.id)
+                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
                 .resourceId(resourceId)
                 .resourceType(this.resourceType)
                 .lastActionDate(this.lastActionDate)

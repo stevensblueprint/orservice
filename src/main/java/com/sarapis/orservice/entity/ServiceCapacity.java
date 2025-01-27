@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.ServiceCapacityDTO;
+import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,14 +17,16 @@ import java.util.ArrayList;
 @Builder
 public class ServiceCapacity {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
 
-    @OneToOne
-    @JoinColumn(name = "unit_id")
-    private Unit unit = null;
+    @ManyToOne
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
+    @OneToOne(orphanRemoval = true, optional = false)
+    @JoinColumn(name = "unit_id", nullable = false)
+    private Unit unit;
 
     @Column(name = "available", nullable = false)
     private int available;
@@ -41,7 +43,8 @@ public class ServiceCapacity {
     public ServiceCapacityDTO toDTO() {
         return ServiceCapacityDTO.builder()
                 .id(this.id)
-                .unit(this.unit != null ? this.unit.toDTO() : null)
+                .serviceId(this.service.getId())
+                .unitId(this.unit.getId())
                 .available(this.available)
                 .maximum(this.maximum)
                 .description(this.description)

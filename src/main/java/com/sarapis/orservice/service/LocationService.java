@@ -7,11 +7,11 @@ import java.util.List;
 public interface LocationService {
     List<LocationDTO> getAllLocations(String search);
 
-    LocationDTO getLocationById(String id);
+    LocationDTO getLocationById(String locationId);
 
-    LocationDTO createLocation(LocationDTO location);
+    LocationDTO createLocation(LocationDTO locationDTO);
 
-    LocationDTO updateLocation(String id, LocationDTO location);
+    LocationDTO updateLocation(String locationId, LocationDTO locationDTO);
 
-    void deleteLocation(String id);
+    void deleteLocation(String locationId);
 }

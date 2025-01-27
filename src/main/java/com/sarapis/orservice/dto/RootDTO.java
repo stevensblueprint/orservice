@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RootDTO {
-  private String version;
-  private String profile;
-  private String openapiUrl;
+    private String version;
+    private String profile;
+    private String openapiUrl;
 }
