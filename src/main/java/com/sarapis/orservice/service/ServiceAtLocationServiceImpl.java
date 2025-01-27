@@ -34,7 +34,8 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
 
     @Override
     public List<ServiceAtLocationDTO> getAllServicesAtLocations(String search) {
-        List<ServiceAtLocationDTO> serviceAtLocationDTOs = this.serviceAtLocationRepository.getAllServiceAtLocations(search)
+        String[] queries = search.split(";");
+        List<ServiceAtLocationDTO> serviceAtLocationDTOs = this.serviceAtLocationRepository.getAllServiceAtLocations(queries[0], queries[1])
                 .stream().map(ServiceAtLocation::toDTO).toList();
         serviceAtLocationDTOs.forEach(this::addRelatedData);
         return serviceAtLocationDTOs;

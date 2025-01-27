@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, String> {
-    @Query(value = "SELECT * FROM service WHERE to_tsvector(name || ' ' || description) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
+    @Query(value = "SELECT * FROM service WHERE to_tsvector(name || ' ' || coalesce(description, '')) @@ to_tsquery(?1) OR ?1 IS NULL", nativeQuery = true)
     List<Service> getAllServices(String search);
 }
