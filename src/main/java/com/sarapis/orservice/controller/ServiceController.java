@@ -2,6 +2,8 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.service.LocationService;
+import com.sarapis.orservice.service.ServiceAtLocationService;
 import com.sarapis.orservice.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +17,13 @@ public class ServiceController {
     private final ServiceService serviceService;
 
     @Autowired
-    public ServiceController(ServiceService service) {
-        this.serviceService = service;
+    public ServiceController(ServiceService serviceService) {
+        this.serviceService = serviceService;
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices() {
-        List<ServiceDTO> services = this.serviceService.getAllServices();
+    public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices(@RequestParam(required = false, name = "search") String search) {
+        List<ServiceDTO> services = this.serviceService.getAllServices(search);
         PaginationDTO<ServiceDTO> pagination = PaginationDTO.of(
                 services.size(),
                 1,

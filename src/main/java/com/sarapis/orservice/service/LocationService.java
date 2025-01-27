@@ -5,7 +5,7 @@ import com.sarapis.orservice.dto.LocationDTO;
 import java.util.List;
 
 public interface LocationService {
-    List<LocationDTO> getAllLocations();
+    List<LocationDTO> getAllLocations(String search);
 
     LocationDTO getLocationById(String locationId);
 

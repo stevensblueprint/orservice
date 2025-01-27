@@ -29,8 +29,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public List<LocationDTO> getAllLocations() {
-        List<LocationDTO> locationDTOs = this.locationRepository.findAll()
+    public List<LocationDTO> getAllLocations(String search) {
+        List<LocationDTO> locationDTOs = this.locationRepository.getAllLocations(search)
                 .stream().map(Location::toDTO).toList();
         locationDTOs.forEach(this::addRelatedData);
         return locationDTOs;

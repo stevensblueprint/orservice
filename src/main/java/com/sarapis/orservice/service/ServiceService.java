@@ -1,10 +1,11 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
+
 import java.util.List;
 
 public interface ServiceService {
-    List<ServiceDTO> getAllServices();
+    List<ServiceDTO> getAllServices(String search);
 
     ServiceDTO getServiceById(String serviceId);
 

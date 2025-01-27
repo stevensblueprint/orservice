@@ -20,8 +20,8 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations() {
-        List<OrganizationDTO> organizations = this.organizationService.getAllOrganizations();
+    public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations(@RequestParam(required = false, name = "search") String search) {
+        List<OrganizationDTO> organizations = this.organizationService.getAllOrganizations(search);
         PaginationDTO<OrganizationDTO> pagination = PaginationDTO.of(
                 organizations.size(),
                 1,

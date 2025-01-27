@@ -34,9 +34,9 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     @Override
-    public List<ServiceDTO> getAllServices() {
-        List<ServiceDTO> serviceDTOs = this.serviceRepository.findAll().stream()
-                .map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
+    public List<ServiceDTO> getAllServices(String search) {
+        List<ServiceDTO> serviceDTOs = this.serviceRepository.getAllServices(search)
+                .stream().map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
         serviceDTOs.forEach(this::addRelatedData);
         return serviceDTOs;
     }
