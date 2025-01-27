@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/organizations")
@@ -22,8 +21,8 @@ public class OrganizationController {
 
     @GetMapping
     public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations() {
-        List<OrganizationDTO> organizations = organizationService.getAllOrganizations();
-        PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
+        List<OrganizationDTO> organizations = this.organizationService.getAllOrganizations();
+        PaginationDTO<OrganizationDTO> pagination = PaginationDTO.of(
                 organizations.size(),
                 1,
                 1,
@@ -33,33 +32,32 @@ public class OrganizationController {
                 false,
                 organizations
         );
-        return ResponseEntity.ok(paginationDTO);
+        return ResponseEntity.ok(pagination);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable String id) {
-        OrganizationDTO organization = organizationService.getOrganizationById(id);
+    @GetMapping("/{organizationId}")
+    public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable String organizationId) {
+        OrganizationDTO organization = this.organizationService.getOrganizationById(organizationId);
         return ResponseEntity.ok(organization);
     }
 
     @PostMapping
     public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody OrganizationDTO organizationDTO) {
-        if (organizationDTO.getId() == null) {
-            organizationDTO.setId(UUID.randomUUID().toString());
-        }
-        OrganizationDTO createdOrganization = organizationService.createOrganization(organizationDTO);
+        OrganizationDTO createdOrganization = this.organizationService.createOrganization(organizationDTO);
         return ResponseEntity.ok(createdOrganization);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String id, @RequestBody OrganizationDTO organizationDTO) {
-        OrganizationDTO updatedOrganization = organizationService.updateOrganization(id, organizationDTO);
+    @PutMapping("/{organizationId}")
+    public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String organizationId,
+                                                              @RequestBody OrganizationDTO organizationDTO) {
+        OrganizationDTO updatedOrganization = this.organizationService
+                .updateOrganization(organizationId, organizationDTO);
         return ResponseEntity.ok(updatedOrganization);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
-        organizationService.deleteOrganization(id);
+    @DeleteMapping("/{organizationId}")
+    public ResponseEntity<Void> deleteOrganization(@PathVariable String organizationId) {
+        this.organizationService.deleteOrganization(organizationId);
         return ResponseEntity.noContent().build();
     }
 }

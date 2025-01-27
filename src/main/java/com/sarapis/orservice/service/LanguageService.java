@@ -7,11 +7,11 @@ import java.util.List;
 public interface LanguageService {
     List<LanguageDTO> getAllLanguages();
 
-    LanguageDTO getLanguageById(String id);
+    LanguageDTO getLanguageById(String languageId);
 
     LanguageDTO createLanguage(LanguageDTO languageDTO);
 
-    LanguageDTO updateLanguage(String id, LanguageDTO languageDTO);
+    LanguageDTO updateLanguage(String languageId, LanguageDTO languageDTO);
 
-    void deleteLanguage(String id);
+    void deleteLanguage(String languageId);
 }

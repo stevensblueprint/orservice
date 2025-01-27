@@ -1,9 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.ServiceAreaDTO;
+import com.sarapis.orservice.entity.core.Service;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +17,16 @@ import java.util.ArrayList;
 @Builder
 public class ServiceArea {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
+
+    @ManyToOne
+    @JoinColumn(name = "service_at_location_id")
+    private ServiceAtLocation serviceAtLocation;
 
     @Column(name = "name")
     private String name;
@@ -40,6 +47,8 @@ public class ServiceArea {
     public ServiceAreaDTO toDTO() {
         return ServiceAreaDTO.builder()
                 .id(this.id)
+                .serviceId(this.service == null ? null : this.service.getId())
+                .serviceAtLocationId(this.serviceAtLocation == null ? null : this.serviceAtLocation.getId())
                 .name(this.name)
                 .description(this.description)
                 .extent(this.extent)

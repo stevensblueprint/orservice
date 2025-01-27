@@ -7,11 +7,11 @@ import java.util.List;
 public interface ContactService {
     List<ContactDTO> getAllContacts();
 
-    ContactDTO getContactById(String id);
+    ContactDTO getContactById(String contactId);
 
     ContactDTO createContact(ContactDTO contactDTO);
 
-    ContactDTO updateContact(String id, ContactDTO contactDTO);
+    ContactDTO updateContact(String contactId, ContactDTO contactDTO);
 
-    void deleteContact(String id);
+    void deleteContact(String contactId);
 }

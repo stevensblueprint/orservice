@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.RequiredDocumentDTO;
+import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 @Builder
 public class RequiredDocument {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
 
     @Column(name = "document")
     private String document;
@@ -30,6 +32,7 @@ public class RequiredDocument {
     public RequiredDocumentDTO toDTO() {
         return RequiredDocumentDTO.builder()
                 .id(this.id)
+                .serviceId(this.service == null ? null : this.service.getId())
                 .document(this.document)
                 .uri(this.uri)
                 .attributes(new ArrayList<>())

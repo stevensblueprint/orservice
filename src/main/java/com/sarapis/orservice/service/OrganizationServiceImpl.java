@@ -1,43 +1,40 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.AttributeDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.Metadata;
 import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.repository.AttributeRepository;
-import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
-import java.io.ByteArrayInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationRepository organizationRepository;
-    private final AttributeRepository attributeRepository;
-    private final MetadataRepository metadataRepository;
+    private final AttributeService attributeService;
+    private final MetadataService metadataService;
 
     @Autowired
-    public OrganizationServiceImpl(OrganizationRepository organizationRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+    public OrganizationServiceImpl(OrganizationRepository organizationRepository,
+                                   AttributeService attributeService,
+                                   MetadataService metadataService) {
         this.organizationRepository = organizationRepository;
-        this.attributeRepository = attributeRepository;
-        this.metadataRepository = metadataRepository;
+        this.attributeService = attributeService;
+        this.metadataService = metadataService;
     }
 
     @Override
     public List<OrganizationDTO> getAllOrganizations() {
-        List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll().stream().map(Organization::toDTO).toList();
+        List<OrganizationDTO> organizationDTOs = this.organizationRepository.findAll()
+                .stream().map(Organization::toDTO).toList();
         organizationDTOs.forEach(this::addRelatedData);
         return organizationDTOs;
     }
 
     @Override
-    public OrganizationDTO getOrganizationById(String id) {
-        Organization organization = this.organizationRepository.findById(id)
+    public OrganizationDTO getOrganizationById(String organizationId) {
+        Organization organization = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
         OrganizationDTO organizationDTO = organization.toDTO();
         this.addRelatedData(organizationDTO);
@@ -46,24 +43,26 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) {
-        Organization organization = this.organizationRepository.save(organizationDTO.toEntity());
+        Organization parentOrganization = null;
 
-        for (AttributeDTO attributeDTO : organizationDTO.getAttributes()) {
-            this.attributeRepository.save(attributeDTO.toEntity(organization.getId()));
+        if (organizationDTO.getParentOrganizationId() != null) {
+            parentOrganization = this.organizationRepository.findById(organizationDTO.getParentOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Parent organization not found."));
         }
 
-        for (MetadataDTO metadataDTO : organizationDTO.getMetadata()) {
-            this.metadataRepository.save(metadataDTO.toEntity(organization.getId()));
-        }
+        Organization organization = organizationDTO.toEntity(parentOrganization);
+        organizationDTO.getAttributes()
+                .forEach(attributeDTO -> this.attributeService.createAttribute(organization.getId(), attributeDTO));
+        organizationDTO.getMetadata()
+                .forEach(e -> this.metadataService.createMetadata(organization.getId(), e));
 
-        OrganizationDTO savedOrganizationDTO = this.organizationRepository.save(organization).toDTO();
-        this.addRelatedData(savedOrganizationDTO);
-        return savedOrganizationDTO;
+        Organization createdOrganization = this.organizationRepository.save(organization);
+        return this.getOrganizationById(createdOrganization.getId());
     }
 
     @Override
-    public OrganizationDTO updateOrganization(String id, OrganizationDTO organizationDTO) {
-        Organization organization = this.organizationRepository.findById(id)
+    public OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO) {
+        Organization organization = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
 
         organization.setName(organizationDTO.getName());
@@ -77,18 +76,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setLegalStatus(organizationDTO.getLegalStatus());
         organization.setLogo(organizationDTO.getLogo());
         organization.setUri(organizationDTO.getUri());
-        organization.setParentOrganization(organizationDTO.getParentOrganization().toEntity());
 
         Organization updatedOrganization = this.organizationRepository.save(organization);
-        return updatedOrganization.toDTO();
+        return this.getOrganizationById(updatedOrganization.getId());
     }
 
     @Override
-    public void deleteOrganization(String id) {
-        Organization organization = this.organizationRepository.findById(id)
+    public void deleteOrganization(String organizationId) {
+        Organization organization = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
-        this.organizationRepository.deleteAttributes(organization.getId());
-        this.organizationRepository.deleteMetadata(organization.getId());
+        this.attributeService.deleteRelatedAttributes(organization.getId());
+        this.metadataService.deleteRelatedMetadata(organization.getId());
         this.organizationRepository.delete(organization);
     }
 
@@ -99,7 +97,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private void addRelatedData(OrganizationDTO organizationDTO) {
-        organizationDTO.getAttributes().addAll(this.organizationRepository.getAttributes(organizationDTO.getId()).stream().map(Attribute::toDTO).toList());
-        organizationDTO.getMetadata().addAll(this.organizationRepository.getMetadata(organizationDTO.getId()).stream().map(Metadata::toDTO).toList());
+        organizationDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(organizationDTO.getId()));
+        organizationDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(organizationDTO.getId()));
     }
 }

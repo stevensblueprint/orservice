@@ -3,7 +3,6 @@ package com.sarapis.orservice.entity;
 import com.sarapis.orservice.dto.MetadataDTO;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 
@@ -16,8 +15,6 @@ import java.time.LocalDate;
 @Builder
 public class Metadata {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
 

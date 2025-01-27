@@ -10,42 +10,40 @@ import java.util.zip.ZipOutputStream;
 import org.springframework.core.io.InputStreamResource;
 
 public class ExportServiceImpl implements ExportService {
-  private static void addToZip(
-      ZipOutputStream zipOut,
-      String fileName,
-      InputStreamResource resource) throws IOException {
+    private static void addToZip(ZipOutputStream zipOut, String fileName, InputStreamResource resource)
+            throws IOException {
 
-    ZipEntry zipEntry = new ZipEntry(fileName);
-    zipOut.putNextEntry(zipEntry);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
 
-    try (InputStream inputStream = resource.getInputStream()) {
-      byte[] bytes = new byte[1024];
-      int length;
-      while ((length = inputStream.read(bytes)) >= 0) {
-        zipOut.write(bytes, 0, length);
-      }
+        try (InputStream inputStream = resource.getInputStream()) {
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = inputStream.read(bytes)) >= 0) {
+                zipOut.write(bytes, 0, length);
+            }
+        }
+        zipOut.closeEntry();
     }
-    zipOut.closeEntry();
-  }
 
-  private Map<String, InputStreamResource> getCSVsFromTables() {
-    return null;
-  }
-
-  @Override
-  public InputStreamResource createCsvZip() throws IOException {
-    Map<String, InputStreamResource> files = getCSVsFromTables();
-    ByteArrayOutputStream zipStream = new ByteArrayOutputStream();
-    try (ZipOutputStream zipOut = new ZipOutputStream(zipStream)) {
-      for (Map.Entry<String, InputStreamResource> entry : files.entrySet()) {
-        addToZip(zipOut, entry.getKey(), entry.getValue());
-      }
+    private Map<String, InputStreamResource> getCSVsFromTables() {
+        return null;
     }
-    return new InputStreamResource(new ByteArrayInputStream(zipStream.toByteArray()));
-  }
 
-  @Override
-  public InputStreamResource createPdfZip() throws IOException {
-    return null;
-  }
+    @Override
+    public InputStreamResource createCsvZip() throws IOException {
+        Map<String, InputStreamResource> files = getCSVsFromTables();
+        ByteArrayOutputStream zipStream = new ByteArrayOutputStream();
+        try (ZipOutputStream zipOut = new ZipOutputStream(zipStream)) {
+            for (Map.Entry<String, InputStreamResource> entry : files.entrySet()) {
+                addToZip(zipOut, entry.getKey(), entry.getValue());
+            }
+        }
+        return new InputStreamResource(new ByteArrayInputStream(zipStream.toByteArray()));
+    }
+
+    @Override
+    public InputStreamResource createPdfZip() throws IOException {
+        return null;
+    }
 }

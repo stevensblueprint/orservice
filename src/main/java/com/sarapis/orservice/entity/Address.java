@@ -1,9 +1,9 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.AddressDTO;
+import com.sarapis.orservice.entity.core.Location;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +16,12 @@ import java.util.ArrayList;
 @Builder
 public class Address {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @Column(name = "attention")
     private String attention;
@@ -52,6 +54,7 @@ public class Address {
     public AddressDTO toDTO() {
         return AddressDTO.builder()
                 .id(this.id)
+                .locationId(this.location == null ? null : this.location.getId())
                 .attention(this.attention)
                 .address_1(this.address_1)
                 .address_2(this.address_2)
