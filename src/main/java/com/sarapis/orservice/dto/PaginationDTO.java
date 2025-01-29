@@ -48,7 +48,7 @@ public class PaginationDTO<T> {
         }
 
         int totalItems = contents.size();
-        int totalPages = (int) Math.ceil((double) totalItems / perPage);
+        int totalPages = (totalItems / perPage) + 1;
 
         if(pageNumber > totalPages) {
             throw new RuntimeException("Provided pageNumber exceeds last page");
