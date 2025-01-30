@@ -1,26 +1,52 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertOrganizationIdentifierDTO;
+import com.sarapis.orservice.entity.*;
+import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.repository.OrganizationRepository;
+import com.sarapis.orservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationRepository organizationRepository;
+    private final UrlRepository urlRepository;
+    private final FundingRepository fundingRepository;
     private final AttributeService attributeService;
+    private final LocationRepository locationRepository;
+    private final PhoneRepository phoneRepository;
+    private final ContactRepository contactRepository;
+    private final ProgramRepository programRepository;
+    private final OrganizationIdentifierRepository organizationIdentifierRepository;
     private final MetadataService metadataService;
 
     @Autowired
     public OrganizationServiceImpl(OrganizationRepository organizationRepository,
+                                   UrlRepository urlRepository,
+                                   FundingRepository fundingRepository,
                                    AttributeService attributeService,
+                                   LocationRepository locationRepository,
+                                   PhoneRepository phoneRepository,
+                                   ContactRepository contactRepository,
+                                   ProgramRepository programRepository,
+                                   OrganizationIdentifierRepository organizationIdentifierRepository,
                                    MetadataService metadataService) {
         this.organizationRepository = organizationRepository;
+        this.urlRepository = urlRepository;
+        this.fundingRepository = fundingRepository;
         this.attributeService = attributeService;
+        this.locationRepository = locationRepository;
+        this.phoneRepository = phoneRepository;
+        this.contactRepository = contactRepository;
+        this.programRepository = programRepository;
+        this.organizationIdentifierRepository = organizationIdentifierRepository;
         this.metadataService = metadataService;
     }
 
@@ -42,21 +68,79 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) {
-        Organization parentOrganization = null;
+    public OrganizationDTO createOrganization(UpsertOrganizationDTO upsertOrganizationDTO) {
+        Organization createdOrganization = this.organizationRepository.save(upsertOrganizationDTO.create());
 
-        if (organizationDTO.getParentOrganizationId() != null) {
-            parentOrganization = this.organizationRepository.findById(organizationDTO.getParentOrganizationId())
+        if (upsertOrganizationDTO.getParentOrganizationId() != null) {
+            Organization parentOrganization = this.organizationRepository
+                    .findById(upsertOrganizationDTO.getParentOrganizationId())
                     .orElseThrow(() -> new RuntimeException("Parent organization not found."));
+            createdOrganization.setParentOrganization(parentOrganization);
         }
 
-        Organization organization = organizationDTO.toEntity(parentOrganization);
-        organizationDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(organization.getId(), attributeDTO));
-        organizationDTO.getMetadata()
-                .forEach(e -> this.metadataService.createMetadata(organization.getId(), e));
+        createdOrganization.setAdditionalWebsites(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getAdditionalWebsites()) {
+            Url url = this.urlRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Url not found."));
+            url.setOrganization(createdOrganization);
+            this.urlRepository.save(url);
+            createdOrganization.getAdditionalWebsites().add(url);
+        }
 
-        Organization createdOrganization = this.organizationRepository.save(organization);
+        createdOrganization.setFunding(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getFundings()) {
+            Funding funding = this.fundingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Funding not found."));
+            funding.setOrganization(createdOrganization);
+            this.fundingRepository.save(funding);
+            createdOrganization.getFunding().add(funding);
+        }
+
+        createdOrganization.setLocations(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getLocations()) {
+            Location location = this.locationRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+            location.setOrganization(createdOrganization);
+            this.locationRepository.save(location);
+            createdOrganization.getLocations().add(location);
+        }
+
+        createdOrganization.setPhones(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getPhones()) {
+            Phone phone = this.phoneRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+            phone.setOrganization(createdOrganization);
+            this.phoneRepository.save(phone);
+            createdOrganization.getPhones().add(phone);
+        }
+
+        createdOrganization.setContacts(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getContacts()) {
+            Contact contact = this.contactRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Contact not found."));
+            contact.setOrganization(createdOrganization);
+            this.contactRepository.save(contact);
+            createdOrganization.getContacts().add(contact);
+        }
+
+        createdOrganization.setPrograms(new ArrayList<>());
+        for (String id : upsertOrganizationDTO.getPrograms()) {
+            Program program = this.programRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Program not found."));
+            program.setOrganization(createdOrganization);
+            this.programRepository.save(program);
+            createdOrganization.getPrograms().add(program);
+        }
+
+        createdOrganization.setOrganizationIdentifiers(new ArrayList<>());
+        for (UpsertOrganizationIdentifierDTO dto : upsertOrganizationDTO.getOrganizationIdentifiers()) {
+            OrganizationIdentifier organizationIdentifier = dto.create();
+            organizationIdentifier.setOrganization(createdOrganization);
+            OrganizationIdentifier createdOrganizationIdentifier = this.organizationIdentifierRepository.save(organizationIdentifier);
+            createdOrganization.getOrganizationIdentifiers().add(createdOrganizationIdentifier);
+        }
+
+        this.organizationRepository.save(createdOrganization);
         return this.getOrganizationById(createdOrganization.getId());
     }
 

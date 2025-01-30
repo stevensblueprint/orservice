@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.ProgramDTO;
+import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
 import com.sarapis.orservice.service.ProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +33,8 @@ public class ProgramController {
     }
 
     @PostMapping
-    public ResponseEntity<ProgramDTO> createProgram(@RequestBody ProgramDTO programDTO) {
-        ProgramDTO createdProgram = this.programService.createProgram(programDTO);
+    public ResponseEntity<ProgramDTO> createProgram(@RequestBody UpsertProgramDTO upsertProgramDTO) {
+        ProgramDTO createdProgram = this.programService.createProgram(upsertProgramDTO);
         return ResponseEntity.ok(createdProgram);
     }
 

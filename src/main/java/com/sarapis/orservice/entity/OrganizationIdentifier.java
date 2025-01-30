@@ -15,13 +15,13 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Builder
 public class OrganizationIdentifier {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "organization_id", nullable = false)
-    private Organization organization;
 
     @Column(name = "identifier_scheme")
     private String identifierScheme;
@@ -31,6 +31,18 @@ public class OrganizationIdentifier {
 
     @Column(name = "identifier", nullable = false)
     private String identifier;
+
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     public OrganizationIdentifierDTO toDTO() {
         return OrganizationIdentifierDTO.builder()

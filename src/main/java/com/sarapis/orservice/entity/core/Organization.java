@@ -24,13 +24,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Organization {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_organization_id")
-    private Organization parentOrganization = null;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -67,29 +67,44 @@ public class Organization {
     @Column(name = "uri")
     private String uri;
 
+    //================================================================================
+    // Relations
+    //================================================================================
+
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "parentOrganization")
-    private List<Organization> childOrganizations = new ArrayList<>();
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Url> additionalWebsites = new ArrayList<>();
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Funding> funding = new ArrayList<>();
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Contact> contacts = new ArrayList<>();
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Phone> phones = new ArrayList<>();
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Location> locations = new ArrayList<>();
+    private List<Organization> childOrganizations;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
-    private List<Program> programs = new ArrayList<>();
+    private List<Service> services;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_organization_id")
+    private Organization parentOrganization;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Url> additionalWebsites;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Funding> funding;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Contact> contacts;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Phone> phones;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
+    private List<Location> locations;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
-    private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();
+    private List<Program> programs;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
+    private List<OrganizationIdentifier> organizationIdentifiers;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     public static ByteArrayInputStream toCSV(List<Organization> organizations) {
         final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "unit")
@@ -14,6 +15,10 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Builder
 public class Unit {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
@@ -30,8 +35,16 @@ public class Unit {
     @Column(name = "uri")
     private String uri;
 
-    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "unit")
-    private ServiceCapacity serviceCapacity;
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "unit")
+    private List<ServiceCapacity> serviceCapacities;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     public UnitDTO toDTO() {
         return UnitDTO.builder()
