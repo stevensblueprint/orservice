@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ScheduleDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,15 @@ public class ScheduleController {
                                                                    @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<ScheduleDTO> scheduleDTOs = this.scheduleService.getAllSchedules();
 
-        try {
-            PaginationDTO<ScheduleDTO> paginationDTO = PaginationDTO.of(
-                    scheduleDTOs,
-                    page,
-                    perPage
-            );
-            return ResponseEntity.ok(paginationDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<ScheduleDTO> paginationDTO = PaginationDTO.of(
+            scheduleDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{scheduleId}")

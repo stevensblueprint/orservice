@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.LanguageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,15 @@ public class LanguageController {
                                                                       @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<LanguageDTO> languageDTOs = this.languageService.getAllLanguages();
 
-        try {
-            PaginationDTO<LanguageDTO> paginationDTO = PaginationDTO.of(
-                    languageDTOs,
-                    page,
-                    perPage
-            );
-            return ResponseEntity.ok(paginationDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<LanguageDTO> paginationDTO = PaginationDTO.of(
+                languageDTOs,
+                page,
+                perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{languageId}")

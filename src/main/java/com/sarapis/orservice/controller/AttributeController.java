@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AttributeDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.AttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,15 @@ public class AttributeController {
                                                                         @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<AttributeDTO> attributeDTOs = this.attributeService.getAllAttributes();
 
-        try {
-            PaginationDTO<AttributeDTO> paginationDTO = PaginationDTO.of(
-                    attributeDTOs,
-                    page,
-                    perPage
-            );
-            return ResponseEntity.ok(paginationDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        if(page <= 0) throw new InvalidInputException("Invalid value provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid value provided for 'perPage'.");
+
+        PaginationDTO<AttributeDTO> paginationDTO = PaginationDTO.of(
+            attributeDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{attributeId}")

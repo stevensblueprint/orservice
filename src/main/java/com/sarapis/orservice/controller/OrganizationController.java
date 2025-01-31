@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +27,15 @@ public class OrganizationController {
     {
         List<OrganizationDTO> organizations = organizationService.getAllOrganizations();
 
-        try {
-            PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
-                    organizations,
-                    page,
-                    perPage
-            );
-            return ResponseEntity.ok(paginationDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
+            organizations,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{organizationId}")

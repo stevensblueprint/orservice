@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +26,15 @@ public class ContactController {
                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
         List<ContactDTO> contactDTOs = this.contactService.getAllContacts();
 
-        try {
-            PaginationDTO<ContactDTO> paginationDTO = PaginationDTO.of(
-                contactDTOs,
-                page,
-                perPage
-            );
-            return ResponseEntity.ok(paginationDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        if(page <= 0) throw new InvalidInputException("Invalid value provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid value provided for 'perPage'.");
+
+        PaginationDTO<ContactDTO> paginationDTO = PaginationDTO.of(
+            contactDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{contactId}")

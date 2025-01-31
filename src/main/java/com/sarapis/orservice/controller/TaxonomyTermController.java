@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.TaxonomyTermService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,15 @@ public class TaxonomyTermController {
                                                                             @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
     List<TaxonomyTermDTO> taxonomyTermDTOs = this.taxonomyTermService.getAllTaxonomyTerms();
 
-    try {
-      PaginationDTO<TaxonomyTermDTO> paginationDTO = PaginationDTO.of(
-              taxonomyTermDTOs,
-              page,
-              perPage
-      );
-      return ResponseEntity.ok(paginationDTO);
-    } catch (RuntimeException e) {
-      return ResponseEntity.badRequest().build();
-    }
+    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+    PaginationDTO<TaxonomyTermDTO> paginationDTO = PaginationDTO.of(
+        taxonomyTermDTOs,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
   }
 
     @GetMapping("/{id}")
