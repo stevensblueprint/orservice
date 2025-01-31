@@ -19,9 +19,29 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Contact {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "department")
+    private String department;
+
+    @Column(name = "email")
+    private String email;
+
+    //================================================================================
+    // Relations
+    //================================================================================
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
@@ -39,20 +59,12 @@ public class Contact {
     @JoinColumn(name = "location_id")
     private Location location;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "department")
-    private String department;
-
-    @Column(name = "email")
-    private String email;
-
     @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, mappedBy = "contact")
     private List<Phone> phones = new ArrayList<>();
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     @PreRemove
     public void preRemove() {

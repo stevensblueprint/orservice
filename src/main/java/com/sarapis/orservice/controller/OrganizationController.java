@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
 import com.sarapis.orservice.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +43,8 @@ public class OrganizationController {
     }
 
     @PostMapping
-    public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody OrganizationDTO organizationDTO) {
-        OrganizationDTO createdOrganization = this.organizationService.createOrganization(organizationDTO);
+    public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody UpsertOrganizationDTO upsertOrganizationDTO) {
+        OrganizationDTO createdOrganization = this.organizationService.createOrganization(upsertOrganizationDTO);
         return ResponseEntity.ok(createdOrganization);
     }
 

@@ -1,6 +1,8 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ProgramDTO;
+import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
+
 import java.util.List;
 
 public interface ProgramService {
@@ -8,7 +10,7 @@ public interface ProgramService {
 
     ProgramDTO getProgramDTOById(String programId);
 
-    ProgramDTO createProgram(ProgramDTO programDTO);
+    ProgramDTO createProgram(UpsertProgramDTO upsertProgramDTO);
 
     ProgramDTO updateProgram(String programId, ProgramDTO programDTO);
 

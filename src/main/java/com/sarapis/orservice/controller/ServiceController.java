@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
 import com.sarapis.orservice.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +43,8 @@ public class ServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<ServiceDTO> createService(@RequestBody ServiceDTO serviceDTO) {
-        ServiceDTO createdService = this.serviceService.createService(serviceDTO);
+    public ResponseEntity<ServiceDTO> createService(@RequestBody UpsertServiceDTO upsertServiceDTO) {
+        ServiceDTO createdService = this.serviceService.createService(upsertServiceDTO);
         return ResponseEntity.ok(createdService);
     }
 

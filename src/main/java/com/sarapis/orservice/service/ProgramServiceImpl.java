@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ProgramDTO;
+import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
 import com.sarapis.orservice.entity.Program;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.repository.OrganizationRepository;
@@ -44,20 +45,16 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ProgramDTO createProgram(ProgramDTO programDTO) {
-        Organization organization = null;
+    public ProgramDTO createProgram(UpsertProgramDTO upsertProgramDTO) {
+        Program program = upsertProgramDTO.create();
 
-        if (programDTO.getOrganizationId() != null) {
-            organization = this.organizationRepository.findById(programDTO.getOrganizationId())
-                    .orElseThrow(() -> new RuntimeException("Organization not found."));
-        }
-
-        Program program = this.programRepository.save(programDTO.toEntity(organization));
-        programDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(program.getId(), attributeDTO));
-        programDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(program.getId(), e));
+        Organization organization = this.organizationRepository.findById(upsertProgramDTO.getOrganizationId())
+                .orElseThrow(() -> new RuntimeException("Organization not found."));
+        program.setOrganization(organization);
 
         Program createdProgram = this.programRepository.save(program);
+        organization.getPrograms().add(createdProgram);
+        this.organizationRepository.save(organization);
         return this.getProgramDTOById(createdProgram.getId());
     }
 

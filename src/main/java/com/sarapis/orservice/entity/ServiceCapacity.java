@@ -16,17 +16,13 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Builder
 public class ServiceCapacity {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
-
-    @OneToOne(orphanRemoval = true, optional = false)
-    @JoinColumn(name = "unit_id", nullable = false)
-    private Unit unit;
 
     @Column(name = "available", nullable = false)
     private int available;
@@ -40,11 +36,27 @@ public class ServiceCapacity {
     @Column(name = "updated", nullable = false)
     private LocalDate updated;
 
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "unit_id", nullable = false)
+    private Unit unit;
+
+    //================================================================================
+    // Methods
+    //================================================================================
+
     public ServiceCapacityDTO toDTO() {
         return ServiceCapacityDTO.builder()
                 .id(this.id)
                 .serviceId(this.service.getId())
-                .unitId(this.unit.getId())
+                .unit(this.unit.toDTO())
                 .available(this.available)
                 .maximum(this.maximum)
                 .description(this.description)

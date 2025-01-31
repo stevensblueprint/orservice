@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import com.sarapis.orservice.repository.LocationRepository;
@@ -50,26 +51,22 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     }
 
     @Override
-    public ServiceAtLocationDTO createServiceAtLocation(ServiceAtLocationDTO serviceAtLocationDTO) {
-        com.sarapis.orservice.entity.core.Service service = null;
-        Location location = null;
+    public ServiceAtLocationDTO createServiceAtLocation(UpsertServiceAtLocationDTO upsertServiceAtLocationDTO) {
+        ServiceAtLocation serviceAtLocation = upsertServiceAtLocationDTO.create();
 
-        if (serviceAtLocationDTO.getServiceId() != null) {
-            service = this.serviceRepository.findById(serviceAtLocationDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
-        }
-        if (serviceAtLocationDTO.getLocationId() != null) {
-            location = this.locationRepository.findById(serviceAtLocationDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Service at location not found."));
-        }
+        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertServiceAtLocationDTO.getServiceId())
+                .orElseThrow(() -> new RuntimeException("Service not found."));
+        serviceAtLocation.setService(service);
 
-        ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocationDTO.toEntity(service, location));
-        serviceAtLocationDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(serviceAtLocation.getId(), attributeDTO));
-        serviceAtLocationDTO.getMetadata()
-                .forEach(e -> this.metadataService.createMetadata(serviceAtLocation.getId(), e));
+        Location location = this.locationRepository.findById(upsertServiceAtLocationDTO.getLocationId())
+                .orElseThrow(() -> new RuntimeException("Location not found."));
+        serviceAtLocation.setLocation(location);
 
         ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
+        service.getServiceAtLocations().add(createdServiceAtLocation);
+        location.getServiceAtLocations().add(createdServiceAtLocation);
+        this.serviceRepository.save(service);
+        this.locationRepository.save(location);
         return this.getServiceAtLocationById(createdServiceAtLocation.getId());
     }
 

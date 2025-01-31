@@ -16,13 +16,13 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Location {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "location_type", nullable = false)
@@ -55,26 +55,38 @@ public class Location {
     @Column(name = "external_identifier_type")
     private String externalIdentifierType;
 
-    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "location")
-    private ServiceAtLocation serviceAtLocation;
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "location")
+    private List<ServiceAtLocation> serviceAtLocations;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Language> languages = new ArrayList<>();
+    private List<Language> languages;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Address> addresses = new ArrayList<>();
+    private List<Address> addresses;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Contact> contacts = new ArrayList<>();
+    private List<Contact> contacts;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Accessibility> accessibility = new ArrayList<>();
+    private List<Accessibility> accessibility;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Phone> phones = new ArrayList<>();
+    private List<Phone> phones;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Schedule> schedules = new ArrayList<>();
+    private List<Schedule> schedules;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     @PreRemove
     public void preRemove() {

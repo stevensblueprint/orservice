@@ -1,7 +1,6 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.CostOptionDTO;
-import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,13 +16,13 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Builder
 public class CostOption {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
 
     @Column(name = "valid_from")
     private LocalDate validFrom;
@@ -42,6 +41,18 @@ public class CostOption {
 
     @Column(name = "amount_description")
     private String amountDescription;
+
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     public CostOptionDTO toDTO() {
         return CostOptionDTO.builder()
