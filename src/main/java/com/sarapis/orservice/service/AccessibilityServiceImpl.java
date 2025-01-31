@@ -3,6 +3,7 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.entity.Accessibility;
 import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.AccessibilityRepository;
 import com.sarapis.orservice.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     @Override
     public AccessibilityDTO getAccessibilityById(String accessibilityId) {
         Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
         AccessibilityDTO accessibilityDTO = accessibility.toDTO();
         this.addRelatedData(accessibilityDTO);
         return accessibilityDTO;
@@ -51,7 +52,7 @@ public class AccessibilityServiceImpl implements AccessibilityService {
 
         if (accessibilityDTO.getLocationId() != null) {
             location = this.locationRepository.findById(accessibilityDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         }
 
         Accessibility accessibility = this.accessibilityRepository.save(accessibilityDTO.toEntity(location));
@@ -67,7 +68,7 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     @Override
     public AccessibilityDTO updateAccessibility(String accessibilityId, AccessibilityDTO accessibilityDTO) {
         Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
 
         accessibility.setDescription(accessibilityDTO.getDescription());
         accessibility.setDetails(accessibilityDTO.getDetails());
@@ -80,7 +81,7 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     @Override
     public void deleteAccessibility(String accessibilityId) {
         Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new RuntimeException("Accessibility not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
         this.attributeService.deleteRelatedAttributes(accessibility.getId());
         this.metadataService.deleteRelatedMetadata(accessibility.getId());
         this.accessibilityRepository.delete(accessibility);

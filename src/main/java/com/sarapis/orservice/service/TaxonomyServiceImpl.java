@@ -2,6 +2,7 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.entity.Taxonomy;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.TaxonomyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class TaxonomyServiceImpl implements TaxonomyService {
     @Override
     public TaxonomyDTO getTaxonomyById(String taxonomyId) {
         Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
         TaxonomyDTO taxonomyDTO = taxonomy.toDTO();
         this.addRelatedData(taxonomyDTO);
         return taxonomyDTO;
@@ -48,7 +49,7 @@ public class TaxonomyServiceImpl implements TaxonomyService {
     @Override
     public TaxonomyDTO updateTaxonomy(String taxonomyId, TaxonomyDTO taxonomyDTO) {
         Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
 
         taxonomy.setName(taxonomyDTO.getName());
         taxonomy.setDescription(taxonomyDTO.getDescription());
@@ -62,7 +63,7 @@ public class TaxonomyServiceImpl implements TaxonomyService {
     @Override
     public void deleteTaxonomy(String taxonomyId) {
         Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
         this.metadataService.deleteRelatedMetadata(taxonomy.getId());
         this.taxonomyRepository.delete(taxonomy);
     }

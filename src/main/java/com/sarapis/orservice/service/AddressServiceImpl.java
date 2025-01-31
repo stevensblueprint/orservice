@@ -3,6 +3,7 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.AddressDTO;
 import com.sarapis.orservice.entity.Address;
 import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.AddressRepository;
 import com.sarapis.orservice.repository.LocationRepository;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressDTO getAddressById(String addressId) {
         Address address = this.addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
         AddressDTO addressDTO = address.toDTO();
         this.addRelatedData(addressDTO);
         return addressDTO;
@@ -49,7 +50,7 @@ public class AddressServiceImpl implements AddressService {
 
         if (addressDTO.getLocationId() != null) {
             location = this.locationRepository.findById(addressDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         }
 
         Address address = this.addressRepository.save(addressDTO.toEntity(location));
@@ -65,7 +66,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressDTO updateAddress(String addressId, AddressDTO addressDTO) {
         Address address = this.addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
 
         address.setAttention(addressDTO.getAttention());
         address.setAddress_1(addressDTO.getAddress_1());
@@ -84,7 +85,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public void deleteAddress(String addressId) {
         Address address = this.addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
         this.attributeService.deleteRelatedAttributes(address.getId());
         this.metadataService.deleteRelatedMetadata(address.getId());
         this.addressRepository.delete(address);

@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.entity.Language;
 import com.sarapis.orservice.entity.Phone;
 import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
@@ -45,7 +46,7 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     public LanguageDTO getLanguageById(String languageId) {
         Language language = this.languageRepository.findById(languageId)
-                .orElseThrow(() -> new RuntimeException("Language not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
         LanguageDTO languageDTO = language.toDTO();
         this.addRelatedData(languageDTO);
         return languageDTO;
@@ -59,15 +60,15 @@ public class LanguageServiceImpl implements LanguageService {
 
         if (languageDTO.getServiceId() != null) {
             service = this.serviceRepository.findById(languageDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         }
         if (languageDTO.getLocationId() != null) {
             location = this.locationRepository.findById(languageDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         }
         if (languageDTO.getPhoneId() != null) {
             phone = this.phoneRepository.findById(languageDTO.getPhoneId())
-                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
         }
 
         Language language = this.languageRepository.save(languageDTO.toEntity(service, location, phone));
@@ -82,7 +83,7 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     public LanguageDTO updateLanguage(String languageId, LanguageDTO languageDTO) {
         Language language = this.languageRepository.findById(languageId)
-                .orElseThrow(() -> new RuntimeException("Language not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
 
         language.setName(languageDTO.getName());
         language.setCode(languageDTO.getCode());
@@ -95,7 +96,7 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     public void deleteLanguage(String languageId) {
         Language language = this.languageRepository.findById(languageId)
-                .orElseThrow(() -> new RuntimeException("Language not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
         this.attributeService.deleteRelatedAttributes(language.getId());
         this.metadataService.deleteRelatedMetadata(language.getId());
         this.languageRepository.delete(language);

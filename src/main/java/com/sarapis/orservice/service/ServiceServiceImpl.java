@@ -9,6 +9,7 @@ import com.sarapis.orservice.entity.*;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Override
     public ServiceDTO getServiceById(String serviceId) {
         com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         ServiceDTO serviceDTO = service.toDTO();
         this.addRelatedData(serviceDTO);
         return serviceDTO;
@@ -99,7 +100,7 @@ public class ServiceServiceImpl implements ServiceService {
         com.sarapis.orservice.entity.core.Service service = upsertServiceDTO.create();
 
         Organization organization = this.organizationRepository.findById(upsertServiceDTO.getOrganizationId())
-                .orElseThrow(() -> new RuntimeException("Organization not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
         service.setOrganization(organization);
 
         com.sarapis.orservice.entity.core.Service createdService = this.serviceRepository.save(service);
@@ -107,7 +108,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setAdditionalUrls(new ArrayList<>());
         for (String id : upsertServiceDTO.getAdditionalUrls()) {
             Url url = this.urlRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Url not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Url not found."));
             url.setOrganization(organization);
             this.urlRepository.save(url);
             createdService.getAdditionalUrls().add(url);
@@ -116,7 +117,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setLanguages(new ArrayList<>());
         for (String id : upsertServiceDTO.getLanguages()) {
             Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Language not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
             language.setService(createdService);
             this.languageRepository.save(language);
             createdService.getLanguages().add(language);
@@ -125,7 +126,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setFunding(new ArrayList<>());
         for (String id : upsertServiceDTO.getFundings()) {
             Funding funding = this.fundingRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Funding not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Funding not found."));
             funding.setService(createdService);
             this.fundingRepository.save(funding);
             createdService.getFunding().add(funding);
@@ -133,7 +134,7 @@ public class ServiceServiceImpl implements ServiceService {
 
         if (upsertServiceDTO.getProgramId() != null) {
             Program program = this.programRepository.findById(upsertServiceDTO.getProgramId())
-                    .orElseThrow(() -> new RuntimeException("Program not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
             program.getServices().add(createdService);
             this.programRepository.save(program);
             createdService.setProgram(program);
@@ -142,7 +143,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setRequiredDocuments(new ArrayList<>());
         for (String id : upsertServiceDTO.getRequiredDocuments()) {
             RequiredDocument requiredDocument = this.requiredDocumentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Required document not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Required document not found."));
             requiredDocument.setService(createdService);
             this.requiredDocumentRepository.save(requiredDocument);
             createdService.getRequiredDocuments().add(requiredDocument);
@@ -151,7 +152,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setServiceAtLocations(new ArrayList<>());
         for (String id : upsertServiceDTO.getLocations()) {
             Location location = this.locationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
             ServiceAtLocation serviceAtLocation = UpsertServiceAtLocationDTO.create(createdService, location);
             ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
             location.getServiceAtLocations().add(createdServiceAtLocation);
@@ -162,7 +163,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setPhones(new ArrayList<>());
         for (String id : upsertServiceDTO.getPhones()) {
             Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
             phone.setService(createdService);
             this.phoneRepository.save(phone);
             createdService.getPhones().add(phone);
@@ -171,7 +172,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setContacts(new ArrayList<>());
         for (String id : upsertServiceDTO.getContacts()) {
             Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Contact not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
             contact.setService(createdService);
             this.contactRepository.save(contact);
             createdService.getContacts().add(contact);
@@ -180,7 +181,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setSchedules(new ArrayList<>());
         for (String id : upsertServiceDTO.getSchedules()) {
             Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
             schedule.setService(createdService);
             this.scheduleRepository.save(schedule);
             createdService.getSchedules().add(schedule);
@@ -189,7 +190,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setServiceAreas(new ArrayList<>());
         for (String id : upsertServiceDTO.getServiceAreas()) {
             ServiceArea serviceArea = this.serviceAreaRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Service area not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service area not found."));
             serviceArea.setService(createdService);
             this.serviceAreaRepository.save(serviceArea);
             createdService.getServiceAreas().add(serviceArea);
@@ -206,7 +207,7 @@ public class ServiceServiceImpl implements ServiceService {
         createdService.setCapacities(new ArrayList<>());
         for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
             Unit unit = this.unitRepository.findById(dto.getUnitId())
-                    .orElseThrow(() -> new RuntimeException("Unit not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Unit not found."));
             ServiceCapacity serviceCapacity = dto.create();
             serviceCapacity.setService(createdService);
             serviceCapacity.setUnit(unit);
@@ -223,7 +224,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Override
     public ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO) {
         com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
 
         com.sarapis.orservice.entity.core.Service updatedService = this.serviceRepository.save(service);
         return this.getServiceById(updatedService.getId());
@@ -232,7 +233,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Override
     public void deleteService(String serviceId) {
         com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         this.attributeService.deleteRelatedAttributes(service.getId());
         this.metadataService.deleteRelatedMetadata(service.getId());
         this.serviceRepository.delete(service);
