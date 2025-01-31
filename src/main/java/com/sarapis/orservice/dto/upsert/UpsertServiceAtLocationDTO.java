@@ -29,14 +29,14 @@ public class UpsertServiceAtLocationDTO {
     public ServiceAtLocation create() {
         return ServiceAtLocation.builder()
                 .id(UUID.randomUUID().toString())
-                .description(description)
+                .description(this.description)
                 .build();
     }
 
     public ServiceAtLocation merge(ServiceAtLocation serviceAtLocation) {
         return ServiceAtLocation.builder()
                 .id(serviceAtLocation.getId())
-                .description(description == null ? serviceAtLocation.getDescription() : description)
+                .description(this.description == null ? serviceAtLocation.getDescription() : this.description)
                 .service(serviceAtLocation.getService())
                 .location(serviceAtLocation.getLocation())
                 .serviceAreas(serviceAtLocation.getServiceAreas())
