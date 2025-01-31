@@ -40,10 +40,10 @@ public class PaginationDTO<T> {
     }
 
     public static <T> PaginationDTO<T> of(List<T> contents, int pageNumber, int perPage) {
-        if(perPage < 0) {
+        if(perPage <= 0) {
             throw new RuntimeException("Invalid perPage value provided");
         }
-        if(pageNumber < 0) {
+        if(pageNumber <= 0) {
             throw new RuntimeException("Invalid pageNumber value provided");
         }
 
