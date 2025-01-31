@@ -20,8 +20,8 @@ public class AccessibilityController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<AccessibilityDTO>> getAllAccessibilities(@RequestParam(defaultValue = "1") Integer page,
-                                                                                 @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<AccessibilityDTO>> getAllAccessibilities(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                                 @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<AccessibilityDTO> accessibilityDTOs = this.accessibilityService.getAllAccessibilities();
 
         try {

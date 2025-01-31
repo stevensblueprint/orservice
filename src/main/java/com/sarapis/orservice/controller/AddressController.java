@@ -20,8 +20,8 @@ public class AddressController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<AddressDTO>> getAllAddresses(@RequestParam(defaultValue = "1") Integer page,
-                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<AddressDTO>> getAllAddresses(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                     @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<AddressDTO> addressDTOs = this.addressService.getAllAddresses();
 
         try {

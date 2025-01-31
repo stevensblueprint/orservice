@@ -20,8 +20,8 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<ScheduleDTO>> getSchedules(@RequestParam(defaultValue = "1") Integer page,
-                                                                   @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<ScheduleDTO>> getSchedules(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                   @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<ScheduleDTO> scheduleDTOs = this.scheduleService.getAllSchedules();
 
         try {

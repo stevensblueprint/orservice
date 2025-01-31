@@ -21,8 +21,8 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(defaultValue = "1") Integer page,
-                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                      @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<LocationDTO> locations = this.locationService.getAllLocations();
 
         try {

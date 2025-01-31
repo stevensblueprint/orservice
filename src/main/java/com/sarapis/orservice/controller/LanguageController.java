@@ -20,8 +20,8 @@ public class LanguageController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<LanguageDTO>> getAllLanguages(@RequestParam(defaultValue = "1") Integer page,
-                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<LanguageDTO>> getAllLanguages(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                      @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<LanguageDTO> languageDTOs = this.languageService.getAllLanguages();
 
         try {

@@ -21,8 +21,8 @@ public class ServiceAreaController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<ServiceAreaDTO>> getAllServiceAreas(@RequestParam(defaultValue = "1") Integer page,
-                                                                            @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<ServiceAreaDTO>> getAllServiceAreas(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                            @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<ServiceAreaDTO> serviceAreaDTOs = serviceAreaService.getAllServiceAreas();
 
         try {

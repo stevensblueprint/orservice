@@ -20,8 +20,8 @@ public class PhoneController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<PhoneDTO>> getAllPhones(@RequestParam(defaultValue = "1") Integer page,
-                                                                @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<PhoneDTO>> getAllPhones(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<PhoneDTO> phoneDTOs = this.phoneService.getAllPhones();
 
         try {

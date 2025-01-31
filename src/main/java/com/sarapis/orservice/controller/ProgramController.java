@@ -22,8 +22,8 @@ public class ProgramController {
     }
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<ProgramDTO>> getAllPrograms(@RequestParam(defaultValue = "1") Integer page,
-                                                                  @RequestParam(defaultValue = "10") Integer perPage) {
+  public ResponseEntity<PaginationDTO<ProgramDTO>> getAllPrograms(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                  @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
     List<ProgramDTO> programDTOs = this.programService.getAllPrograms();
 
     try {

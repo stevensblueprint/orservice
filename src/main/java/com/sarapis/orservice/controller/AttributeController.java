@@ -20,8 +20,8 @@ public class AttributeController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<AttributeDTO>> getAllAttributes(@RequestParam(defaultValue = "1") Integer page,
-                                                                        @RequestParam(defaultValue = "10") Integer perPage) {
+    public ResponseEntity<PaginationDTO<AttributeDTO>> getAllAttributes(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                        @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<AttributeDTO> attributeDTOs = this.attributeService.getAllAttributes();
 
         try {

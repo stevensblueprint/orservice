@@ -20,8 +20,8 @@ public class TaxonomyController {
     }
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies(@RequestParam(defaultValue = "1") Integer page,
-                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
+  public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                     @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
     List<TaxonomyDTO> taxonomyDTOs = this.taxonomyService.getAllTaxonomies();
 
     try {
