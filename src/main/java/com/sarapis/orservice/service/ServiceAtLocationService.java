@@ -1,6 +1,8 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
+
 import java.util.List;
 
 public interface ServiceAtLocationService {
@@ -8,7 +10,7 @@ public interface ServiceAtLocationService {
 
     ServiceAtLocationDTO getServiceAtLocationById(String serviceAtLocationId);
 
-    ServiceAtLocationDTO createServiceAtLocation(ServiceAtLocationDTO serviceAtLocationDTO);
+    ServiceAtLocationDTO createServiceAtLocation(UpsertServiceAtLocationDTO upsertServiceAtLocationDTO);
 
     ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO);
 

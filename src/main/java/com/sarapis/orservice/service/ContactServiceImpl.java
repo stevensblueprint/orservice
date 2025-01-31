@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ContactDTO;
+import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
 import com.sarapis.orservice.entity.Contact;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
@@ -55,35 +56,42 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactDTO createContact(ContactDTO contactDTO) {
-        Organization organization = null;
-        com.sarapis.orservice.entity.core.Service service = null;
-        ServiceAtLocation serviceAtLocation = null;
-        Location location = null;
+    public ContactDTO createContact(UpsertContactDTO upsertContactDTO) {
+        Contact createdContact = this.contactRepository.save(upsertContactDTO.create());
 
-        if (contactDTO.getOrganizationId() != null) {
-            organization = this.organizationRepository.findById(contactDTO.getOrganizationId())
+        if (upsertContactDTO.getOrganizationId() != null) {
+            Organization organization = this.organizationRepository.findById(upsertContactDTO.getOrganizationId())
                     .orElseThrow(() -> new RuntimeException("Organization not found."));
+            organization.getContacts().add(createdContact);
+            this.organizationRepository.save(organization);
+            createdContact.setOrganization(organization);
         }
-        if (contactDTO.getServiceId() != null) {
-            service = this.serviceRepository.findById(contactDTO.getServiceId())
+
+        if (upsertContactDTO.getServiceId() != null) {
+            com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertContactDTO.getServiceId())
                     .orElseThrow(() -> new RuntimeException("Service not found."));
+            service.getContacts().add(createdContact);
+            this.serviceRepository.save(service);
+            createdContact.setService(service);
         }
-        if (contactDTO.getServiceAtLocationId() != null) {
-            serviceAtLocation = this.serviceAtLocationRepository.findById(contactDTO.getServiceAtLocationId())
+
+        if (upsertContactDTO.getServiceAtLocationId() != null) {
+            ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(upsertContactDTO.getServiceAtLocationId())
                     .orElseThrow(() -> new RuntimeException("Service at location not found."));
+            serviceAtLocation.getContacts().add(createdContact);
+            this.serviceAtLocationRepository.save(serviceAtLocation);
+            createdContact.setServiceAtLocation(serviceAtLocation);
         }
-        if (contactDTO.getLocationId() != null) {
-            location = this.locationRepository.findById(contactDTO.getLocationId())
+
+        if (upsertContactDTO.getLocationId() != null) {
+            Location location = this.locationRepository.findById(upsertContactDTO.getLocationId())
                     .orElseThrow(() -> new RuntimeException("Location not found."));
+            location.getContacts().add(createdContact);
+            this.locationRepository.save(location);
+            createdContact.setLocation(location);
         }
 
-        Contact contact = this.contactRepository.save(contactDTO.toEntity(organization, service, serviceAtLocation, location));
-        contactDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(contact.getId(), attributeDTO));
-        contactDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(contact.getId(), e));
-
-        Contact createdContact = this.contactRepository.save(contact);
+        this.contactRepository.save(createdContact);
         return this.getContactById(createdContact.getId());
     }
 

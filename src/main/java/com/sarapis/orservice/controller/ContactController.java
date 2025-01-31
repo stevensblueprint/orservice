@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
 import com.sarapis.orservice.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,8 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<ContactDTO> createContact(@RequestBody ContactDTO contactDTO) {
-        ContactDTO createdContact = this.contactService.createContact(contactDTO);
+    public ResponseEntity<ContactDTO> createContact(@RequestBody UpsertContactDTO upsertContactDTO) {
+        ContactDTO createdContact = this.contactService.createContact(upsertContactDTO);
         return ResponseEntity.ok(createdContact);
     }
 

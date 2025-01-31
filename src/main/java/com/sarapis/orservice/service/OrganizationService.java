@@ -1,6 +1,8 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
@@ -9,7 +11,7 @@ public interface OrganizationService {
 
     OrganizationDTO getOrganizationById(String organizationId);
 
-    OrganizationDTO createOrganization(OrganizationDTO organizationDTO);
+    OrganizationDTO createOrganization(UpsertOrganizationDTO upsertOrganizationDTO);
 
     OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO);
 

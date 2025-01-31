@@ -4,8 +4,6 @@ import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,18 +18,13 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Service {
+    //================================================================================
+    // Attributes
+    //================================================================================
+
     @Id
     @Column(name = "id", nullable = false)
     private String id;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "organization_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Organization organization;
-
-    @ManyToOne
-    @JoinColumn(name = "program_id")
-    private Program program = null;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -97,38 +90,54 @@ public class Service {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Url> additionalUrls = new ArrayList<>();
+    //================================================================================
+    // Relations
+    //================================================================================
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
+    @ManyToOne
+    @JoinColumn(name = "program_id")
+    private Program program;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Phone> phones = new ArrayList<>();
+    private List<Url> additionalUrls;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Schedule> schedules = new ArrayList<>();
+    private List<Phone> phones;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<ServiceArea> serviceAreas = new ArrayList<>();
+    private List<Schedule> schedules;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
+    private List<ServiceArea> serviceAreas;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "service")
-    private List<ServiceAtLocation> serviceAtLocations = new ArrayList<>();
+    private List<ServiceAtLocation> serviceAtLocations;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Language> languages = new ArrayList<>();
+    private List<Language> languages;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Funding> funding = new ArrayList<>();
+    private List<Funding> funding;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "service")
-    private List<CostOption> costOptions = new ArrayList<>();
+    private List<CostOption> costOptions;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<RequiredDocument> requiredDocuments = new ArrayList<>();
+    private List<RequiredDocument> requiredDocuments;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "service")
-    private List<Contact> contacts = new ArrayList<>();
+    private List<Contact> contacts;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "service")
-    private List<ServiceCapacity> capacities = new ArrayList<>();
+    private List<ServiceCapacity> capacities;
+
+    //================================================================================
+    // Methods
+    //================================================================================
 
     @PreRemove
     public void preRemove() {
@@ -159,8 +168,6 @@ public class Service {
     public ServiceDTO toDTO() {
         return ServiceDTO.builder()
                 .id(this.id)
-                .organizationId(this.organization.getId())
-                .programId(this.program == null ? null : this.program.getId())
                 .name(this.name)
                 .alternateName(this.alternateName)
                 .description(this.description)
@@ -187,8 +194,10 @@ public class Service {
                 .serviceAreas(this.serviceAreas.stream().map(ServiceArea::toDTO).toList())
                 .serviceAtLocations(this.serviceAtLocations.stream().map(ServiceAtLocation::toDTO).toList())
                 .languages(this.languages.stream().map(Language::toDTO).toList())
+                .organizationId(this.organization.getId())
                 .funding(this.funding.stream().map(Funding::toDTO).toList())
                 .costOptions(this.costOptions.stream().map(CostOption::toDTO).toList())
+                .programId(this.program == null ? null : this.program.getId())
                 .requiredDocuments(this.requiredDocuments.stream().map(RequiredDocument::toDTO).toList())
                 .contacts(this.contacts.stream().map(Contact::toDTO).toList())
                 .capacities(this.capacities.stream().map(ServiceCapacity::toDTO).toList())

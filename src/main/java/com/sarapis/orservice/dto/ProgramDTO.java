@@ -1,13 +1,14 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Program;
-import com.sarapis.orservice.entity.core.Organization;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+/**
+ * Returned response for a program entity.
+ * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#program">Reference</a>
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,23 +16,10 @@ import java.util.UUID;
 @Builder
 public class ProgramDTO {
     private String id;
-
     private String organizationId;
-
     private String name;
     private String alternateName;
     private String description;
-
     private List<AttributeDTO> attributes = new ArrayList<>();
     private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Program toEntity(Organization organization) {
-        return Program.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .organization(organization)
-                .name(this.name)
-                .alternateName(this.alternateName)
-                .description(this.description)
-                .build();
-    }
 }

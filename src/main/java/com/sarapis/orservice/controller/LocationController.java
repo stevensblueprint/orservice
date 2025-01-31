@@ -2,6 +2,7 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
 import com.sarapis.orservice.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,8 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<LocationDTO> createLocation(@RequestBody LocationDTO locationDTO) {
-        LocationDTO createdLocation = this.locationService.createLocation(locationDTO);
+    public ResponseEntity<LocationDTO> createLocation(@RequestBody UpsertLocationDTO upsertLocationDTO) {
+        LocationDTO createdLocation = this.locationService.createLocation(upsertLocationDTO);
         return ResponseEntity.ok(createdLocation);
     }
 

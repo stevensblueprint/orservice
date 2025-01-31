@@ -1,6 +1,8 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
+
 import java.util.List;
 
 public interface ServiceService {
@@ -8,7 +10,7 @@ public interface ServiceService {
 
     ServiceDTO getServiceById(String serviceId);
 
-    ServiceDTO createService(ServiceDTO serviceDTO);
+    ServiceDTO createService(UpsertServiceDTO upsertServiceDTO);
 
     ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO);
 
