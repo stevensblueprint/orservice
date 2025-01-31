@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.AccessibilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,19 @@ public class AccessibilityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AccessibilityDTO>> getAllAccessibilities() {
-        List<AccessibilityDTO> accessibilities = this.accessibilityService.getAllAccessibilities();
-        return ResponseEntity.ok(accessibilities);
+    public ResponseEntity<PaginationDTO<AccessibilityDTO>> getAllAccessibilities(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                                 @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+        List<AccessibilityDTO> accessibilityDTOs = this.accessibilityService.getAllAccessibilities();
+
+        if(page <= 0) throw new InvalidInputException("Invalid value provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid value provided for 'perPage'.");
+        
+        PaginationDTO<AccessibilityDTO> paginationDTO = PaginationDTO.of(
+            accessibilityDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{accessibilityId}")

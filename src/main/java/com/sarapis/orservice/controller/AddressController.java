@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AddressDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,19 @@ public class AddressController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AddressDTO>> getAllAddresses() {
-        List<AddressDTO> addresses = this.addressService.getAllAddresses();
-        return ResponseEntity.ok(addresses);
+    public ResponseEntity<PaginationDTO<AddressDTO>> getAllAddresses(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                     @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+        List<AddressDTO> addressDTOs = this.addressService.getAllAddresses();
+
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<AddressDTO> paginationDTO = PaginationDTO.of(
+            addressDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{addressId}")
