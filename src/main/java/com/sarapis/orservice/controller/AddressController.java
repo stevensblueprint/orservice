@@ -1,6 +1,7 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AddressDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,15 @@ public class AddressController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AddressDTO>> getAllAddresses() {
+    public ResponseEntity<PaginationDTO<AddressDTO>> getAllAddresses(@RequestParam(defaultValue = "1") Integer page,
+                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
         List<AddressDTO> addressDTOs = this.addressService.getAllAddresses();
-        return ResponseEntity.ok(addressDTOs);
+        PaginationDTO<AddressDTO> paginationDTO = PaginationDTO.of(
+            addressDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

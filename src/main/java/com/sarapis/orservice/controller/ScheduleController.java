@@ -1,5 +1,6 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,15 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleDTO>> getSchedules() {
+    public ResponseEntity<PaginationDTO<ScheduleDTO>> getSchedules(@RequestParam(defaultValue = "1") Integer page,
+                                                                   @RequestParam(defaultValue = "10") Integer perPage) {
         List<ScheduleDTO> scheduleDTOs = this.scheduleService.getAllSchedules();
-        return ResponseEntity.ok(scheduleDTOs);
+        PaginationDTO<ScheduleDTO> paginationDTO = PaginationDTO.of(
+            scheduleDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

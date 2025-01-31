@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -27,17 +28,13 @@ public class ServiceAtLocationController {
   }
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations() {
+  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(defaultValue = "1") Integer page,
+                                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
     List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocation();
     PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
-            servLocDTOs.size(),
-            1,
-            1,
-            servLocDTOs.size(),
-            true,
-            false,
-            false,
-            servLocDTOs
+        servLocDTOs,
+        page,
+        perPage
     );
 
     return ResponseEntity.ok(paginationDTO);

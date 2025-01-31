@@ -1,5 +1,6 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.service.PhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,15 @@ public class PhoneController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PhoneDTO>> getAllPhones() {
+    public ResponseEntity<PaginationDTO<PhoneDTO>> getAllPhones(@RequestParam(defaultValue = "1") Integer page,
+                                                                @RequestParam(defaultValue = "10") Integer perPage) {
         List<PhoneDTO> phoneDTOs = this.phoneService.getAllPhones();
-        return ResponseEntity.ok(phoneDTOs);
+        PaginationDTO<PhoneDTO> paginationDTO = PaginationDTO.of(
+            phoneDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

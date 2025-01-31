@@ -1,5 +1,6 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAreaDTO;
 import com.sarapis.orservice.service.ServiceAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,15 @@ public class ServiceAreaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceAreaDTO>> getAllServiceAreas() {
+    public ResponseEntity<PaginationDTO<ServiceAreaDTO>> getAllServiceAreas(@RequestParam(defaultValue = "1") Integer page,
+                                                                            @RequestParam(defaultValue = "10") Integer perPage) {
         List<ServiceAreaDTO> serviceAreaDTOs = serviceAreaService.getAllServiceAreas();
-        return ResponseEntity.ok(serviceAreaDTOs);
+        PaginationDTO<ServiceAreaDTO> paginationDTO = PaginationDTO.of(
+            serviceAreaDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

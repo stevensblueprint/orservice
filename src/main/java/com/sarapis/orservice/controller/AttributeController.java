@@ -1,6 +1,7 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AttributeDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.AttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,15 @@ public class AttributeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AttributeDTO>> getAllAttributes() {
+    public ResponseEntity<PaginationDTO<AttributeDTO>> getAllAttributes(@RequestParam(defaultValue = "1") Integer page,
+                                                                        @RequestParam(defaultValue = "10") Integer perPage) {
         List<AttributeDTO> attributeDTOs = this.attributeService.getAllAttributes();
-        return ResponseEntity.ok(attributeDTOs);
+        PaginationDTO<AttributeDTO> paginationDTO = PaginationDTO.of(
+            attributeDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

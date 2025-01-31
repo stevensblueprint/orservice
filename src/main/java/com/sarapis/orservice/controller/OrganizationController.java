@@ -21,17 +21,14 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations() {
+    public ResponseEntity<PaginationDTO<OrganizationDTO>> getAllOrganizations(@RequestParam(defaultValue = "1") Integer page,
+                                                                              @RequestParam(defaultValue = "10") Integer perPage)
+    {
         List<OrganizationDTO> organizations = organizationService.getAllOrganizations();
         PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
-                organizations.size(),
-                1,
-                1,
-                organizations.size(),
-                true,
-                false,
-                false,
-                organizations
+                organizations,
+                page,
+                perPage
         );
         return ResponseEntity.ok(paginationDTO);
     }

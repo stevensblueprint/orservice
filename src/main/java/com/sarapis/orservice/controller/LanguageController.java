@@ -1,6 +1,7 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.LanguageDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.LanguageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,15 @@ public class LanguageController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LanguageDTO>> getAllLanguages() {
+    public ResponseEntity<PaginationDTO<LanguageDTO>> getAllLanguages(@RequestParam(defaultValue = "1") Integer page,
+                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
         List<LanguageDTO> languageDTOs = this.languageService.getAllLanguages();
-        return ResponseEntity.ok(languageDTOs);
+        PaginationDTO<LanguageDTO> paginationDTO = PaginationDTO.of(
+            languageDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

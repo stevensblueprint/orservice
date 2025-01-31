@@ -1,6 +1,7 @@
 package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.AccessibilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,15 @@ public class AccessibilityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AccessibilityDTO>> getAllAccessibilities() {
+    public ResponseEntity<PaginationDTO<AccessibilityDTO>> getAllAccessibilities(@RequestParam(defaultValue = "1") Integer page,
+                                                                                 @RequestParam(defaultValue = "10") Integer perPage) {
         List<AccessibilityDTO> accessibilityDTOs = this.accessibilityService.getAllAccessibilities();
-        return ResponseEntity.ok(accessibilityDTOs);
+        PaginationDTO<AccessibilityDTO> paginationDTO = PaginationDTO.of(
+            accessibilityDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{id}")

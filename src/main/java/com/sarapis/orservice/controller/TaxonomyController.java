@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/taxonomies")
@@ -25,8 +28,15 @@ public class TaxonomyController {
   }
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies() {
-    return null;
+  public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies(@RequestParam(defaultValue = "1") Integer page,
+                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
+    List<TaxonomyDTO> taxonomyDTOs = this.taxonomyService.getAllTaxonomies();
+    PaginationDTO<TaxonomyDTO> paginationDTO = PaginationDTO.of(
+        taxonomyDTOs,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
   }
 
   @GetMapping("/{id}")
