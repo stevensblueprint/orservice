@@ -48,10 +48,10 @@ public class LocationController {
         return ResponseEntity.ok(createdLocation);
     }
 
-    @PutMapping("/{locationId}")
+    @PatchMapping("/{locationId}")
     public ResponseEntity<LocationDTO> updateLocation(@PathVariable String locationId,
-                                                      @RequestBody LocationDTO locationDTO) {
-        LocationDTO updatedLocation = this.locationService.updateLocation(locationId, locationDTO);
+                                                      @RequestBody UpsertLocationDTO upsertLocationDTO) {
+        LocationDTO updatedLocation = this.locationService.updateLocation(locationId, upsertLocationDTO);
         return ResponseEntity.ok(updatedLocation);
     }
 

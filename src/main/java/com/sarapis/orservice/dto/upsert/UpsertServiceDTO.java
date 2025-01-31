@@ -31,8 +31,8 @@ public class UpsertServiceDTO {
     private String fees;
     private String accreditations;
     private String eligibilityDescription;
-    private int minimumAge;
-    private int maximumAge;
+    private Integer minimumAge;
+    private Integer maximumAge;
     private LocalDate assuredDate;
     private String assurerEmail;
     private String licenses;
@@ -79,6 +79,31 @@ public class UpsertServiceDTO {
                 .licenses(licenses)
                 .alert(alert)
                 .lastModified(lastModified)
+                .build();
+    }
+
+    public Service merge(Service service) {
+        return Service.builder()
+                .name(name == null ? service.getName() : name)
+                .alternateName(alternateName == null ? service.getAlternateName() : alternateName)
+                .description(description == null ? service.getDescription() : description)
+                .url(url == null ? service.getUrl() : url)
+                .email(email == null ? service.getEmail() : email)
+                .status(status == null ? service.getStatus() : status)
+                .interpretationServices(interpretationServices == null ? service.getInterpretationServices() : interpretationServices)
+                .applicationProcess(applicationProcess == null ? service.getApplicationProcess() : applicationProcess)
+                .feesDescription(feesDescription == null ? service.getFeesDescription() : feesDescription)
+                .waitTime(waitTime == null ? service.getWaitTime() : waitTime)
+                .fees(fees == null ? service.getFees() : fees)
+                .accreditations(accreditations == null ? service.getAccreditations() : accreditations)
+                .eligibilityDescription(eligibilityDescription == null ? service.getEligibilityDescription() : eligibilityDescription)
+                .minimumAge(minimumAge == null ? service.getMinimumAge() : minimumAge)
+                .maximumAge(maximumAge == null ? service.getMaximumAge() : maximumAge)
+                .assuredDate(assuredDate == null ? service.getAssuredDate() : assuredDate)
+                .assurerEmail(assurerEmail == null ? null : assurerEmail)
+                .licenses(licenses == null ? service.getLicenses() : licenses)
+                .alert(alert == null ? service.getAlert() : alert)
+                .lastModified(lastModified == null ? service.getLastModified() : lastModified)
                 .build();
     }
 }

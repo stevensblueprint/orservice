@@ -59,16 +59,22 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ProgramDTO updateProgram(String programId, ProgramDTO programDTO) {
+    public ProgramDTO updateProgram(String programId, UpsertProgramDTO upsertProgramDTO) {
         Program program = this.programRepository.findById(programId)
                 .orElseThrow(() -> new RuntimeException("Program not found."));
+        Program updatedProgram = upsertProgramDTO.merge(program);
+        updatedProgram.setId(programId);
 
-        program.setId(programDTO.getId());
-        program.setName(programDTO.getName());
-        program.setAlternateName(programDTO.getAlternateName());
-        program.setDescription(programDTO.getDescription());
+        if (upsertProgramDTO.getOrganizationId() != null) {
+            Organization organization = this.organizationRepository.findById(upsertProgramDTO.getOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+            organization.getPrograms().add(updatedProgram);
+            this.organizationRepository.save(organization);
+            program.getOrganization().getPrograms().remove(program);
+            updatedProgram.setOrganization(organization);
+        }
 
-        Program updatedProgram = this.programRepository.save(program);
+        this.programRepository.save(updatedProgram);
         return this.getProgramDTOById(updatedProgram.getId());
     }
 

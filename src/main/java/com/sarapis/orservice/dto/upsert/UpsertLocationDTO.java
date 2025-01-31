@@ -22,8 +22,8 @@ public class UpsertLocationDTO {
     private String alternateName;
     private String description;
     private String transportation;
-    private int latitude;
-    private int longitude;
+    private Integer latitude;
+    private Integer longitude;
     private String externalIdentifier;
     private String externalIdentifierType;
     private String organizationId;
@@ -47,6 +47,21 @@ public class UpsertLocationDTO {
                 .longitude(longitude)
                 .externalIdentifier(externalIdentifier)
                 .externalIdentifierType(externalIdentifierType)
+                .build();
+    }
+
+    public Location merge(Location location) {
+        return Location.builder()
+                .locationType(locationType == null ? location.getLocationType() : locationType)
+                .url(url == null ? location.getUrl() : url)
+                .name(name == null ? location.getName() : name)
+                .alternateName(alternateName == null ? location.getAlternateName() : alternateName)
+                .description(description == null ? location.getDescription() : description)
+                .transportation(transportation == null ? location.getTransportation() : transportation)
+                .latitude(latitude == null ? location.getLatitude() : latitude)
+                .longitude(longitude == null ? location.getLongitude() : longitude)
+                .externalIdentifier(externalIdentifier == null ? location.getExternalIdentifier() : externalIdentifier)
+                .externalIdentifierType(externalIdentifierType == null ? location.getExternalIdentifierType() : externalIdentifierType)
                 .build();
     }
 }

@@ -75,6 +75,8 @@ public class OrganizationServiceImpl implements OrganizationService {
             Organization parentOrganization = this.organizationRepository
                     .findById(upsertOrganizationDTO.getParentOrganizationId())
                     .orElseThrow(() -> new RuntimeException("Parent organization not found."));
+            parentOrganization.getChildOrganizations().add(createdOrganization);
+            this.organizationRepository.save(parentOrganization);
             createdOrganization.setParentOrganization(parentOrganization);
         }
 
@@ -145,23 +147,129 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO) {
+    public OrganizationDTO updateOrganization(String organizationId, UpsertOrganizationDTO upsertOrganizationDTO) {
         Organization organization = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new RuntimeException("Organization not found."));
+        Organization updatedOrganization = upsertOrganizationDTO.merge(organization);
+        updatedOrganization.setId(organizationId);
 
-        organization.setName(organizationDTO.getName());
-        organization.setAlternateName(organizationDTO.getAlternateName());
-        organization.setDescription(organizationDTO.getDescription());
-        organization.setEmail(organizationDTO.getEmail());
-        organization.setWebsite(organizationDTO.getWebsite());
-        organization.setTaxStatus(organizationDTO.getTaxStatus());
-        organization.setTaxId(organizationDTO.getTaxId());
-        organization.setYearIncorporated(organizationDTO.getYearIncorporated());
-        organization.setLegalStatus(organizationDTO.getLegalStatus());
-        organization.setLogo(organizationDTO.getLogo());
-        organization.setUri(organizationDTO.getUri());
+        if (upsertOrganizationDTO.getParentOrganizationId() != null) {
+            Organization parentOrganization = this.organizationRepository
+                    .findById(upsertOrganizationDTO.getParentOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Parent organization not found."));
+            parentOrganization.getChildOrganizations().add(updatedOrganization);
+            this.organizationRepository.save(parentOrganization);
+            if (organization.getParentOrganization() != null) {
+                organization.getParentOrganization().getChildOrganizations().remove(organization);
+            }
+            updatedOrganization.setParentOrganization(parentOrganization);
+        }
 
-        Organization updatedOrganization = this.organizationRepository.save(organization);
+        if (upsertOrganizationDTO.getAdditionalWebsites() != null && !upsertOrganizationDTO.getAdditionalWebsites().isEmpty()) {
+            for (Url url : organization.getAdditionalWebsites()) {
+                url.setOrganization(null);
+                this.urlRepository.save(url);
+            }
+            updatedOrganization.setAdditionalWebsites(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getAdditionalWebsites()) {
+                Url url = this.urlRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Url not found."));
+                url.setOrganization(updatedOrganization);
+                this.urlRepository.save(url);
+                updatedOrganization.getAdditionalWebsites().add(url);
+            }
+        }
+
+        if (upsertOrganizationDTO.getFundings() != null && !upsertOrganizationDTO.getFundings().isEmpty()) {
+            for (Funding funding : organization.getFunding()) {
+                funding.setOrganization(null);
+                this.fundingRepository.save(funding);
+            }
+            updatedOrganization.setFunding(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getFundings()) {
+                Funding funding = this.fundingRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Funding not found."));
+                funding.setOrganization(updatedOrganization);
+                this.fundingRepository.save(funding);
+                updatedOrganization.getFunding().add(funding);
+            }
+        }
+
+        if (upsertOrganizationDTO.getLocations() != null && !upsertOrganizationDTO.getLocations().isEmpty()) {
+            for (Location location : organization.getLocations()) {
+                location.setOrganization(null);
+                this.locationRepository.save(location);
+            }
+            updatedOrganization.setLocations(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getLocations()) {
+                Location location = this.locationRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Location not found."));
+                location.setOrganization(updatedOrganization);
+                this.locationRepository.save(location);
+                updatedOrganization.getLocations().add(location);
+            }
+        }
+
+        if (upsertOrganizationDTO.getPhones() != null && !upsertOrganizationDTO.getPhones().isEmpty()) {
+            for (Phone phone : organization.getPhones()) {
+                phone.setOrganization(null);
+                this.phoneRepository.save(phone);
+            }
+            updatedOrganization.setPhones(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getPhones()) {
+                Phone phone = this.phoneRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Phone not found."));
+                phone.setOrganization(updatedOrganization);
+                this.phoneRepository.save(phone);
+                updatedOrganization.getPhones().add(phone);
+            }
+        }
+
+        if (upsertOrganizationDTO.getContacts() != null && !upsertOrganizationDTO.getContacts().isEmpty()) {
+            for (Contact contact : organization.getContacts()) {
+                contact.setOrganization(null);
+                this.contactRepository.save(contact);
+            }
+            updatedOrganization.setContacts(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getContacts()) {
+                Contact contact = this.contactRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Contact not found."));
+                contact.setOrganization(updatedOrganization);
+                this.contactRepository.save(contact);
+                updatedOrganization.getContacts().add(contact);
+            }
+        }
+
+        if (upsertOrganizationDTO.getPrograms() != null && !upsertOrganizationDTO.getPrograms().isEmpty()) {
+            for (Program program : organization.getPrograms()) {
+                program.setOrganization(null);
+                this.programRepository.save(program);
+            }
+            updatedOrganization.setPrograms(new ArrayList<>());
+            for (String id : upsertOrganizationDTO.getPrograms()) {
+                Program program = this.programRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Program not found."));
+                program.setOrganization(updatedOrganization);
+                this.programRepository.save(program);
+                updatedOrganization.getPrograms().add(program);
+            }
+        }
+
+        if (upsertOrganizationDTO.getOrganizationIdentifiers() != null && !upsertOrganizationDTO.getOrganizationIdentifiers().isEmpty()) {
+            for (OrganizationIdentifier organizationIdentifier : organization.getOrganizationIdentifiers()) {
+                organizationIdentifier.setOrganization(null);
+                this.organizationIdentifierRepository.save(organizationIdentifier);
+            }
+            updatedOrganization.setOrganizationIdentifiers(new ArrayList<>());
+            for (UpsertOrganizationIdentifierDTO dto : upsertOrganizationDTO.getOrganizationIdentifiers()) {
+                OrganizationIdentifier organizationIdentifier = dto.create();
+                organizationIdentifier.setOrganization(updatedOrganization);
+                OrganizationIdentifier createdOrganizationIdentifier = this.organizationIdentifierRepository.save(organizationIdentifier);
+                updatedOrganization.getOrganizationIdentifiers().add(createdOrganizationIdentifier);
+            }
+        }
+
+        this.organizationRepository.save(updatedOrganization);
         return this.getOrganizationById(updatedOrganization.getId());
     }
 

@@ -33,6 +33,12 @@ public class UpsertServiceAtLocationDTO {
                 .build();
     }
 
+    public ServiceAtLocation merge(ServiceAtLocation serviceAtLocation) {
+        return ServiceAtLocation.builder()
+                .description(description == null ? serviceAtLocation.getDescription() : description)
+                .build();
+    }
+
     public static ServiceAtLocation create(Service service, Location location) {
         return ServiceAtLocation.builder()
                 .id(UUID.randomUUID().toString())

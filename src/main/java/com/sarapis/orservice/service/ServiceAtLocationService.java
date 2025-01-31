@@ -12,7 +12,7 @@ public interface ServiceAtLocationService {
 
     ServiceAtLocationDTO createServiceAtLocation(UpsertServiceAtLocationDTO upsertServiceAtLocationDTO);
 
-    ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO);
+    ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, UpsertServiceAtLocationDTO upsertServiceAtLocationDTO);
 
     void deleteServiceAtLocation(String serviceAtLocationId);
 }

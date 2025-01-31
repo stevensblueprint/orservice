@@ -12,7 +12,7 @@ public interface ProgramService {
 
     ProgramDTO createProgram(UpsertProgramDTO upsertProgramDTO);
 
-    ProgramDTO updateProgram(String programId, ProgramDTO programDTO);
+    ProgramDTO updateProgram(String programId, UpsertProgramDTO upsertProgramDTO);
 
     void deleteProgram(String programId);
 }

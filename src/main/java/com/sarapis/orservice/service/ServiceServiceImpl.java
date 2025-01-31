@@ -108,7 +108,7 @@ public class ServiceServiceImpl implements ServiceService {
         for (String id : upsertServiceDTO.getAdditionalUrls()) {
             Url url = this.urlRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Url not found."));
-            url.setOrganization(organization);
+            url.setService(service);
             this.urlRepository.save(url);
             createdService.getAdditionalUrls().add(url);
         }
@@ -221,11 +221,203 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     @Override
-    public ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO) {
+    public ServiceDTO updateService(String serviceId, UpsertServiceDTO upsertServiceDTO) {
         com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found."));
+        com.sarapis.orservice.entity.core.Service updatedService = upsertServiceDTO.merge(service);
+        updatedService.setId(serviceId);
 
-        com.sarapis.orservice.entity.core.Service updatedService = this.serviceRepository.save(service);
+        if (upsertServiceDTO.getOrganizationId() != null) {
+            Organization organization = this.organizationRepository.findById(upsertServiceDTO.getOrganizationId())
+                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+            organization.getServices().add(updatedService);
+            this.organizationRepository.save(organization);
+            service.getOrganization().getServices().remove(service);
+            updatedService.setOrganization(organization);
+        }
+
+        if (upsertServiceDTO.getAdditionalUrls() != null && !upsertServiceDTO.getAdditionalUrls().isEmpty()) {
+            for (Url url : service.getAdditionalUrls()) {
+                url.setService(null);
+                this.urlRepository.save(url);
+            }
+            updatedService.setAdditionalUrls(new ArrayList<>());
+            for (String id : upsertServiceDTO.getAdditionalUrls()) {
+                Url url = this.urlRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Url not found."));
+                url.setService(updatedService);
+                this.urlRepository.save(url);
+                updatedService.getAdditionalUrls().add(url);
+            }
+        }
+
+        if (upsertServiceDTO.getLanguages() != null && !upsertServiceDTO.getLanguages().isEmpty()) {
+            for (Language language : service.getLanguages()) {
+                language.setService(null);
+                this.languageRepository.save(language);
+            }
+            updatedService.setLanguages(new ArrayList<>());
+            for (String id : upsertServiceDTO.getLanguages()) {
+                Language language = this.languageRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Language not found."));
+                language.setService(updatedService);
+                this.languageRepository.save(language);
+                updatedService.getLanguages().add(language);
+            }
+        }
+
+        if (upsertServiceDTO.getFundings() != null && !upsertServiceDTO.getFundings().isEmpty()) {
+            for (Funding funding : service.getFunding()) {
+                funding.setService(null);
+                this.fundingRepository.save(funding);
+            }
+            updatedService.setFunding(new ArrayList<>());
+            for (String id : upsertServiceDTO.getFundings()) {
+                Funding funding = this.fundingRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Funding not found."));
+                funding.setService(updatedService);
+                this.fundingRepository.save(funding);
+                updatedService.getFunding().add(funding);
+            }
+        }
+
+        if (upsertServiceDTO.getProgramId() != null) {
+            Program program = this.programRepository.findById(upsertServiceDTO.getProgramId())
+                    .orElseThrow(() -> new RuntimeException("Program not found."));
+            program.getServices().add(updatedService);
+            this.programRepository.save(program);
+            if (service.getProgram() != null) {
+                service.getProgram().getServices().remove(service);
+            }
+            updatedService.setProgram(program);
+        }
+
+        if (upsertServiceDTO.getRequiredDocuments() != null && !upsertServiceDTO.getRequiredDocuments().isEmpty()) {
+            for (RequiredDocument requiredDocument : service.getRequiredDocuments()) {
+                requiredDocument.setService(null);
+                this.requiredDocumentRepository.save(requiredDocument);
+            }
+            updatedService.setRequiredDocuments(new ArrayList<>());
+            for (String id : upsertServiceDTO.getRequiredDocuments()) {
+                RequiredDocument requiredDocument = this.requiredDocumentRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Required document not found."));
+                requiredDocument.setService(updatedService);
+                this.requiredDocumentRepository.save(requiredDocument);
+                updatedService.getRequiredDocuments().add(requiredDocument);
+            }
+        }
+
+        if (upsertServiceDTO.getLocations() != null && !upsertServiceDTO.getLocations().isEmpty()) {
+            for (ServiceAtLocation serviceAtLocation : service.getServiceAtLocations()) {
+                serviceAtLocation.setService(null);
+                this.serviceAtLocationRepository.save(serviceAtLocation);
+            }
+            updatedService.setServiceAtLocations(new ArrayList<>());
+            for (String id : upsertServiceDTO.getLocations()) {
+                Location location = this.locationRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Location not found."));
+                ServiceAtLocation serviceAtLocation = UpsertServiceAtLocationDTO.create(updatedService, location);
+                ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
+                location.getServiceAtLocations().add(createdServiceAtLocation);
+                this.locationRepository.save(location);
+                updatedService.getServiceAtLocations().add(createdServiceAtLocation);
+            }
+        }
+
+        if (upsertServiceDTO.getPhones() != null && !upsertServiceDTO.getPhones().isEmpty()) {
+            for (Phone phone : service.getPhones()) {
+                phone.setService(null);
+                this.phoneRepository.save(phone);
+            }
+            updatedService.setPhones(new ArrayList<>());
+            for (String id : upsertServiceDTO.getPhones()) {
+                Phone phone = this.phoneRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Phone not found."));
+                phone.setService(updatedService);
+                this.phoneRepository.save(phone);
+                updatedService.getPhones().add(phone);
+            }
+        }
+
+        if (upsertServiceDTO.getContacts() != null && !upsertServiceDTO.getContacts().isEmpty()) {
+            for (Contact contact : service.getContacts()) {
+                contact.setService(null);
+                this.contactRepository.save(contact);
+            }
+            updatedService.setContacts(new ArrayList<>());
+            for (String id : upsertServiceDTO.getContacts()) {
+                Contact contact = this.contactRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Contact not found."));
+                contact.setService(updatedService);
+                this.contactRepository.save(contact);
+                updatedService.getContacts().add(contact);
+            }
+        }
+
+        if (upsertServiceDTO.getSchedules() != null && !upsertServiceDTO.getSchedules().isEmpty()) {
+            for (Schedule schedule : service.getSchedules()) {
+                schedule.setService(null);
+                this.scheduleRepository.save(schedule);
+            }
+            updatedService.setSchedules(new ArrayList<>());
+            for (String id : upsertServiceDTO.getSchedules()) {
+                Schedule schedule = this.scheduleRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                schedule.setService(updatedService);
+                this.scheduleRepository.save(schedule);
+                updatedService.getSchedules().add(schedule);
+            }
+        }
+
+        if (upsertServiceDTO.getServiceAreas() != null && !upsertServiceDTO.getServiceAreas().isEmpty()) {
+            for (ServiceArea serviceArea : service.getServiceAreas()) {
+                serviceArea.setService(null);
+                this.serviceAreaRepository.save(serviceArea);
+            }
+            updatedService.setServiceAreas(new ArrayList<>());
+            for (String id : upsertServiceDTO.getServiceAreas()) {
+                ServiceArea serviceArea = this.serviceAreaRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Service area not found."));
+                serviceArea.setService(updatedService);
+                this.serviceAreaRepository.save(serviceArea);
+                updatedService.getServiceAreas().add(serviceArea);
+            }
+        }
+
+        if (upsertServiceDTO.getCostOptions() != null && !upsertServiceDTO.getCostOptions().isEmpty()) {
+            for (CostOption costOption : service.getCostOptions()) {
+                costOption.setService(null);
+                this.costOptionRepository.save(costOption);
+            }
+            updatedService.setCostOptions(new ArrayList<>());
+            for (UpsertCostOptionDTO dto : upsertServiceDTO.getCostOptions()) {
+                CostOption costOption = dto.create();
+                costOption.setService(updatedService);
+                CostOption createdCostOption = this.costOptionRepository.save(costOption);
+                updatedService.getCostOptions().add(createdCostOption);
+            }
+        }
+
+        if (upsertServiceDTO.getServiceCapacities() != null && !upsertServiceDTO.getServiceCapacities().isEmpty()) {
+            for (ServiceCapacity serviceCapacity : service.getCapacities()) {
+                serviceCapacity.setService(null);
+                this.serviceCapacityRepository.save(serviceCapacity);
+            }
+            updatedService.setCapacities(new ArrayList<>());
+            for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
+                Unit unit = this.unitRepository.findById(dto.getUnitId())
+                        .orElseThrow(() -> new RuntimeException("Unit not found."));
+                ServiceCapacity serviceCapacity = dto.create();
+                serviceCapacity.setService(updatedService);
+                serviceCapacity.setUnit(unit);
+                unit.getServiceCapacities().add(serviceCapacity);
+                this.unitRepository.save(unit);
+                this.serviceCapacityRepository.save(serviceCapacity);
+                updatedService.getCapacities().add(serviceCapacity);
+            }
+        }
+
+        this.serviceRepository.save(updatedService);
         return this.getServiceById(updatedService.getId());
     }
 

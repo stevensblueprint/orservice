@@ -27,4 +27,12 @@ public class UpsertProgramDTO {
                 .description(description)
                 .build();
     }
+
+    public Program merge(Program program) {
+        return Program.builder()
+                .name(name == null ? program.getName() : name)
+                .alternateName(alternateName == null ? program.getAlternateName() : alternateName)
+                .description(description == null ? program.getDescription() : description)
+                .build();
+    }
 }

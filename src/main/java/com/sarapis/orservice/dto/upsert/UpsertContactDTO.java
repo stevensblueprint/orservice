@@ -35,4 +35,13 @@ public class UpsertContactDTO {
                 .email(email)
                 .build();
     }
+
+    public Contact merge(Contact contact) {
+        return Contact.builder()
+                .name(name == null ? contact.getName() : name)
+                .title(title == null ? contact.getTitle() : title)
+                .department(department == null ? contact.getDepartment() : department)
+                .email(email == null ? contact.getEmail() : email)
+                .build();
+    }
 }

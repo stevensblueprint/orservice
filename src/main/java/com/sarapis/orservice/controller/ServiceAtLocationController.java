@@ -53,9 +53,9 @@ public class ServiceAtLocationController {
 
     @PutMapping("/{serviceAtLocationId}")
     public ResponseEntity<ServiceAtLocationDTO> updateServiceAtLocation(@PathVariable String serviceAtLocationId,
-                                                                        @RequestBody ServiceAtLocationDTO serviceAtLocationDTO) {
+                                                                        @RequestBody UpsertServiceAtLocationDTO upsertServiceAtLocationDTO) {
         ServiceAtLocationDTO updatedServiceAtLocation = this.serviceAtLocationService
-                .updateServiceAtLocation(serviceAtLocationId, serviceAtLocationDTO);
+                .updateServiceAtLocation(serviceAtLocationId, upsertServiceAtLocationDTO);
         return ResponseEntity.ok(updatedServiceAtLocation);
     }
 

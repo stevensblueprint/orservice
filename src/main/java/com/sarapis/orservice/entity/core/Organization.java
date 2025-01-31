@@ -56,7 +56,7 @@ public class Organization {
     private String taxId;
 
     @Column(name = "year_incorporated")
-    private int yearIncorporated;
+    private Integer yearIncorporated;
 
     @Column(name = "legal_status")
     private String legalStatus;
