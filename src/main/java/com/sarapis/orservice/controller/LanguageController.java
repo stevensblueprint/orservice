@@ -23,12 +23,17 @@ public class LanguageController {
     public ResponseEntity<PaginationDTO<LanguageDTO>> getAllLanguages(@RequestParam(defaultValue = "1") Integer page,
                                                                       @RequestParam(defaultValue = "10") Integer perPage) {
         List<LanguageDTO> languageDTOs = this.languageService.getAllLanguages();
-        PaginationDTO<LanguageDTO> paginationDTO = PaginationDTO.of(
-            languageDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<LanguageDTO> paginationDTO = PaginationDTO.of(
+                    languageDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

@@ -22,12 +22,17 @@ public class ProgramController {
   public ResponseEntity<PaginationDTO<ProgramDTO>> getAllPrograms(@RequestParam(defaultValue = "1") Integer page,
                                                                   @RequestParam(defaultValue = "10") Integer perPage) {
     List<ProgramDTO> programDTOs = this.programService.getAllPrograms();
-    PaginationDTO<ProgramDTO> paginationDTO = PaginationDTO.of(
-        programDTOs,
-        page,
-        perPage
-    );
-    return ResponseEntity.ok(paginationDTO);
+
+    try {
+      PaginationDTO<ProgramDTO> paginationDTO = PaginationDTO.of(
+              programDTOs,
+              page,
+              perPage
+      );
+      return ResponseEntity.ok(paginationDTO);
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @GetMapping("/{id}")

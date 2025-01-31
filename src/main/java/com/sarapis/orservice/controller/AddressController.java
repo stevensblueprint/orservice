@@ -23,12 +23,17 @@ public class AddressController {
     public ResponseEntity<PaginationDTO<AddressDTO>> getAllAddresses(@RequestParam(defaultValue = "1") Integer page,
                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
         List<AddressDTO> addressDTOs = this.addressService.getAllAddresses();
-        PaginationDTO<AddressDTO> paginationDTO = PaginationDTO.of(
-            addressDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<AddressDTO> paginationDTO = PaginationDTO.of(
+                    addressDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

@@ -24,12 +24,17 @@ public class ScheduleController {
     public ResponseEntity<PaginationDTO<ScheduleDTO>> getSchedules(@RequestParam(defaultValue = "1") Integer page,
                                                                    @RequestParam(defaultValue = "10") Integer perPage) {
         List<ScheduleDTO> scheduleDTOs = this.scheduleService.getAllSchedules();
-        PaginationDTO<ScheduleDTO> paginationDTO = PaginationDTO.of(
-            scheduleDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<ScheduleDTO> paginationDTO = PaginationDTO.of(
+                    scheduleDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

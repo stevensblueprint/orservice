@@ -23,12 +23,17 @@ public class AttributeController {
     public ResponseEntity<PaginationDTO<AttributeDTO>> getAllAttributes(@RequestParam(defaultValue = "1") Integer page,
                                                                         @RequestParam(defaultValue = "10") Integer perPage) {
         List<AttributeDTO> attributeDTOs = this.attributeService.getAllAttributes();
-        PaginationDTO<AttributeDTO> paginationDTO = PaginationDTO.of(
-            attributeDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<AttributeDTO> paginationDTO = PaginationDTO.of(
+                    attributeDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

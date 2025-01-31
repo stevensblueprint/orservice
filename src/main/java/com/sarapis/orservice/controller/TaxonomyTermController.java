@@ -31,12 +31,17 @@ public class TaxonomyTermController {
   public ResponseEntity<PaginationDTO<TaxonomyTermDTO>> getAllTaxonomyTerms(@RequestParam(defaultValue = "1") Integer page,
                                                                             @RequestParam(defaultValue = "10") Integer perPage) {
     List<TaxonomyTermDTO> taxonomyTermDTOs = this.taxonomyTermService.getAllTaxonomyTerms();
-    PaginationDTO<TaxonomyTermDTO> paginationDTO = PaginationDTO.of(
-        taxonomyTermDTOs,
-        page,
-        perPage
-    );
-    return ResponseEntity.ok(paginationDTO);
+
+    try {
+      PaginationDTO<TaxonomyTermDTO> paginationDTO = PaginationDTO.of(
+              taxonomyTermDTOs,
+              page,
+              perPage
+      );
+      return ResponseEntity.ok(paginationDTO);
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @GetMapping("/{id}")

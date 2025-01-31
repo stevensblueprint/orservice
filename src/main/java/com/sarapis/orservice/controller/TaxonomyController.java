@@ -31,12 +31,17 @@ public class TaxonomyController {
   public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies(@RequestParam(defaultValue = "1") Integer page,
                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
     List<TaxonomyDTO> taxonomyDTOs = this.taxonomyService.getAllTaxonomies();
-    PaginationDTO<TaxonomyDTO> paginationDTO = PaginationDTO.of(
-        taxonomyDTOs,
-        page,
-        perPage
-    );
-    return ResponseEntity.ok(paginationDTO);
+
+    try {
+      PaginationDTO<TaxonomyDTO> paginationDTO = PaginationDTO.of(
+              taxonomyDTOs,
+              page,
+              perPage
+      );
+      return ResponseEntity.ok(paginationDTO);
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @GetMapping("/{id}")

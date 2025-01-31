@@ -24,12 +24,17 @@ public class AccessibilityController {
     public ResponseEntity<PaginationDTO<AccessibilityDTO>> getAllAccessibilities(@RequestParam(defaultValue = "1") Integer page,
                                                                                  @RequestParam(defaultValue = "10") Integer perPage) {
         List<AccessibilityDTO> accessibilityDTOs = this.accessibilityService.getAllAccessibilities();
-        PaginationDTO<AccessibilityDTO> paginationDTO = PaginationDTO.of(
-            accessibilityDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<AccessibilityDTO> paginationDTO = PaginationDTO.of(
+                    accessibilityDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

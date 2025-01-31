@@ -31,13 +31,17 @@ public class ServiceAtLocationController {
   public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(defaultValue = "1") Integer page,
                                                                                       @RequestParam(defaultValue = "10") Integer perPage) {
     List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocation();
-    PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
-        servLocDTOs,
-        page,
-        perPage
-    );
 
-    return ResponseEntity.ok(paginationDTO);
+    try {
+      PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
+              servLocDTOs,
+              page,
+              perPage
+      );
+      return ResponseEntity.ok(paginationDTO);
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @GetMapping("/{id}")

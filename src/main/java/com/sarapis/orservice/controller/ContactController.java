@@ -24,12 +24,17 @@ public class ContactController {
     public ResponseEntity<PaginationDTO<ContactDTO>> getAllContacts(@RequestParam(defaultValue = "1") Integer page,
                                                                     @RequestParam(defaultValue = "10") Integer perPage) {
         List<ContactDTO> contactDTOs = this.contactService.getAllContacts();
-        PaginationDTO<ContactDTO> paginationDTO = PaginationDTO.of(
-            contactDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<ContactDTO> paginationDTO = PaginationDTO.of(
+                contactDTOs,
+                page,
+                perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

@@ -25,12 +25,17 @@ public class OrganizationController {
                                                                               @RequestParam(defaultValue = "10") Integer perPage)
     {
         List<OrganizationDTO> organizations = organizationService.getAllOrganizations();
-        PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
-                organizations,
-                page,
-                perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<OrganizationDTO> paginationDTO = PaginationDTO.of(
+                    organizations,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

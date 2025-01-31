@@ -25,12 +25,17 @@ public class ServiceAreaController {
     public ResponseEntity<PaginationDTO<ServiceAreaDTO>> getAllServiceAreas(@RequestParam(defaultValue = "1") Integer page,
                                                                             @RequestParam(defaultValue = "10") Integer perPage) {
         List<ServiceAreaDTO> serviceAreaDTOs = serviceAreaService.getAllServiceAreas();
-        PaginationDTO<ServiceAreaDTO> paginationDTO = PaginationDTO.of(
-            serviceAreaDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<ServiceAreaDTO> paginationDTO = PaginationDTO.of(
+                    serviceAreaDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")

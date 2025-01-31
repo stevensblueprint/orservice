@@ -24,12 +24,17 @@ public class PhoneController {
     public ResponseEntity<PaginationDTO<PhoneDTO>> getAllPhones(@RequestParam(defaultValue = "1") Integer page,
                                                                 @RequestParam(defaultValue = "10") Integer perPage) {
         List<PhoneDTO> phoneDTOs = this.phoneService.getAllPhones();
-        PaginationDTO<PhoneDTO> paginationDTO = PaginationDTO.of(
-            phoneDTOs,
-            page,
-            perPage
-        );
-        return ResponseEntity.ok(paginationDTO);
+
+        try {
+            PaginationDTO<PhoneDTO> paginationDTO = PaginationDTO.of(
+                    phoneDTOs,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(paginationDTO);
+        } catch (RuntimeException e) {
+            return  ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")
