@@ -19,19 +19,32 @@ public class UpsertCostOptionDTO {
     private LocalDate validTo;
     private String option;
     private String currency;
-    private int amount;
+    private Integer amount;
     private String amountDescription;
     private String serviceId;
 
     public CostOption create() {
         return CostOption.builder()
                 .id(UUID.randomUUID().toString())
-                .validFrom(validFrom)
-                .validTo(validTo)
-                .option(option)
-                .currency(currency)
-                .amount(amount)
-                .amountDescription(amountDescription)
+                .validFrom(this.validFrom)
+                .validTo(this.validTo)
+                .option(this.option)
+                .currency(this.currency)
+                .amount(this.amount)
+                .amountDescription(this.amountDescription)
+                .build();
+    }
+
+    public CostOption merge(CostOption costOption) {
+        return CostOption.builder()
+                .id(costOption.getId())
+                .validFrom(this.validFrom == null ? costOption.getValidFrom() : this.validFrom)
+                .validTo(this.validTo == null ? costOption.getValidTo() : this.validTo)
+                .option(this.option == null ? costOption.getOption() : this.option)
+                .currency(this.currency == null ? costOption.getCurrency() : this.currency)
+                .amount(this.amount == null ? costOption.getAmount() : this.amount)
+                .amountDescription(this.amountDescription == null ? costOption.getAmountDescription() : this.amountDescription)
+                .service(costOption.getService())
                 .build();
     }
 }

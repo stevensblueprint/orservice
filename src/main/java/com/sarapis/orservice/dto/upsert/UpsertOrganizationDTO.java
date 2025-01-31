@@ -22,7 +22,7 @@ public class UpsertOrganizationDTO {
     private String website;
     private String taxStatus;
     private String taxId;
-    private int yearIncorporated;
+    private Integer yearIncorporated;
     private String legalStatus;
     private String logo;
     private String uri;
@@ -38,17 +38,44 @@ public class UpsertOrganizationDTO {
     public Organization create() {
         return Organization.builder()
                 .id(UUID.randomUUID().toString())
-                .name(name)
-                .alternateName(alternateName)
-                .description(description)
-                .email(email)
-                .website(website)
-                .taxStatus(taxStatus)
-                .taxId(taxId)
-                .yearIncorporated(yearIncorporated)
-                .legalStatus(legalStatus)
-                .logo(logo)
-                .uri(uri)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .email(this.email)
+                .website(this.website)
+                .taxStatus(this.taxStatus)
+                .taxId(this.taxId)
+                .yearIncorporated(this.yearIncorporated)
+                .legalStatus(this.legalStatus)
+                .logo(this.logo)
+                .uri(this.uri)
+                .build();
+    }
+
+    public Organization merge(Organization organization) {
+        return Organization.builder()
+                .id(organization.getId())
+                .name(this.name == null ? organization.getName() : this.name)
+                .alternateName(this.alternateName == null ? organization.getAlternateName() : this.alternateName)
+                .description(this.description == null ? organization.getDescription() : this.description)
+                .email(this.email == null ? organization.getEmail() : this.email)
+                .website(this.website == null ? organization.getWebsite() : this.website)
+                .taxStatus(this.taxStatus == null ? organization.getTaxStatus() : this.taxStatus)
+                .taxId(this.taxId == null ? organization.getTaxId() : this.taxId)
+                .yearIncorporated(this.yearIncorporated == null ? organization.getYearIncorporated() : this.yearIncorporated)
+                .legalStatus(this.legalStatus == null ? organization.getLegalStatus() : this.legalStatus)
+                .logo(this.logo == null ? organization.getLogo() : this.logo)
+                .uri(this.uri == null ? organization.getUri() : this.uri)
+                .childOrganizations(organization.getChildOrganizations())
+                .services(organization.getServices())
+                .parentOrganization(organization.getParentOrganization())
+                .additionalWebsites(organization.getAdditionalWebsites())
+                .funding(organization.getFunding())
+                .contacts(organization.getContacts())
+                .phones(organization.getPhones())
+                .locations(organization.getLocations())
+                .programs(organization.getPrograms())
+                .organizationIdentifiers(organization.getOrganizationIdentifiers())
                 .build();
     }
 }

@@ -12,7 +12,7 @@ public interface LocationService {
 
     LocationDTO createLocation(UpsertLocationDTO upsertLocationDTO);
 
-    LocationDTO updateLocation(String locationId, LocationDTO locationDTO);
+    LocationDTO updateLocation(String locationId, UpsertLocationDTO upsertLocationDTO);
 
     void deleteLocation(String locationId);
 }

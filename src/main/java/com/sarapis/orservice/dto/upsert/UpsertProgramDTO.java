@@ -22,9 +22,20 @@ public class UpsertProgramDTO {
     public Program create() {
         return Program.builder()
                 .id(UUID.randomUUID().toString())
-                .name(name)
-                .alternateName(alternateName)
-                .description(description)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .build();
+    }
+
+    public Program merge(Program program) {
+        return Program.builder()
+                .id(program.getId())
+                .name(this.name == null ? program.getName() : this.name)
+                .alternateName(this.alternateName == null ? program.getAlternateName() : this.alternateName)
+                .description(this.description == null ? program.getDescription() : this.description)
+                .services(program.getServices())
+                .organization(program.getOrganization())
                 .build();
     }
 }

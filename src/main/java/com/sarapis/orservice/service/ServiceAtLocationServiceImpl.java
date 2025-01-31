@@ -71,20 +71,38 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     }
 
     @Override
-    public ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO) {
+    public ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, UpsertServiceAtLocationDTO upsertServiceAtLocationDTO) {
         ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAtLocationId)
-                .orElseThrow(() -> new RuntimeException("Service At Location not found"));
+                .orElseThrow(() -> new RuntimeException("Service at location not found"));
+        ServiceAtLocation updatedServiceAtLocation = upsertServiceAtLocationDTO.merge(serviceAtLocation);
+        updatedServiceAtLocation.setId(serviceAtLocationId);
 
-        serviceAtLocation.setDescription(serviceAtLocationDTO.getDescription());
+        if (upsertServiceAtLocationDTO.getServiceId() != null) {
+            com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertServiceAtLocationDTO.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Service not found."));
+            service.getServiceAtLocations().add(updatedServiceAtLocation);
+            this.serviceRepository.save(service);
+            serviceAtLocation.getService().getServiceAtLocations().remove(serviceAtLocation);
+            updatedServiceAtLocation.setService(service);
+        }
 
-        ServiceAtLocation updatedServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
+        if (upsertServiceAtLocationDTO.getLocationId() != null) {
+            Location location = this.locationRepository.findById(upsertServiceAtLocationDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
+            location.getServiceAtLocations().add(updatedServiceAtLocation);
+            this.locationRepository.save(location);
+            serviceAtLocation.getLocation().getServiceAtLocations().remove(serviceAtLocation);
+            updatedServiceAtLocation.setLocation(location);
+        }
+
+        this.serviceAtLocationRepository.save(updatedServiceAtLocation);
         return this.getServiceAtLocationById(updatedServiceAtLocation.getId());
     }
 
     @Override
     public void deleteServiceAtLocation(String serviceAtLocationId) {
         ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAtLocationId)
-                .orElseThrow(() -> new RuntimeException("Service At Location not found."));
+                .orElseThrow(() -> new RuntimeException("Service at location not found."));
         this.attributeService.deleteAttribute(serviceAtLocation.getId());
         this.metadataService.deleteMetadata(serviceAtLocation.getId());
         this.serviceAtLocationRepository.delete(serviceAtLocation);

@@ -23,8 +23,8 @@ public class LocationDTO {
     private String alternateName;
     private String description;
     private String transportation;
-    private int latitude;
-    private int longitude;
+    private Integer latitude;
+    private Integer longitude;
     private String externalIdentifier;
     private String externalIdentifierType;
     private List<LanguageDTO> languages;

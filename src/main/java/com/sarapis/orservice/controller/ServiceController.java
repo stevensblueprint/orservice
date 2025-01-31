@@ -50,8 +50,8 @@ public class ServiceController {
 
     @PutMapping("/{serviceId}")
     public ResponseEntity<ServiceDTO> updateService(@PathVariable String serviceId,
-                                                    @RequestBody ServiceDTO serviceDTO) {
-        ServiceDTO updatedService = this.serviceService.updateService(serviceId, serviceDTO);
+                                                    @RequestBody UpsertServiceDTO upsertServiceDTO) {
+        ServiceDTO updatedService = this.serviceService.updateService(serviceId, upsertServiceDTO);
         return ResponseEntity.ok(updatedService);
     }
 

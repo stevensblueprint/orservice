@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Returned response for organization identifier entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#contact">Reference</a>
+ * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#organization-identifier">Reference</a>
  */
 @Getter
 @Setter

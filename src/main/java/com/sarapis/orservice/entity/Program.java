@@ -51,10 +51,10 @@ public class Program {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Service service : services) {
+        for (Service service : this.services) {
             service.setProgram(null);
         }
+        this.organization.getPrograms().remove(this);
     }
 
     public ProgramDTO toDTO() {

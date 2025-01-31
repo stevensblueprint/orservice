@@ -12,7 +12,7 @@ public interface ServiceService {
 
     ServiceDTO createService(UpsertServiceDTO upsertServiceDTO);
 
-    ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO);
+    ServiceDTO updateService(String serviceId, UpsertServiceDTO upsertServiceDTO);
 
     void deleteService(String serviceId);
 }

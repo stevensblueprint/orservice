@@ -38,10 +38,10 @@ public class ProgramController {
         return ResponseEntity.ok(createdProgram);
     }
 
-    @PutMapping("/{programId}")
+    @PatchMapping("/{programId}")
     public ResponseEntity<ProgramDTO> updateProgram(@PathVariable String programId,
-                                                    @RequestBody ProgramDTO programDTO) {
-        ProgramDTO updatedProgram = this.programService.updateProgram(programId, programDTO);
+                                                    @RequestBody UpsertProgramDTO upsertProgramDTO) {
+        ProgramDTO updatedProgram = this.programService.updateProgram(programId, upsertProgramDTO);
         return ResponseEntity.ok(updatedProgram);
     }
 

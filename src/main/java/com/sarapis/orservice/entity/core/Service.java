@@ -69,10 +69,10 @@ public class Service {
     private String eligibilityDescription;
 
     @Column(name = "minimum_age")
-    private int minimumAge;
+    private Integer minimumAge;
 
     @Column(name = "maximum_age")
-    private int maximumAge;
+    private Integer maximumAge;
 
     @Column(name = "assured_date")
     private LocalDate assuredDate;
@@ -141,27 +141,42 @@ public class Service {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Url url : additionalUrls) {
+        this.organization.getServices().remove(this);
+        if (this.program != null) {
+            this.program.getServices().remove(this);
+        }
+        for (Url url : this.additionalUrls) {
             url.setService(null);
         }
-        for (Phone phone : phones) {
+        for (Phone phone : this.phones) {
             phone.setService(null);
         }
-        for (Schedule schedule : schedules) {
+        for (Schedule schedule : this.schedules) {
             schedule.setService(null);
         }
-        for (ServiceArea serviceArea : serviceAreas) {
+        for (ServiceArea serviceArea : this.serviceAreas) {
             serviceArea.setService(null);
         }
-        for (Language language : languages) {
+        for (ServiceAtLocation serviceAtLocation : this.serviceAtLocations) {
+            serviceAtLocation.setService(null);
+        }
+        for (Language language : this.languages) {
             language.setService(null);
         }
-        for (RequiredDocument requiredDocument : requiredDocuments) {
+        for (Funding funding : this.funding) {
+            funding.setService(null);
+        }
+        for (CostOption costOption : this.costOptions) {
+            costOption.setService(null);
+        }
+        for (RequiredDocument requiredDocument : this.requiredDocuments) {
             requiredDocument.setService(null);
         }
-        for (Contact contact : contacts) {
+        for (Contact contact : this.contacts) {
             contact.setService(null);
+        }
+        for (ServiceCapacity capacity : this.capacities) {
+            capacity.setService(null);
         }
     }
 

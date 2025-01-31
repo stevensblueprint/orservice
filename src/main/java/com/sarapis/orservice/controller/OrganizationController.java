@@ -48,11 +48,11 @@ public class OrganizationController {
         return ResponseEntity.ok(createdOrganization);
     }
 
-    @PutMapping("/{organizationId}")
+    @PatchMapping("/{organizationId}")
     public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String organizationId,
-                                                              @RequestBody OrganizationDTO organizationDTO) {
+                                                              @RequestBody UpsertOrganizationDTO upsertOrganizationDTO) {
         OrganizationDTO updatedOrganization = this.organizationService
-                .updateOrganization(organizationId, organizationDTO);
+                .updateOrganization(organizationId, upsertOrganizationDTO);
         return ResponseEntity.ok(updatedOrganization);
     }
 

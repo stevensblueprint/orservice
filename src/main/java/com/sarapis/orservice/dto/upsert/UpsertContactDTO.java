@@ -29,10 +29,25 @@ public class UpsertContactDTO {
     public Contact create() {
         return Contact.builder()
                 .id(UUID.randomUUID().toString())
-                .name(name)
-                .title(title)
-                .department(department)
-                .email(email)
+                .name(this.name)
+                .title(this.title)
+                .department(this.department)
+                .email(this.email)
+                .build();
+    }
+
+    public Contact merge(Contact contact) {
+        return Contact.builder()
+                .id(contact.getId())
+                .name(this.name == null ? contact.getName() : this.name)
+                .title(this.title == null ? contact.getTitle() : this.title)
+                .department(this.department == null ? contact.getDepartment() : this.department)
+                .email(this.email == null ? contact.getEmail() : this.email)
+                .organization(contact.getOrganization())
+                .service(contact.getService())
+                .serviceAtLocation(contact.getServiceAtLocation())
+                .location(contact.getLocation())
+                .phones(contact.getPhones())
                 .build();
     }
 }

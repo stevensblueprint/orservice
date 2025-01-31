@@ -13,7 +13,7 @@ public interface OrganizationService {
 
     OrganizationDTO createOrganization(UpsertOrganizationDTO upsertOrganizationDTO);
 
-    OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO);
+    OrganizationDTO updateOrganization(String organizationId, UpsertOrganizationDTO upsertOrganizationDTO);
 
     void deleteOrganization(String organizationId);
 

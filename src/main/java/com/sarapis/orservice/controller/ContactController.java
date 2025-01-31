@@ -37,10 +37,10 @@ public class ContactController {
         return ResponseEntity.ok(createdContact);
     }
 
-    @PutMapping("/{contactId}")
+    @PatchMapping("/{contactId}")
     public ResponseEntity<ContactDTO> updateContact(@PathVariable String contactId,
-                                                    @RequestBody ContactDTO contactDTO) {
-        ContactDTO updatedContact = this.contactService.updateContact(contactId, contactDTO);
+                                                    @RequestBody UpsertContactDTO upsertContactDTO) {
+        ContactDTO updatedContact = this.contactService.updateContact(contactId, upsertContactDTO);
         return ResponseEntity.ok(updatedContact);
     }
 

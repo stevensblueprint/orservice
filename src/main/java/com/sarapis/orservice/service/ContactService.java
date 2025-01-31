@@ -12,7 +12,7 @@ public interface ContactService {
 
     ContactDTO createContact(UpsertContactDTO upsertContactDTO);
 
-    ContactDTO updateContact(String contactId, ContactDTO contactDTO);
+    ContactDTO updateContact(String contactId, UpsertContactDTO upsertContactDTO);
 
     void deleteContact(String contactId);
 }

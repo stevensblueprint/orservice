@@ -15,8 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class UpsertServiceCapacityDTO {
-    private int available;
-    private int maximum;
+    private Integer available;
+    private Integer maximum;
     private String description;
     private LocalDate updated;
     private String serviceId;
@@ -25,10 +25,22 @@ public class UpsertServiceCapacityDTO {
     public ServiceCapacity create() {
         return ServiceCapacity.builder()
                 .id(UUID.randomUUID().toString())
-                .available(available)
-                .maximum(maximum)
-                .description(description)
-                .updated(updated)
+                .available(this.available)
+                .maximum(this.maximum)
+                .description(this.description)
+                .updated(this.updated)
+                .build();
+    }
+
+    public ServiceCapacity merge(ServiceCapacity serviceCapacity) {
+        return ServiceCapacity.builder()
+                .id(serviceCapacity.getId())
+                .available(this.available == null ? serviceCapacity.getAvailable() : this.available)
+                .maximum(this.maximum == null ? serviceCapacity.getMaximum() : this.maximum)
+                .description(this.description == null ? serviceCapacity.getDescription() : this.description)
+                .updated(this.updated == null ? serviceCapacity.getUpdated() : this.updated)
+                .service(serviceCapacity.getService())
+                .unit(serviceCapacity.getUnit())
                 .build();
     }
 }

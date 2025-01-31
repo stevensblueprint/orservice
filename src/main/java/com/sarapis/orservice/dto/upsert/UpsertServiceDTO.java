@@ -31,8 +31,8 @@ public class UpsertServiceDTO {
     private String fees;
     private String accreditations;
     private String eligibilityDescription;
-    private int minimumAge;
-    private int maximumAge;
+    private Integer minimumAge;
+    private Integer maximumAge;
     private LocalDate assuredDate;
     private String assurerEmail;
     private String licenses;
@@ -59,26 +59,65 @@ public class UpsertServiceDTO {
     public Service create() {
         return Service.builder()
                 .id(UUID.randomUUID().toString())
-                .name(name)
-                .alternateName(alternateName)
-                .description(description)
-                .url(url)
-                .email(email)
-                .status(status)
-                .interpretationServices(interpretationServices)
-                .applicationProcess(applicationProcess)
-                .feesDescription(feesDescription)
-                .waitTime(waitTime)
-                .fees(fees)
-                .accreditations(accreditations)
-                .eligibilityDescription(eligibilityDescription)
-                .minimumAge(minimumAge)
-                .maximumAge(maximumAge)
-                .assuredDate(assuredDate)
-                .assurerEmail(assurerEmail)
-                .licenses(licenses)
-                .alert(alert)
-                .lastModified(lastModified)
+                .name(this.name)
+                .alternateName(this.alternateName)
+                .description(this.description)
+                .url(this.url)
+                .email(this.email)
+                .status(this.status)
+                .interpretationServices(this.interpretationServices)
+                .applicationProcess(this.applicationProcess)
+                .feesDescription(this.feesDescription)
+                .waitTime(this.waitTime)
+                .fees(this.fees)
+                .accreditations(this.accreditations)
+                .eligibilityDescription(this.eligibilityDescription)
+                .minimumAge(this.minimumAge)
+                .maximumAge(this.maximumAge)
+                .assuredDate(this.assuredDate)
+                .assurerEmail(this.assurerEmail)
+                .licenses(this.licenses)
+                .alert(this.alert)
+                .lastModified(this.lastModified)
+                .build();
+    }
+
+    public Service merge(Service service) {
+        return Service.builder()
+                .id(service.getId())
+                .name(this.name == null ? service.getName() : this.name)
+                .alternateName(this.alternateName == null ? service.getAlternateName() : this.alternateName)
+                .description(this.description == null ? service.getDescription() : this.description)
+                .url(this.url == null ? service.getUrl() : this.url)
+                .email(this.email == null ? service.getEmail() : this.email)
+                .status(this.status == null ? service.getStatus() : this.status)
+                .interpretationServices(this.interpretationServices == null ? service.getInterpretationServices() : this.interpretationServices)
+                .applicationProcess(this.applicationProcess == null ? service.getApplicationProcess() : this.applicationProcess)
+                .feesDescription(this.feesDescription == null ? service.getFeesDescription() : this.feesDescription)
+                .waitTime(this.waitTime == null ? service.getWaitTime() : this.waitTime)
+                .fees(this.fees == null ? service.getFees() : this.fees)
+                .accreditations(this.accreditations == null ? service.getAccreditations() : this.accreditations)
+                .eligibilityDescription(this.eligibilityDescription == null ? service.getEligibilityDescription() : this.eligibilityDescription)
+                .minimumAge(this.minimumAge == null ? service.getMinimumAge() : this.minimumAge)
+                .maximumAge(this.maximumAge == null ? service.getMaximumAge() : this.maximumAge)
+                .assuredDate(this.assuredDate == null ? service.getAssuredDate() : this.assuredDate)
+                .assurerEmail(this.assurerEmail == null ? null : this.assurerEmail)
+                .licenses(this.licenses == null ? service.getLicenses() : this.licenses)
+                .alert(this.alert == null ? service.getAlert() : this.alert)
+                .lastModified(this.lastModified == null ? service.getLastModified() : this.lastModified)
+                .organization(service.getOrganization())
+                .program(service.getProgram())
+                .additionalUrls(service.getAdditionalUrls())
+                .phones(service.getPhones())
+                .schedules(service.getSchedules())
+                .serviceAreas(service.getServiceAreas())
+                .serviceAtLocations(service.getServiceAtLocations())
+                .languages(service.getLanguages())
+                .funding(service.getFunding())
+                .costOptions(service.getCostOptions())
+                .requiredDocuments(service.getRequiredDocuments())
+                .contacts(service.getContacts())
+                .capacities(service.getCapacities())
                 .build();
     }
 }
