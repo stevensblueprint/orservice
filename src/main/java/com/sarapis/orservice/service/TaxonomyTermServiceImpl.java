@@ -2,6 +2,7 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import com.sarapis.orservice.entity.TaxonomyTerm;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.TaxonomyTermRepository;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     @Override
     public TaxonomyTermDTO getTaxonomyTermById(String taxonomyTermId) {
         TaxonomyTerm taxonomyTerm = this.taxonomyTermRepository.findById(taxonomyTermId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy term not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy term not found."));
         TaxonomyTermDTO taxonomyTermDTO = taxonomyTerm.toDTO();
         this.addRelatedData(taxonomyTermDTO);
         return taxonomyTermDTO;
@@ -43,7 +44,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
         if (taxonomyTermDTO.getParentId() != null) {
             parent = this.taxonomyTermRepository.findById(taxonomyTermDTO.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Taxonomy term not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Taxonomy term not found."));
         }
 
         TaxonomyTerm taxonomyTerm = taxonomyTermDTO.toEntity(parent);
@@ -56,7 +57,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     @Override
     public TaxonomyTermDTO updateTaxonomyTerm(String taxonomyTermId, TaxonomyTermDTO taxonomyTermDTO) {
         TaxonomyTerm taxonomyTerm = this.taxonomyTermRepository.findById(taxonomyTermId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy term not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy term not found."));
 
         taxonomyTerm.setCode(taxonomyTermDTO.getCode());
         taxonomyTerm.setName(taxonomyTermDTO.getName());
@@ -72,7 +73,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     @Override
     public void deleteTaxonomyTerm(String taxonomyTermId) {
         TaxonomyTerm taxonomyTerm = this.taxonomyTermRepository.findById(taxonomyTermId)
-                .orElseThrow(() -> new RuntimeException("Taxonomy term not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy term not found."));
         this.metadataService.deleteRelatedMetadata(taxonomyTerm.getId());
         this.taxonomyTermRepository.delete(taxonomyTerm);
     }

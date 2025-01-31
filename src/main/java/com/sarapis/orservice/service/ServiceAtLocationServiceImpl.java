@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
@@ -44,7 +45,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     @Override
     public ServiceAtLocationDTO getServiceAtLocationById(String serviceAtLocationId) {
         ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAtLocationId)
-                .orElseThrow(() -> new RuntimeException("Service at location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
         ServiceAtLocationDTO servLocDTO = serviceAtLocation.toDTO();
         this.addRelatedData(servLocDTO);
         return servLocDTO;
@@ -55,11 +56,11 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
         ServiceAtLocation serviceAtLocation = upsertServiceAtLocationDTO.create();
 
         com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertServiceAtLocationDTO.getServiceId())
-                .orElseThrow(() -> new RuntimeException("Service not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         serviceAtLocation.setService(service);
 
         Location location = this.locationRepository.findById(upsertServiceAtLocationDTO.getLocationId())
-                .orElseThrow(() -> new RuntimeException("Location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         serviceAtLocation.setLocation(location);
 
         ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
@@ -73,7 +74,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     @Override
     public ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO) {
         ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAtLocationId)
-                .orElseThrow(() -> new RuntimeException("Service At Location not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Service At Location not found"));
 
         serviceAtLocation.setDescription(serviceAtLocationDTO.getDescription());
 
@@ -84,7 +85,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     @Override
     public void deleteServiceAtLocation(String serviceAtLocationId) {
         ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAtLocationId)
-                .orElseThrow(() -> new RuntimeException("Service At Location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service At Location not found."));
         this.attributeService.deleteAttribute(serviceAtLocation.getId());
         this.metadataService.deleteMetadata(serviceAtLocation.getId());
         this.serviceAtLocationRepository.delete(serviceAtLocation);

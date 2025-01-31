@@ -6,6 +6,7 @@ import com.sarapis.orservice.entity.Phone;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,7 @@ public class PhoneServiceImpl implements PhoneService {
     @Override
     public PhoneDTO getPhoneById(String phoneId) {
         Phone phone = this.phoneRepository.findById(phoneId)
-                .orElseThrow(() -> new RuntimeException("Phone not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
         PhoneDTO phoneDTO = phone.toDTO();
         this.addRelatedData(phoneDTO);
         return phoneDTO;
@@ -69,23 +70,23 @@ public class PhoneServiceImpl implements PhoneService {
 
         if (phoneDTO.getLocationId() != null) {
             location = this.locationRepository.findById(phoneDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         }
         if (phoneDTO.getServiceId() != null) {
             service = this.serviceRepository.findById(phoneDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         }
         if (phoneDTO.getOrganizationId() != null) {
             organization = this.organizationRepository.findById(phoneDTO.getOrganizationId())
-                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
         }
         if (phoneDTO.getContactId() != null) {
             contact = this.contactRepository.findById(phoneDTO.getContactId())
-                    .orElseThrow(() -> new RuntimeException("Contact not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
         }
         if (phoneDTO.getServiceAtLocationId() != null) {
             serviceAtLocation = this.serviceAtLocationRepository.findById(phoneDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new RuntimeException("Service at location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
         }
 
         Phone phone = this.phoneRepository.save(phoneDTO.toEntity(location, service, organization, contact, serviceAtLocation));
@@ -99,7 +100,7 @@ public class PhoneServiceImpl implements PhoneService {
 
     @Override
     public PhoneDTO updatePhone(String phoneId, PhoneDTO phoneDTO) {
-        Phone oldPhone = this.phoneRepository.findById(phoneId).orElseThrow(() -> new RuntimeException("Phone not found."));
+        Phone oldPhone = this.phoneRepository.findById(phoneId).orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
 
         oldPhone.setNumber(phoneDTO.getNumber());
         oldPhone.setExtension(phoneDTO.getExtension());
@@ -112,7 +113,8 @@ public class PhoneServiceImpl implements PhoneService {
 
     @Override
     public void deletePhone(String phoneId) {
-        Phone phone = this.phoneRepository.findById(phoneId).orElseThrow(() -> new RuntimeException("Phone not found."));
+        Phone phone = this.phoneRepository.findById(phoneId)
+                .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
         this.attributeService.deleteRelatedAttributes(phone.getId());
         this.metadataService.deleteRelatedMetadata(phone.getId());
         this.phoneRepository.delete(phone);

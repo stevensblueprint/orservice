@@ -5,6 +5,7 @@ import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
 import com.sarapis.orservice.entity.*;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDTO getLocationById(String locationId) {
         Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         LocationDTO locationDTO = location.toDTO();
         this.addRelatedData(locationDTO);
         return locationDTO;
@@ -71,7 +72,7 @@ public class LocationServiceImpl implements LocationService {
 
         if (upsertLocationDTO.getOrganizationId() != null) {
             Organization organization = this.organizationRepository.findById(upsertLocationDTO.getOrganizationId())
-                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
             organization.getLocations().add(createdLocation);
             this.organizationRepository.save(organization);
             createdLocation.setOrganization(organization);
@@ -80,7 +81,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setLanguages(new ArrayList<>());
         for (String id : upsertLocationDTO.getLanguages()) {
             Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Language not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
             language.setLocation(createdLocation);
             this.languageRepository.save(language);
             createdLocation.getLanguages().add(language);
@@ -89,7 +90,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setAddresses(new ArrayList<>());
         for (String id : upsertLocationDTO.getAddresses()) {
             Address address = this.addressRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Address not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
             address.setLocation(createdLocation);
             this.addressRepository.save(address);
             createdLocation.getAddresses().add(address);
@@ -98,7 +99,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setPhones(new ArrayList<>());
         for (String id  : upsertLocationDTO.getPhones()) {
             Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
             phone.setLocation(createdLocation);
             this.phoneRepository.save(phone);
             createdLocation.getPhones().add(phone);
@@ -107,7 +108,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setContacts(new ArrayList<>());
         for (String id  : upsertLocationDTO.getContacts()) {
             Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Contact not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
             contact.setLocation(createdLocation);
             this.contactRepository.save(contact);
             createdLocation.getContacts().add(contact);
@@ -116,7 +117,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setAccessibility(new ArrayList<>());
         for (String id  : upsertLocationDTO.getAccessibility()) {
             Accessibility accessibility = this.accessibilityRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Accessibility not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
             accessibility.setLocation(createdLocation);
             this.accessibilityRepository.save(accessibility);
             createdLocation.getAccessibility().add(accessibility);
@@ -125,7 +126,7 @@ public class LocationServiceImpl implements LocationService {
         createdLocation.setSchedules(new ArrayList<>());
         for (String id  : upsertLocationDTO.getSchedules()) {
             Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
             schedule.setLocation(createdLocation);
             this.scheduleRepository.save(schedule);
             createdLocation.getSchedules().add(schedule);
@@ -138,7 +139,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDTO updateLocation(String locationId, LocationDTO locationDTO) {
         Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
 
         location.setLocationType(locationDTO.getLocationType());
         location.setUrl(locationDTO.getUrl());
@@ -158,7 +159,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public void deleteLocation(String locationId) {
         Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         this.attributeService.deleteRelatedAttributes(location.getId());
         this.metadataService.deleteRelatedMetadata(location.getId());
         this.locationRepository.delete(location);

@@ -2,6 +2,7 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.AttributeDTO;
 import com.sarapis.orservice.entity.Attribute;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.AttributeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public AttributeDTO getAttributeById(String attributeId) {
         Attribute attribute = this.attributeRepository.findById(attributeId)
-                .orElseThrow(() -> new RuntimeException("Attribute not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Attribute not found."));
         AttributeDTO attributeDTO = attribute.toDTO();
         this.addRelatedData(attributeDTO);
         return attributeDTO;
@@ -55,7 +56,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public AttributeDTO updateAttribute(String attributeId, AttributeDTO attributeDTO) {
         Attribute attribute = this.attributeRepository.findById(attributeId)
-                .orElseThrow(() -> new RuntimeException("Attribute not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Attribute not found."));
 
         attribute.setLinkId(attributeDTO.getLinkId());
         attribute.setLinkType(attributeDTO.getLinkType());
@@ -71,7 +72,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public void deleteAttribute(String attributeId) {
         Attribute attribute = this.attributeRepository.findById(attributeId)
-                .orElseThrow(() -> new RuntimeException("Attribute not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Attribute not found."));
         this.metadataService.deleteRelatedMetadata(attribute.getId());
         this.attributeRepository.delete(attribute);
     }

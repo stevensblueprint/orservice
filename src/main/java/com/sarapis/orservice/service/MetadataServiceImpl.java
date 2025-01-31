@@ -2,6 +2,7 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.entity.Metadata;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.MetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class MetadataServiceImpl implements MetadataService {
     @Override
     public MetadataDTO getMetadata(String metadataId) {
         Metadata metadata = this.metadataRepository.findById(metadataId)
-                .orElseThrow(() -> new RuntimeException("Metadata not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Metadata not found."));
         return metadata.toDTO();
     }
 
@@ -44,7 +45,7 @@ public class MetadataServiceImpl implements MetadataService {
     @Override
     public MetadataDTO updateMetadata(String metadataId, String resourceId, MetadataDTO metadataDTO) {
         Metadata metadata = this.metadataRepository.findById(metadataId)
-                .orElseThrow(() -> new RuntimeException("Metadata not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Metadata not found."));
 
         metadata.setResourceId(resourceId);
         metadata.setResourceType(metadataDTO.getResourceType());
@@ -61,7 +62,7 @@ public class MetadataServiceImpl implements MetadataService {
     @Override
     public void deleteMetadata(String metadataId) {
         Metadata metadata = this.metadataRepository.findById(metadataId)
-                .orElseThrow(() -> new RuntimeException("Metadata not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Metadata not found."));
         this.metadataRepository.delete(metadata);
     }
 
