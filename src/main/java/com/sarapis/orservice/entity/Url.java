@@ -1,9 +1,10 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.UrlDTO;
+import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.entity.core.Service;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 
@@ -16,10 +17,16 @@ import java.util.ArrayList;
 @Builder
 public class Url {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
 
     @Column(name = "label")
     private String label;
@@ -30,6 +37,8 @@ public class Url {
     public UrlDTO toDTO() {
         return UrlDTO.builder()
                 .id(this.id)
+                .organizationId(this.organization == null ? null : this.organization.getId())
+                .serviceId(this.service == null ? null : this.service.getId())
                 .label(this.label)
                 .url(this.url)
                 .attributes(new ArrayList<>())

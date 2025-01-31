@@ -3,20 +3,21 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.service.ProgramService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/programs")
 public class ProgramController {
-  public final ProgramService programService;
+    public final ProgramService programService;
 
-  @Autowired
-  public ProgramController(ProgramService programService) {
-    this.programService = programService;
-  }
+    @Autowired
+    public ProgramController(ProgramService programService) {
+        this.programService = programService;
+    }
 
   @GetMapping
   public ResponseEntity<PaginationDTO<ProgramDTO>> getAllPrograms(@RequestParam(defaultValue = "1") Integer page,
@@ -35,27 +36,28 @@ public class ProgramController {
     }
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ProgramDTO> getProgramById(@PathVariable String id) {
-    ProgramDTO programDTO = this.programService.getProgramDTOById(id);
-    return ResponseEntity.ok(programDTO);
-  }
+    @GetMapping("/{programId}")
+    public ResponseEntity<ProgramDTO> getProgramById(@PathVariable String programId) {
+        ProgramDTO program = this.programService.getProgramDTOById(programId);
+        return ResponseEntity.ok(program);
+    }
 
-  @PostMapping
-  public ResponseEntity<ProgramDTO> createProgram(@RequestBody ProgramDTO programDTO) {
-    ProgramDTO createdProgramDTO = this.programService.createProgram(programDTO);
-    return ResponseEntity.ok(createdProgramDTO);
-  }
+    @PostMapping
+    public ResponseEntity<ProgramDTO> createProgram(@RequestBody ProgramDTO programDTO) {
+        ProgramDTO createdProgram = this.programService.createProgram(programDTO);
+        return ResponseEntity.ok(createdProgram);
+    }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<ProgramDTO> updateProgram(@PathVariable String id, @RequestBody ProgramDTO programDTO) {
-    ProgramDTO updatedProgramDTO = this.programService.updateProgram(id, programDTO);
-    return ResponseEntity.ok(updatedProgramDTO);
-  }
+    @PutMapping("/{programId}")
+    public ResponseEntity<ProgramDTO> updateProgram(@PathVariable String programId,
+                                                    @RequestBody ProgramDTO programDTO) {
+        ProgramDTO updatedProgram = this.programService.updateProgram(programId, programDTO);
+        return ResponseEntity.ok(updatedProgram);
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteProgram(@PathVariable String id) {
-    this.programService.deleteProgram(id);
-    return ResponseEntity.noContent().build();
-  }
+    @DeleteMapping("/{programId}")
+    public ResponseEntity<Void> deleteProgram(@PathVariable String programId) {
+        this.programService.deleteProgram(programId);
+        return ResponseEntity.noContent().build();
+    }
 }

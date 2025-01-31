@@ -4,13 +4,13 @@ import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import java.util.List;
 
 public interface ServiceAtLocationService {
-  List<ServiceAtLocationDTO> getAllServicesAtLocation();
+    List<ServiceAtLocationDTO> getAllServicesAtLocation();
 
-  ServiceAtLocationDTO getServiceAtLocationById(String id);
+    ServiceAtLocationDTO getServiceAtLocationById(String serviceAtLocationId);
 
-  ServiceAtLocationDTO createServiceAtLocation(ServiceAtLocationDTO serviceAtLocationDTO);
+    ServiceAtLocationDTO createServiceAtLocation(ServiceAtLocationDTO serviceAtLocationDTO);
 
-  ServiceAtLocationDTO updateServiceAtLocation(String id, ServiceAtLocationDTO serviceAtLocationDTO);
+    ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO);
 
-  void deleteServiceAtLocation(String id);
+    void deleteServiceAtLocation(String serviceAtLocationId);
 }

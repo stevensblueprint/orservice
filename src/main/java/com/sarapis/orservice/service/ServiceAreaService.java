@@ -1,20 +1,17 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceAreaDTO;
-import com.sarapis.orservice.dto.ServiceDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 public interface ServiceAreaService {
-
     List<ServiceAreaDTO> getAllServiceAreas();
 
-    ServiceAreaDTO getServiceAreaById(String id);
+    ServiceAreaDTO getServiceAreaById(String serviceAreaId);
 
     ServiceAreaDTO createServiceArea(ServiceAreaDTO serviceAreaDTO);
 
-    ServiceAreaDTO updateServiceArea(String id, ServiceAreaDTO serviceAreaDTO);
+    ServiceAreaDTO updateServiceArea(String serviceAreaId, ServiceAreaDTO serviceAreaDTO);
 
-    void deleteServiceArea(String id);
+    void deleteServiceArea(String serviceAreaId);
 }

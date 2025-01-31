@@ -1,14 +1,10 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.AddressDTO;
-import com.sarapis.orservice.dto.AttributeDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.entity.Address;
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.Metadata;
+import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.repository.AddressRepository;
-import com.sarapis.orservice.repository.AttributeRepository;
-import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,25 +12,31 @@ import java.util.List;
 @Service
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
-    private final AttributeRepository attributeRepository;
-    private final MetadataRepository metadataRepository;
+    private final LocationRepository locationRepository;
+    private final AttributeService attributeService;
+    private final MetadataService metadataService;
 
-    public AddressServiceImpl(AddressRepository addressRepository, AttributeRepository attributeRepository, MetadataRepository metadataRepository) {
+    public AddressServiceImpl(AddressRepository addressRepository,
+                              LocationRepository locationRepository,
+                              AttributeService attributeService,
+                              MetadataService metadataService) {
         this.addressRepository = addressRepository;
-        this.attributeRepository = attributeRepository;
-        this.metadataRepository = metadataRepository;
+        this.locationRepository = locationRepository;
+        this.attributeService = attributeService;
+        this.metadataService = metadataService;
     }
 
     @Override
     public List<AddressDTO> getAllAddresses() {
-        List<AddressDTO> addressDTOs = this.addressRepository.findAll().stream().map(Address::toDTO).toList();
+        List<AddressDTO> addressDTOs = this.addressRepository.findAll()
+                .stream().map(Address::toDTO).toList();
         addressDTOs.forEach(this::addRelatedData);
         return addressDTOs;
     }
 
     @Override
-    public AddressDTO getAddressById(String id) {
-        Address address = this.addressRepository.findById(id)
+    public AddressDTO getAddressById(String addressId) {
+        Address address = this.addressRepository.findById(addressId)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
         AddressDTO addressDTO = address.toDTO();
         this.addRelatedData(addressDTO);
@@ -43,52 +45,53 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO) {
-        Address address = this.addressRepository.save(addressDTO.toEntity());
+        Location location = null;
 
-        for (AttributeDTO attributeDTO : addressDTO.getAttributes()) {
-            this.attributeRepository.save(attributeDTO.toEntity(address.getId()));
+        if (addressDTO.getLocationId() != null) {
+            location = this.locationRepository.findById(addressDTO.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found."));
         }
 
-        for (MetadataDTO metadataDTO : addressDTO.getMetadata()) {
-            this.metadataRepository.save(metadataDTO.toEntity(address.getId()));
-        }
+        Address address = this.addressRepository.save(addressDTO.toEntity(location));
+        addressDTO.getAttributes()
+                .forEach(attributeDTO -> this.attributeService.createAttribute(address.getId(), attributeDTO));
+        addressDTO.getMetadata()
+                .forEach(e -> this.metadataService.createMetadata(address.getId(), e));
 
-        AddressDTO savedAddressDTO = this.addressRepository.save(address).toDTO();
-        this.addRelatedData(savedAddressDTO);
-        return savedAddressDTO;
+        Address createdAddress = this.addressRepository.save(address);
+        return this.getAddressById(createdAddress.getId());
     }
 
     @Override
-    public AddressDTO updateAddress(String id, AddressDTO addressDTO) {
-        Address oldAddress = this.addressRepository.findById(id)
+    public AddressDTO updateAddress(String addressId, AddressDTO addressDTO) {
+        Address address = this.addressRepository.findById(addressId)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
 
-        oldAddress.setAttention(addressDTO.getAttention());
-        oldAddress.setAddress_1(addressDTO.getAddress_1());
-        oldAddress.setAddress_2(addressDTO.getAddress_2());
-        oldAddress.setCity(addressDTO.getCity());
-        oldAddress.setRegion(addressDTO.getRegion());
-        oldAddress.setStateProvince(addressDTO.getStateProvince());
-        oldAddress.setPostalCode(addressDTO.getPostalCode());
-        oldAddress.setCountry(addressDTO.getCountry());
-        oldAddress.setAddressType(addressDTO.getAddressType());
+        address.setAttention(addressDTO.getAttention());
+        address.setAddress_1(addressDTO.getAddress_1());
+        address.setAddress_2(addressDTO.getAddress_2());
+        address.setCity(addressDTO.getCity());
+        address.setRegion(addressDTO.getRegion());
+        address.setStateProvince(addressDTO.getStateProvince());
+        address.setPostalCode(addressDTO.getPostalCode());
+        address.setCountry(addressDTO.getCountry());
+        address.setAddressType(addressDTO.getAddressType());
 
-        Address updatedAddress = this.addressRepository.save(oldAddress);
-        return updatedAddress.toDTO();
+        Address updatedAddress = this.addressRepository.save(address);
+        return this.getAddressById(updatedAddress.getId());
     }
 
     @Override
-    public void deleteAddress(String id) {
-        Address address = this.addressRepository.findById(id)
+    public void deleteAddress(String addressId) {
+        Address address = this.addressRepository.findById(addressId)
                 .orElseThrow(() -> new RuntimeException("Address not found."));
-
-        this.addressRepository.deleteAttributes(address.getId());
-        this.addressRepository.deleteMetadata(address.getId());
+        this.attributeService.deleteRelatedAttributes(address.getId());
+        this.metadataService.deleteRelatedMetadata(address.getId());
         this.addressRepository.delete(address);
     }
 
     private void addRelatedData(AddressDTO addressDTO) {
-        addressDTO.getAttributes().addAll(this.addressRepository.getAttributes(addressDTO.getId()).stream().map(Attribute::toDTO).toList());
-        addressDTO.getMetadata().addAll(this.addressRepository.getMetadata(addressDTO.getId()).stream().map(Metadata::toDTO).toList());
+        addressDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(addressDTO.getId()));
+        addressDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(addressDTO.getId()));
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/service_areas")
@@ -38,30 +37,28 @@ public class ServiceAreaController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ServiceAreaDTO> getServiceAreaById(@PathVariable String id) {
-        ServiceAreaDTO serviceArea = serviceAreaService.getServiceAreaById(id);
+    @GetMapping("/{serviceAreaId}")
+    public ResponseEntity<ServiceAreaDTO> getServiceAreaById(@PathVariable String serviceAreaId) {
+        ServiceAreaDTO serviceArea = this.serviceAreaService.getServiceAreaById(serviceAreaId);
         return ResponseEntity.ok(serviceArea);
     }
 
     @PostMapping
     public ResponseEntity<ServiceAreaDTO> createServiceArea(@RequestBody ServiceAreaDTO serviceAreaDTO) {
-        if (serviceAreaDTO.getId() == null) {
-            serviceAreaDTO.setId(UUID.randomUUID().toString());
-        }
-        ServiceAreaDTO createdServiceArea = serviceAreaService.createServiceArea(serviceAreaDTO);
+        ServiceAreaDTO createdServiceArea = this.serviceAreaService.createServiceArea(serviceAreaDTO);
         return ResponseEntity.ok(createdServiceArea);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ServiceAreaDTO> updateServiceArea(@PathVariable String id, @RequestBody ServiceAreaDTO serviceAreaDTO) {
-        ServiceAreaDTO updatedAccessibility = serviceAreaService.updateServiceArea(id, serviceAreaDTO);
-        return ResponseEntity.ok(updatedAccessibility);
+    @PutMapping("/{serviceAreaId}")
+    public ResponseEntity<ServiceAreaDTO> updateServiceArea(@PathVariable String serviceAreaId,
+                                                            @RequestBody ServiceAreaDTO serviceAreaDTO) {
+        ServiceAreaDTO updatedServiceArea = this.serviceAreaService.updateServiceArea(serviceAreaId, serviceAreaDTO);
+        return ResponseEntity.ok(updatedServiceArea);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteServiceArea(@PathVariable String id) {
-        serviceAreaService.deleteServiceArea(id);
+    @DeleteMapping("/{serviceAreaId}")
+    public ResponseEntity<Void> deleteServiceArea(@PathVariable String serviceAreaId) {
+        this.serviceAreaService.deleteServiceArea(serviceAreaId);
         return ResponseEntity.noContent().build();
     }
 

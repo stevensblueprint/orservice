@@ -1,9 +1,11 @@
 package com.sarapis.orservice.entity;
 
 import com.sarapis.orservice.dto.ScheduleDTO;
+import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.entity.core.Service;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,10 +20,20 @@ import java.util.ArrayList;
 @Builder
 public class Schedule {
     @Id
-    @GeneratedValue
-    @UuidGenerator
     @Column(name = "id", nullable = false)
     private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
+
+    @ManyToOne
+    @JoinColumn(name = "service_at_location_id")
+    private ServiceAtLocation serviceAtLocation;
 
     @Column(name = "valid_from")
     private LocalDate validFrom;
@@ -85,6 +97,9 @@ public class Schedule {
     public ScheduleDTO toDTO() {
         return ScheduleDTO.builder()
                 .id(this.id)
+                .serviceId(this.service == null ? null : this.service.getId())
+                .locationId(this.location == null ? null : this.location.getId())
+                .serviceAtLocationId(this.serviceAtLocation == null ? null : this.serviceAtLocation.getId())
                 .validFrom(this.validFrom)
                 .validTo(this.validTo)
                 .dtStart(this.dtStart)

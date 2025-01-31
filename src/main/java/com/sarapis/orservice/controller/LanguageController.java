@@ -36,27 +36,28 @@ public class LanguageController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<LanguageDTO> getLanguageById(@PathVariable String id) {
-        LanguageDTO languageDTO = this.languageService.getLanguageById(id);
-        return ResponseEntity.ok(languageDTO);
+    @GetMapping("/{languageId}")
+    public ResponseEntity<LanguageDTO> getLanguageById(@PathVariable String languageId) {
+        LanguageDTO language = this.languageService.getLanguageById(languageId);
+        return ResponseEntity.ok(language);
     }
 
     @PostMapping
     public ResponseEntity<LanguageDTO> createLanguage(@RequestBody LanguageDTO languageDTO) {
-        LanguageDTO createdLanguageDTO = this.languageService.createLanguage(languageDTO);
-        return ResponseEntity.ok(createdLanguageDTO);
+        LanguageDTO createdLanguage = this.languageService.createLanguage(languageDTO);
+        return ResponseEntity.ok(createdLanguage);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<LanguageDTO> updateLanguage(@PathVariable String id, @RequestBody LanguageDTO languageDTO) {
-        LanguageDTO updatedLanguageDTO = this.languageService.updateLanguage(id, languageDTO);
-        return ResponseEntity.ok(updatedLanguageDTO);
+    @PutMapping("/{languageId}")
+    public ResponseEntity<LanguageDTO> updateLanguage(@PathVariable String languageId,
+                                                      @RequestBody LanguageDTO languageDTO) {
+        LanguageDTO updatedLanguage = this.languageService.updateLanguage(languageId, languageDTO);
+        return ResponseEntity.ok(updatedLanguage);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLanguage(@PathVariable String id) {
-        this.languageService.deleteLanguage(id);
+    @DeleteMapping("/{languageId}")
+    public ResponseEntity<Void> deleteLanguage(@PathVariable String languageId) {
+        this.languageService.deleteLanguage(languageId);
         return ResponseEntity.noContent().build();
     }
 }

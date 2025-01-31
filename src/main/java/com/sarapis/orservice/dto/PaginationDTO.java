@@ -19,14 +19,8 @@ public class PaginationDTO<T> {
     private boolean empty;
     private List<T> contents;
 
-    public static <T> PaginationDTO<T> of(int totalItems,
-                                          int totalPages,
-                                          int pageNumber,
-                                          int size,
-                                          boolean firstPage,
-                                          boolean lastPage,
-                                          boolean empty,
-                                          List<T> contents) {
+    public static <T> PaginationDTO<T> of(int totalItems, int totalPages, int pageNumber, int size, boolean firstPage,
+            boolean lastPage, boolean empty, List<T> contents) {
         PaginationDTO<T> paginationDTO = new PaginationDTO<>();
         paginationDTO.setTotalItems(totalItems);
         paginationDTO.setTotalPages(totalPages);

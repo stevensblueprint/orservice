@@ -3,12 +3,16 @@ package com.sarapis.orservice.dto;
 import com.sarapis.orservice.entity.Freq;
 import com.sarapis.orservice.entity.Schedule;
 import com.sarapis.orservice.entity.WkSt;
+import com.sarapis.orservice.entity.core.Location;
+import com.sarapis.orservice.entity.core.Service;
+import com.sarapis.orservice.entity.core.ServiceAtLocation;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,6 +21,11 @@ import java.util.List;
 @Builder
 public class ScheduleDTO {
     private String id;
+
+    private String serviceId;
+    private String locationId;
+    private String serviceAtLocationId;
+
     private LocalDate validFrom;
     private LocalDate validTo;
     private LocalDate dtStart;
@@ -36,17 +45,20 @@ public class ScheduleDTO {
     private String scheduleLink;
     private String attendingType;
     private String notes;
+
     private List<AttributeDTO> attributes = new ArrayList<>();
     private List<MetadataDTO> metadata = new ArrayList<>();
 
-    public Schedule toEntity() {
+    public Schedule toEntity(Service service, Location location, ServiceAtLocation serviceAtLocation) {
         return Schedule.builder()
-                .id(this.id)
+                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
+                .service(service)
+                .location(location)
+                .serviceAtLocation(serviceAtLocation)
                 .validFrom(this.validFrom)
                 .validTo(this.validTo)
                 .dtStart(this.dtStart)
-                .timezone(this.timezone)
-                .until(this.until)
+                .timezone(this.timezone).until(this.until)
                 .count(this.count)
                 .wkst(this.wkst)
                 .freq(this.freq)

@@ -7,11 +7,11 @@ import java.util.List;
 public interface AddressService {
     List<AddressDTO> getAllAddresses();
 
-    AddressDTO getAddressById(String id);
+    AddressDTO getAddressById(String addressId);
 
     AddressDTO createAddress(AddressDTO addressDTO);
 
-    AddressDTO updateAddress(String id, AddressDTO addressDTO);
+    AddressDTO updateAddress(String addressId, AddressDTO addressDTO);
 
-    void deleteAddress(String id);
+    void deleteAddress(String addressId);
 }

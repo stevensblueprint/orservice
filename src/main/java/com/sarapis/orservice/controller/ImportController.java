@@ -8,21 +8,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/import")
 public class ImportController {
-  @GetMapping("/csv")
-  public void exportCSV() {
-  }
+    @GetMapping("/csv")
+    public void exportCSV() {
+    }
 
-  @PostMapping("/csv")
-  public void importCSV() {
-  }
+    @PostMapping("/csv")
+    public void importCSV() {
+    }
 
-  @GetMapping("/pdf")
-  public void exportPDF() {
+    @GetMapping("/pdf")
+    public void exportPDF() {
+    }
 
-  }
-
-  @PostMapping("/pdf")
-  public void importPDF() {
-
-  }
+    @PostMapping("/pdf")
+    public void importPDF() {
+    }
 }

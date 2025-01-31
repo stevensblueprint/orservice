@@ -4,13 +4,13 @@ import com.sarapis.orservice.dto.ProgramDTO;
 import java.util.List;
 
 public interface ProgramService {
-  List<ProgramDTO> getAllPrograms();
+    List<ProgramDTO> getAllPrograms();
 
-  ProgramDTO getProgramDTOById(String id);
+    ProgramDTO getProgramDTOById(String programId);
 
-  ProgramDTO createProgram(ProgramDTO programDTO);
+    ProgramDTO createProgram(ProgramDTO programDTO);
 
-  ProgramDTO updateProgram(String id, ProgramDTO programDTO);
+    ProgramDTO updateProgram(String programId, ProgramDTO programDTO);
 
-  void deleteProgram(String id);
+    void deleteProgram(String programId);
 }
