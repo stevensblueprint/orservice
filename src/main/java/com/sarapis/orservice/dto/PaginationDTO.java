@@ -1,6 +1,6 @@
 package com.sarapis.orservice.dto;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import lombok.*;
@@ -18,6 +18,15 @@ public class PaginationDTO<T> {
     private boolean lastPage;
     private boolean empty;
     private List<T> contents;
+
+    public static <T> List<T> getPaginatedSubset(List<T> contents, int pageNumber, int perPage) {
+        int totalItems = contents.size();
+        if (pageNumber < 1 || perPage <= 0) return Collections.emptyList();
+        int start = (pageNumber - 1) * perPage;
+        if (start >= totalItems) return Collections.emptyList();
+        int end = Math.min(start + perPage, totalItems);
+        return contents.subList(start, end);
+    }
 
     public static <T> PaginationDTO<T> of(int totalItems, int totalPages, int pageNumber, int size, boolean firstPage,
             boolean lastPage, boolean empty, List<T> contents) {
@@ -49,10 +58,7 @@ public class PaginationDTO<T> {
         }
 
         // Get only the content that will be shown
-        List<T> contentSubset = new ArrayList<>();
-        for(int i = (pageNumber - 1) * perPage; i < Math.min(pageNumber * perPage, totalItems); i++) {
-            contentSubset.add(contents.get(i));
-        }
+        List<T> contentSubset = getPaginatedSubset(contents, pageNumber, perPage);
 
         int pageSize = contentSubset.size();
         boolean isFirstPage = pageNumber == 1;
