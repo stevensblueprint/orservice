@@ -33,8 +33,8 @@ public class ServiceDTO {
     private String fees;
     private String accreditations;
     private String eligibilityDescription;
-    private int minimumAge;
-    private int maximumAge;
+    private Integer minimumAge;
+    private Integer maximumAge;
     private LocalDate assuredDate;
     private String assurerEmail;
     private String licenses;

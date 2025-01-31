@@ -34,10 +34,13 @@ public class UpsertServiceCapacityDTO {
 
     public ServiceCapacity merge(ServiceCapacity serviceCapacity) {
         return ServiceCapacity.builder()
+                .id(serviceCapacity.getId())
                 .available(available == null ? serviceCapacity.getAvailable() : available)
                 .maximum(maximum == null ? serviceCapacity.getMaximum() : maximum)
                 .description(description == null ? serviceCapacity.getDescription() : description)
                 .updated(updated == null ? serviceCapacity.getUpdated() : updated)
+                .service(serviceCapacity.getService())
+                .unit(serviceCapacity.getUnit())
                 .build();
     }
 }

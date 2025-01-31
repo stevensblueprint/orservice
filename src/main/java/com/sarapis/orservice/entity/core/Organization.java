@@ -124,24 +124,35 @@ public class Organization {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Organization organization : childOrganizations) {
+        for (Organization organization : this.childOrganizations) {
             organization.setParentOrganization(null);
         }
-        for (Url url : additionalWebsites) {
+        for (Service service : this.services) {
+            service.setOrganization(null);
+        }
+        if (this.parentOrganization != null) {
+            this.parentOrganization.getChildOrganizations().remove(this);
+        }
+        for (Url url : this.additionalWebsites) {
             url.setOrganization(null);
         }
-        for (Funding funding : funding) {
+        for (Funding funding : this.funding) {
             funding.setOrganization(null);
         }
-        for (Contact contact : contacts) {
+        for (Contact contact : this.contacts) {
             contact.setOrganization(null);
         }
-        for (Phone phone : phones) {
+        for (Phone phone : this.phones) {
             phone.setOrganization(null);
         }
-        for (Location location : locations) {
+        for (Location location : this.locations) {
             location.setOrganization(null);
+        }
+        for (Program program : this.programs) {
+            program.setOrganization(null);
+        }
+        for (OrganizationIdentifier organizationIdentifier : this.organizationIdentifiers) {
+            organizationIdentifier.setOrganization(null);
         }
     }
 

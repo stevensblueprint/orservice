@@ -170,7 +170,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 url.setOrganization(null);
                 this.urlRepository.save(url);
             }
-            updatedOrganization.setAdditionalWebsites(new ArrayList<>());
+            updatedOrganization.getAdditionalWebsites().clear();
             for (String id : upsertOrganizationDTO.getAdditionalWebsites()) {
                 Url url = this.urlRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Url not found."));
@@ -185,7 +185,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 funding.setOrganization(null);
                 this.fundingRepository.save(funding);
             }
-            updatedOrganization.setFunding(new ArrayList<>());
+            updatedOrganization.getFunding().clear();
             for (String id : upsertOrganizationDTO.getFundings()) {
                 Funding funding = this.fundingRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Funding not found."));
@@ -200,7 +200,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 location.setOrganization(null);
                 this.locationRepository.save(location);
             }
-            updatedOrganization.setLocations(new ArrayList<>());
+            updatedOrganization.getLocations().clear();
             for (String id : upsertOrganizationDTO.getLocations()) {
                 Location location = this.locationRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Location not found."));
@@ -215,7 +215,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 phone.setOrganization(null);
                 this.phoneRepository.save(phone);
             }
-            updatedOrganization.setPhones(new ArrayList<>());
+            updatedOrganization.getPhones().clear();
             for (String id : upsertOrganizationDTO.getPhones()) {
                 Phone phone = this.phoneRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Phone not found."));
@@ -230,7 +230,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 contact.setOrganization(null);
                 this.contactRepository.save(contact);
             }
-            updatedOrganization.setContacts(new ArrayList<>());
+            updatedOrganization.getContacts().clear();
             for (String id : upsertOrganizationDTO.getContacts()) {
                 Contact contact = this.contactRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Contact not found."));
@@ -245,7 +245,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 program.setOrganization(null);
                 this.programRepository.save(program);
             }
-            updatedOrganization.setPrograms(new ArrayList<>());
+            updatedOrganization.getPrograms().clear();
             for (String id : upsertOrganizationDTO.getPrograms()) {
                 Program program = this.programRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Program not found."));
@@ -260,7 +260,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 organizationIdentifier.setOrganization(null);
                 this.organizationIdentifierRepository.save(organizationIdentifier);
             }
-            updatedOrganization.setOrganizationIdentifiers(new ArrayList<>());
+            updatedOrganization.getOrganizationIdentifiers().clear();
             for (UpsertOrganizationIdentifierDTO dto : upsertOrganizationDTO.getOrganizationIdentifiers()) {
                 OrganizationIdentifier organizationIdentifier = dto.create();
                 organizationIdentifier.setOrganization(updatedOrganization);

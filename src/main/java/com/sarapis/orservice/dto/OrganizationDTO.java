@@ -24,7 +24,7 @@ public class OrganizationDTO {
     private List<UrlDTO> additionalWebsites = new ArrayList<>();
     private String taxStatus;
     private String taxId;
-    private int yearIncorporated;
+    private Integer yearIncorporated;
     private String legalStatus;
     private String logo;
     private String uri;

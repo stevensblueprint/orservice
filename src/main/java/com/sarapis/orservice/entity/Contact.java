@@ -68,8 +68,19 @@ public class Contact {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Phone phone : phones) {
+        if (this.organization != null) {
+            this.organization.getContacts().remove(this);
+        }
+        if (this.service != null) {
+            this.service.getContacts().remove(this);
+        }
+        if (this.serviceAtLocation != null) {
+            this.serviceAtLocation.getContacts().remove(this);
+        }
+        if (this.location != null) {
+            this.location.getContacts().remove(this);
+        }
+        for (Phone phone : this.phones) {
             phone.setContact(null);
         }
     }

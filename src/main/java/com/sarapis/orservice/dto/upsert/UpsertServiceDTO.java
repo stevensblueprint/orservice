@@ -84,6 +84,7 @@ public class UpsertServiceDTO {
 
     public Service merge(Service service) {
         return Service.builder()
+                .id(service.getId())
                 .name(name == null ? service.getName() : name)
                 .alternateName(alternateName == null ? service.getAlternateName() : alternateName)
                 .description(description == null ? service.getDescription() : description)
@@ -104,6 +105,19 @@ public class UpsertServiceDTO {
                 .licenses(licenses == null ? service.getLicenses() : licenses)
                 .alert(alert == null ? service.getAlert() : alert)
                 .lastModified(lastModified == null ? service.getLastModified() : lastModified)
+                .organization(service.getOrganization())
+                .program(service.getProgram())
+                .additionalUrls(service.getAdditionalUrls())
+                .phones(service.getPhones())
+                .schedules(service.getSchedules())
+                .serviceAreas(service.getServiceAreas())
+                .serviceAtLocations(service.getServiceAtLocations())
+                .languages(service.getLanguages())
+                .funding(service.getFunding())
+                .costOptions(service.getCostOptions())
+                .requiredDocuments(service.getRequiredDocuments())
+                .contacts(service.getContacts())
+                .capacities(service.getCapacities())
                 .build();
     }
 }

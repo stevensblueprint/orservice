@@ -37,7 +37,7 @@ public class CostOption {
     private String currency;
 
     @Column(name = "amount")
-    private int amount;
+    private Integer amount;
 
     @Column(name = "amount_description")
     private String amountDescription;
@@ -53,6 +53,11 @@ public class CostOption {
     //================================================================================
     // Methods
     //================================================================================
+
+    @PreRemove
+    public void preRemove() {
+        this.service.getCostOptions().remove(this);
+    }
 
     public CostOptionDTO toDTO() {
         return CostOptionDTO.builder()

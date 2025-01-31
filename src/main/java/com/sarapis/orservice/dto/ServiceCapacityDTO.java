@@ -19,8 +19,8 @@ public class ServiceCapacityDTO {
     private String id;
     private String serviceId;
     private UnitDTO unit;
-    private int available;
-    private int maximum;
+    private Integer available;
+    private Integer maximum;
     private String description;
     private LocalDate updated;
     private List<AttributeDTO> attributes = new ArrayList<>();

@@ -35,7 +35,14 @@ public class UpsertServiceAtLocationDTO {
 
     public ServiceAtLocation merge(ServiceAtLocation serviceAtLocation) {
         return ServiceAtLocation.builder()
+                .id(serviceAtLocation.getId())
                 .description(description == null ? serviceAtLocation.getDescription() : description)
+                .service(serviceAtLocation.getService())
+                .location(serviceAtLocation.getLocation())
+                .serviceAreas(serviceAtLocation.getServiceAreas())
+                .contacts(serviceAtLocation.getContacts())
+                .phones(serviceAtLocation.getPhones())
+                .schedules(serviceAtLocation.getSchedules())
                 .build();
     }
 

@@ -158,7 +158,7 @@ public class LocationServiceImpl implements LocationService {
                 language.setLocation(null);
                 this.languageRepository.save(language);
             }
-            updatedLocation.setLanguages(new ArrayList<>());
+            updatedLocation.getLanguages().clear();
             for (String id : upsertLocationDTO.getLanguages()) {
                 Language language = this.languageRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Language not found."));
@@ -173,7 +173,7 @@ public class LocationServiceImpl implements LocationService {
                 address.setLocation(null);
                 this.addressRepository.save(address);
             }
-            updatedLocation.setAddresses(new ArrayList<>());
+            updatedLocation.getAddresses().clear();
             for (String id : upsertLocationDTO.getAddresses()) {
                 Address address = this.addressRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Address not found."));
@@ -188,7 +188,7 @@ public class LocationServiceImpl implements LocationService {
                 phone.setLocation(null);
                 this.phoneRepository.save(phone);
             }
-            updatedLocation.setPhones(new ArrayList<>());
+            updatedLocation.getPhones().clear();
             for (String id  : upsertLocationDTO.getPhones()) {
                 Phone phone = this.phoneRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Phone not found."));
@@ -203,7 +203,7 @@ public class LocationServiceImpl implements LocationService {
                 contact.setLocation(null);
                 this.contactRepository.save(contact);
             }
-            updatedLocation.setContacts(new ArrayList<>());
+            updatedLocation.getContacts().clear();
             for (String id  : upsertLocationDTO.getContacts()) {
                 Contact contact = this.contactRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Contact not found."));
@@ -218,7 +218,7 @@ public class LocationServiceImpl implements LocationService {
                 accessibility.setLocation(null);
                 this.accessibilityRepository.save(accessibility);
             }
-            updatedLocation.setAccessibility(new ArrayList<>());
+            updatedLocation.getAccessibility().clear();
             for (String id  : upsertLocationDTO.getAccessibility()) {
                 Accessibility accessibility = this.accessibilityRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Accessibility not found."));
@@ -233,7 +233,7 @@ public class LocationServiceImpl implements LocationService {
                 schedule.setLocation(null);
                 this.scheduleRepository.save(schedule);
             }
-            updatedLocation.setSchedules(new ArrayList<>());
+            updatedLocation.getSchedules().clear();
             for (String id  : upsertLocationDTO.getSchedules()) {
                 Schedule schedule = this.scheduleRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Schedule not found."));

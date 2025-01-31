@@ -30,9 +30,11 @@ public class UpsertOrganizationIdentifierDTO {
 
     public OrganizationIdentifier merge(OrganizationIdentifier organizationIdentifier) {
         return OrganizationIdentifier.builder()
+                .id(organizationIdentifier.getId())
                 .identifierScheme(identifierScheme == null ? organizationIdentifier.getIdentifierScheme() : identifierScheme)
                 .identifierType(identifierType == null ? organizationIdentifier.getIdentifierType() : identifierType)
                 .identifier(identifier == null ? organizationIdentifier.getIdentifier() : identifier)
+                .organization(organizationIdentifier.getOrganization())
                 .build();
     }
 }

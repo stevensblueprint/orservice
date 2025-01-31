@@ -38,10 +38,16 @@ public class UpsertContactDTO {
 
     public Contact merge(Contact contact) {
         return Contact.builder()
+                .id(contact.getId())
                 .name(name == null ? contact.getName() : name)
                 .title(title == null ? contact.getTitle() : title)
                 .department(department == null ? contact.getDepartment() : department)
                 .email(email == null ? contact.getEmail() : email)
+                .organization(contact.getOrganization())
+                .service(contact.getService())
+                .serviceAtLocation(contact.getServiceAtLocation())
+                .location(contact.getLocation())
+                .phones(contact.getPhones())
                 .build();
     }
 }

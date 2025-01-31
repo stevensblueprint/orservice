@@ -37,12 +37,14 @@ public class UpsertCostOptionDTO {
 
     public CostOption merge(CostOption costOption) {
         return CostOption.builder()
+                .id(costOption.getId())
                 .validFrom(validFrom == null ? costOption.getValidFrom() : validFrom)
                 .validTo(validTo == null ? costOption.getValidTo() : validTo)
                 .option(option == null ? costOption.getOption() : option)
                 .currency(currency == null ? costOption.getCurrency() : currency)
                 .amount(amount == null ? costOption.getAmount() : amount)
                 .amountDescription(amountDescription == null ? costOption.getAmountDescription() : amountDescription)
+                .service(costOption.getService())
                 .build();
     }
 }

@@ -54,6 +54,7 @@ public class UpsertOrganizationDTO {
 
     public Organization merge(Organization organization) {
         return Organization.builder()
+                .id(organization.getId())
                 .name(name == null ? organization.getName() : name)
                 .alternateName(alternateName == null ? organization.getAlternateName() : alternateName)
                 .description(description == null ? organization.getDescription() : description)
@@ -65,6 +66,16 @@ public class UpsertOrganizationDTO {
                 .legalStatus(legalStatus == null ? organization.getLegalStatus() : legalStatus)
                 .logo(logo == null ? organization.getLogo() : logo)
                 .uri(uri == null ? organization.getUri() : uri)
+                .childOrganizations(organization.getChildOrganizations())
+                .services(organization.getServices())
+                .parentOrganization(organization.getParentOrganization())
+                .additionalWebsites(organization.getAdditionalWebsites())
+                .funding(organization.getFunding())
+                .contacts(organization.getContacts())
+                .phones(organization.getPhones())
+                .locations(organization.getLocations())
+                .programs(organization.getPrograms())
+                .organizationIdentifiers(organization.getOrganizationIdentifiers())
                 .build();
     }
 }

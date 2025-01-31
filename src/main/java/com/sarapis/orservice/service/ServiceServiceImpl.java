@@ -241,7 +241,7 @@ public class ServiceServiceImpl implements ServiceService {
                 url.setService(null);
                 this.urlRepository.save(url);
             }
-            updatedService.setAdditionalUrls(new ArrayList<>());
+            updatedService.getAdditionalUrls().clear();
             for (String id : upsertServiceDTO.getAdditionalUrls()) {
                 Url url = this.urlRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Url not found."));
@@ -256,7 +256,7 @@ public class ServiceServiceImpl implements ServiceService {
                 language.setService(null);
                 this.languageRepository.save(language);
             }
-            updatedService.setLanguages(new ArrayList<>());
+            updatedService.getLanguages().clear();
             for (String id : upsertServiceDTO.getLanguages()) {
                 Language language = this.languageRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Language not found."));
@@ -271,7 +271,7 @@ public class ServiceServiceImpl implements ServiceService {
                 funding.setService(null);
                 this.fundingRepository.save(funding);
             }
-            updatedService.setFunding(new ArrayList<>());
+            updatedService.getFunding().clear();
             for (String id : upsertServiceDTO.getFundings()) {
                 Funding funding = this.fundingRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Funding not found."));
@@ -297,7 +297,7 @@ public class ServiceServiceImpl implements ServiceService {
                 requiredDocument.setService(null);
                 this.requiredDocumentRepository.save(requiredDocument);
             }
-            updatedService.setRequiredDocuments(new ArrayList<>());
+            updatedService.getRequiredDocuments().clear();
             for (String id : upsertServiceDTO.getRequiredDocuments()) {
                 RequiredDocument requiredDocument = this.requiredDocumentRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Required document not found."));
@@ -312,7 +312,7 @@ public class ServiceServiceImpl implements ServiceService {
                 serviceAtLocation.setService(null);
                 this.serviceAtLocationRepository.save(serviceAtLocation);
             }
-            updatedService.setServiceAtLocations(new ArrayList<>());
+            updatedService.getServiceAtLocations().clear();
             for (String id : upsertServiceDTO.getLocations()) {
                 Location location = this.locationRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Location not found."));
@@ -329,7 +329,7 @@ public class ServiceServiceImpl implements ServiceService {
                 phone.setService(null);
                 this.phoneRepository.save(phone);
             }
-            updatedService.setPhones(new ArrayList<>());
+            updatedService.getPhones().clear();
             for (String id : upsertServiceDTO.getPhones()) {
                 Phone phone = this.phoneRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Phone not found."));
@@ -344,7 +344,7 @@ public class ServiceServiceImpl implements ServiceService {
                 contact.setService(null);
                 this.contactRepository.save(contact);
             }
-            updatedService.setContacts(new ArrayList<>());
+            updatedService.getContacts().clear();
             for (String id : upsertServiceDTO.getContacts()) {
                 Contact contact = this.contactRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Contact not found."));
@@ -359,7 +359,7 @@ public class ServiceServiceImpl implements ServiceService {
                 schedule.setService(null);
                 this.scheduleRepository.save(schedule);
             }
-            updatedService.setSchedules(new ArrayList<>());
+            updatedService.getSchedules().clear();
             for (String id : upsertServiceDTO.getSchedules()) {
                 Schedule schedule = this.scheduleRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Schedule not found."));
@@ -374,7 +374,7 @@ public class ServiceServiceImpl implements ServiceService {
                 serviceArea.setService(null);
                 this.serviceAreaRepository.save(serviceArea);
             }
-            updatedService.setServiceAreas(new ArrayList<>());
+            updatedService.getServiceAreas().clear();
             for (String id : upsertServiceDTO.getServiceAreas()) {
                 ServiceArea serviceArea = this.serviceAreaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Service area not found."));
@@ -389,7 +389,7 @@ public class ServiceServiceImpl implements ServiceService {
                 costOption.setService(null);
                 this.costOptionRepository.save(costOption);
             }
-            updatedService.setCostOptions(new ArrayList<>());
+            updatedService.getCostOptions().clear();
             for (UpsertCostOptionDTO dto : upsertServiceDTO.getCostOptions()) {
                 CostOption costOption = dto.create();
                 costOption.setService(updatedService);
@@ -403,7 +403,7 @@ public class ServiceServiceImpl implements ServiceService {
                 serviceCapacity.setService(null);
                 this.serviceCapacityRepository.save(serviceCapacity);
             }
-            updatedService.setCapacities(new ArrayList<>());
+            updatedService.getCapacities().clear();
             for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
                 Unit unit = this.unitRepository.findById(dto.getUnitId())
                         .orElseThrow(() -> new RuntimeException("Unit not found."));

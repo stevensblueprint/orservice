@@ -44,10 +44,10 @@ public class Location {
     private String transportation;
 
     @Column(name = "latitude")
-    private int latitude;
+    private Integer latitude;
 
     @Column(name = "longitude")
-    private int longitude;
+    private Integer longitude;
 
     @Column(name = "external_identifier")
     private String externalIdentifier;
@@ -90,23 +90,28 @@ public class Location {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Language language : languages) {
+        if (this.organization != null) {
+            this.organization.getLocations().remove(this);
+        }
+        for (ServiceAtLocation serviceAtLocation : this.serviceAtLocations) {
+            serviceAtLocation.setLocation(null);
+        }
+        for (Language language : this.languages) {
             language.setLocation(null);
         }
-        for (Address address : addresses) {
+        for (Address address : this.addresses) {
             address.setLocation(null);
         }
-        for (Contact contact : contacts) {
+        for (Contact contact : this.contacts) {
             contact.setLocation(null);
         }
-        for (Accessibility accessibility : accessibility) {
+        for (Accessibility accessibility : this.accessibility) {
             accessibility.setLocation(null);
         }
-        for (Phone phone : phones) {
+        for (Phone phone : this.phones) {
             phone.setLocation(null);
         }
-        for (Schedule schedule : schedules) {
+        for (Schedule schedule : this.schedules) {
             schedule.setLocation(null);
         }
     }

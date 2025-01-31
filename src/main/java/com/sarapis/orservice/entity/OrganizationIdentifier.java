@@ -44,6 +44,11 @@ public class OrganizationIdentifier {
     // Methods
     //================================================================================
 
+    @PreRemove
+    public void preRemove() {
+        this.organization.getOrganizationIdentifiers().remove(this);
+    }
+
     public OrganizationIdentifierDTO toDTO() {
         return OrganizationIdentifierDTO.builder()
                 .id(this.id)

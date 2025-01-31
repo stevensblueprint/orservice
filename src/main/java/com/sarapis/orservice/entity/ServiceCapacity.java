@@ -25,10 +25,10 @@ public class ServiceCapacity {
     private String id;
 
     @Column(name = "available", nullable = false)
-    private int available;
+    private Integer available;
 
     @Column(name = "maximum")
-    private int maximum;
+    private Integer maximum;
 
     @Column(name = "description")
     private String description;
@@ -51,6 +51,12 @@ public class ServiceCapacity {
     //================================================================================
     // Methods
     //================================================================================
+
+    @PreRemove
+    public void preRemove() {
+        this.service.getCapacities().remove(this);
+        this.unit.getServiceCapacities().remove(this);
+    }
 
     public ServiceCapacityDTO toDTO() {
         return ServiceCapacityDTO.builder()

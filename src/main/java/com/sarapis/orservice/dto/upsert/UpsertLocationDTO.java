@@ -52,6 +52,7 @@ public class UpsertLocationDTO {
 
     public Location merge(Location location) {
         return Location.builder()
+                .id(location.getId())
                 .locationType(locationType == null ? location.getLocationType() : locationType)
                 .url(url == null ? location.getUrl() : url)
                 .name(name == null ? location.getName() : name)
@@ -62,6 +63,14 @@ public class UpsertLocationDTO {
                 .longitude(longitude == null ? location.getLongitude() : longitude)
                 .externalIdentifier(externalIdentifier == null ? location.getExternalIdentifier() : externalIdentifier)
                 .externalIdentifierType(externalIdentifierType == null ? location.getExternalIdentifierType() : externalIdentifierType)
+                .organization(location.getOrganization())
+                .serviceAtLocations(location.getServiceAtLocations())
+                .languages(location.getLanguages())
+                .addresses(location.getAddresses())
+                .contacts(location.getContacts())
+                .accessibility(location.getAccessibility())
+                .phones(location.getPhones())
+                .schedules(location.getSchedules())
                 .build();
     }
 }

@@ -60,17 +60,18 @@ public class ServiceAtLocation {
 
     @PreRemove
     public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (ServiceArea serviceArea : serviceAreas) {
+        this.service.getServiceAtLocations().remove(this);
+        this.location.getServiceAtLocations().remove(this);
+        for (ServiceArea serviceArea : this.serviceAreas) {
             serviceArea.setServiceAtLocation(null);
         }
-        for (Contact contact : contacts) {
+        for (Contact contact : this.contacts) {
             contact.setServiceAtLocation(null);
         }
-        for (Phone phone : phones) {
+        for (Phone phone : this.phones) {
             phone.setServiceAtLocation(null);
         }
-        for (Schedule schedule : schedules) {
+        for (Schedule schedule : this.schedules) {
             schedule.setServiceAtLocation(null);
         }
     }

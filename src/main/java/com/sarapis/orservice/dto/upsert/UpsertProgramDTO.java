@@ -30,9 +30,12 @@ public class UpsertProgramDTO {
 
     public Program merge(Program program) {
         return Program.builder()
+                .id(program.getId())
                 .name(name == null ? program.getName() : name)
                 .alternateName(alternateName == null ? program.getAlternateName() : alternateName)
                 .description(description == null ? program.getDescription() : description)
+                .services(program.getServices())
+                .organization(program.getOrganization())
                 .build();
     }
 }

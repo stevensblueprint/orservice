@@ -165,7 +165,7 @@ public class ContactServiceImpl implements ContactService {
                 phone.setContact(null);
                 this.phoneRepository.save(phone);
             }
-            updatedContact.setPhones(new ArrayList<>());
+            updatedContact.getPhones().clear();
             for (String id : upsertContactDTO.getPhones()) {
                 Phone phone = this.phoneRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Phone not found."));

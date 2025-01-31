@@ -21,7 +21,7 @@ public class CostOptionDTO {
     private LocalDate validTo;
     private String option;
     private String currency;
-    private int amount;
+    private Integer amount;
     private String amountDescription;
     private List<AttributeDTO> attributes;
     private List<MetadataDTO> metadata;
