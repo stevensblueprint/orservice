@@ -20,19 +20,20 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations() {
+    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(defaultValue = "1") Integer page,
+                                                                      @RequestParam(defaultValue = "10") Integer perPage) {
         List<LocationDTO> locations = this.locationService.getAllLocations();
-        PaginationDTO<LocationDTO> pagination = PaginationDTO.of(
-                locations.size(),
-                1,
-                1,
-                locations.size(),
-                true,
-                false,
-                false,
-                locations
-        );
-        return ResponseEntity.ok(pagination);
+
+        try {
+            PaginationDTO<LocationDTO> pagination = PaginationDTO.of(
+                    locations,
+                    page,
+                    perPage
+            );
+            return ResponseEntity.ok(pagination);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{locationId}")
