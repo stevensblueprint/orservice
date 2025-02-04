@@ -3,6 +3,7 @@ package com.sarapis.orservice.dto.upsert;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Service;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class UpsertServiceAtLocationDTO {
     public ServiceAtLocation merge(ServiceAtLocation serviceAtLocation) {
         return ServiceAtLocation.builder()
                 .id(serviceAtLocation.getId())
-                .description(this.description == null ? serviceAtLocation.getDescription() : this.description)
+                .description(Utility.getOrDefault(this.description, serviceAtLocation.getDescription()))
                 .service(serviceAtLocation.getService())
                 .location(serviceAtLocation.getLocation())
                 .serviceAreas(serviceAtLocation.getServiceAreas())

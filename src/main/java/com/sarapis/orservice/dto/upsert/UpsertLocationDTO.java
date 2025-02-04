@@ -2,6 +2,7 @@ package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.LocationType;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.List;
@@ -53,16 +54,16 @@ public class UpsertLocationDTO {
     public Location merge(Location location) {
         return Location.builder()
                 .id(location.getId())
-                .locationType(this.locationType == null ? location.getLocationType() : this.locationType)
-                .url(this.url == null ? location.getUrl() : this.url)
-                .name(this.name == null ? location.getName() : this.name)
-                .alternateName(this.alternateName == null ? location.getAlternateName() : this.alternateName)
-                .description(this.description == null ? location.getDescription() : this.description)
-                .transportation(this.transportation == null ? location.getTransportation() : this.transportation)
-                .latitude(this.latitude == null ? location.getLatitude() : this.latitude)
-                .longitude(this.longitude == null ? location.getLongitude() : this.longitude)
-                .externalIdentifier(this.externalIdentifier == null ? location.getExternalIdentifier() : this.externalIdentifier)
-                .externalIdentifierType(this.externalIdentifierType == null ? location.getExternalIdentifierType() : this.externalIdentifierType)
+                .locationType(Utility.getOrDefault(this.locationType, location.getLocationType()))
+                .url(Utility.getOrDefault(this.url, location.getUrl()))
+                .name(Utility.getOrDefault(this.name, location.getName()))
+                .alternateName(Utility.getOrDefault(this.alternateName, location.getAlternateName()))
+                .description(Utility.getOrDefault(this.description, location.getDescription()))
+                .transportation(Utility.getOrDefault(this.transportation, location.getTransportation()))
+                .latitude(Utility.getOrDefault(this.latitude, location.getLatitude()))
+                .longitude(Utility.getOrDefault(this.longitude, location.getLongitude()))
+                .externalIdentifier(Utility.getOrDefault(this.externalIdentifier, location.getExternalIdentifier()))
+                .externalIdentifierType(Utility.getOrDefault(this.externalIdentifierType, location.getExternalIdentifierType()))
                 .organization(location.getOrganization())
                 .serviceAtLocations(location.getServiceAtLocations())
                 .languages(location.getLanguages())

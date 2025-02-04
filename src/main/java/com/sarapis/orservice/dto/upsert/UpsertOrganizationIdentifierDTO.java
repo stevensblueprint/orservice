@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.OrganizationIdentifier;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.UUID;
@@ -31,9 +32,9 @@ public class UpsertOrganizationIdentifierDTO {
     public OrganizationIdentifier merge(OrganizationIdentifier organizationIdentifier) {
         return OrganizationIdentifier.builder()
                 .id(organizationIdentifier.getId())
-                .identifierScheme(this.identifierScheme == null ? organizationIdentifier.getIdentifierScheme() : this.identifierScheme)
-                .identifierType(this.identifierType == null ? organizationIdentifier.getIdentifierType() : this.identifierType)
-                .identifier(this.identifier == null ? organizationIdentifier.getIdentifier() : this.identifier)
+                .identifierScheme(Utility.getOrDefault(this.identifierScheme, organizationIdentifier.getIdentifierScheme()))
+                .identifierType(Utility.getOrDefault(this.identifierType, organizationIdentifier.getIdentifierType()))
+                .identifier(Utility.getOrDefault(this.identifier, organizationIdentifier.getIdentifier()))
                 .organization(organizationIdentifier.getOrganization())
                 .build();
     }

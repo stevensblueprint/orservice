@@ -54,7 +54,7 @@ public class ServiceCapacity {
 
     @PreRemove
     public void preRemove() {
-        this.service.getCapacities().remove(this);
+        this.service.getServiceCapacities().remove(this);
         this.unit.getServiceCapacities().remove(this);
     }
 

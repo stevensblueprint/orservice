@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.Program;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.UUID;
@@ -31,9 +32,9 @@ public class UpsertProgramDTO {
     public Program merge(Program program) {
         return Program.builder()
                 .id(program.getId())
-                .name(this.name == null ? program.getName() : this.name)
-                .alternateName(this.alternateName == null ? program.getAlternateName() : this.alternateName)
-                .description(this.description == null ? program.getDescription() : this.description)
+                .name(Utility.getOrDefault(this.name, program.getName()))
+                .alternateName(Utility.getOrDefault(this.alternateName, program.getAlternateName()))
+                .description(Utility.getOrDefault(this.description, program.getDescription()))
                 .services(program.getServices())
                 .organization(program.getOrganization())
                 .build();

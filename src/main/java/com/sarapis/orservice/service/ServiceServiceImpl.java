@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ServiceServiceImpl implements ServiceService {
@@ -203,7 +202,7 @@ public class ServiceServiceImpl implements ServiceService {
             createdService.getCostOptions().add(createdCostOption);
         }
 
-        createdService.setCapacities(new ArrayList<>());
+        createdService.setServiceCapacities(new ArrayList<>());
         for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
             Unit unit = this.unitRepository.findById(dto.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Unit not found."));
@@ -213,7 +212,7 @@ public class ServiceServiceImpl implements ServiceService {
             unit.getServiceCapacities().add(serviceCapacity);
             this.unitRepository.save(unit);
             this.serviceCapacityRepository.save(serviceCapacity);
-            createdService.getCapacities().add(serviceCapacity);
+            createdService.getServiceCapacities().add(serviceCapacity);
         }
 
         this.serviceRepository.save(createdService);
@@ -399,11 +398,11 @@ public class ServiceServiceImpl implements ServiceService {
         }
 
         if (upsertServiceDTO.getServiceCapacities() != null && !upsertServiceDTO.getServiceCapacities().isEmpty()) {
-            for (ServiceCapacity serviceCapacity : service.getCapacities()) {
+            for (ServiceCapacity serviceCapacity : service.getServiceCapacities()) {
                 serviceCapacity.setService(null);
                 this.serviceCapacityRepository.save(serviceCapacity);
             }
-            updatedService.getCapacities().clear();
+            updatedService.getServiceCapacities().clear();
             for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
                 Unit unit = this.unitRepository.findById(dto.getUnitId())
                         .orElseThrow(() -> new RuntimeException("Unit not found."));
@@ -413,7 +412,7 @@ public class ServiceServiceImpl implements ServiceService {
                 unit.getServiceCapacities().add(serviceCapacity);
                 this.unitRepository.save(unit);
                 this.serviceCapacityRepository.save(serviceCapacity);
-                updatedService.getCapacities().add(serviceCapacity);
+                updatedService.getServiceCapacities().add(serviceCapacity);
             }
         }
 

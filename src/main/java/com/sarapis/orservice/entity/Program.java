@@ -51,9 +51,7 @@ public class Program {
 
     @PreRemove
     public void preRemove() {
-        for (Service service : this.services) {
-            service.setProgram(null);
-        }
+        this.services.forEach(service -> service.setProgram(null));
         this.organization.getPrograms().remove(this);
     }
 

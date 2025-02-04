@@ -80,9 +80,7 @@ public class Contact {
         if (this.location != null) {
             this.location.getContacts().remove(this);
         }
-        for (Phone phone : this.phones) {
-            phone.setContact(null);
-        }
+        this.phones.forEach(phone -> phone.setContact(null));
     }
 
     public ContactDTO toDTO() {

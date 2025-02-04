@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.Contact;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.List;
@@ -39,10 +40,10 @@ public class UpsertContactDTO {
     public Contact merge(Contact contact) {
         return Contact.builder()
                 .id(contact.getId())
-                .name(this.name == null ? contact.getName() : this.name)
-                .title(this.title == null ? contact.getTitle() : this.title)
-                .department(this.department == null ? contact.getDepartment() : this.department)
-                .email(this.email == null ? contact.getEmail() : this.email)
+                .name(Utility.getOrDefault(this.name, contact.getName()))
+                .title(Utility.getOrDefault(this.title, contact.getTitle()))
+                .department(Utility.getOrDefault(this.department, contact.getDepartment()))
+                .email(Utility.getOrDefault(this.email, contact.getEmail()))
                 .organization(contact.getOrganization())
                 .service(contact.getService())
                 .serviceAtLocation(contact.getServiceAtLocation())

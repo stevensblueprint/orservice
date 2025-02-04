@@ -2,6 +2,7 @@ package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.core.Service;
 import com.sarapis.orservice.entity.core.Status;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -85,26 +86,26 @@ public class UpsertServiceDTO {
     public Service merge(Service service) {
         return Service.builder()
                 .id(service.getId())
-                .name(this.name == null ? service.getName() : this.name)
-                .alternateName(this.alternateName == null ? service.getAlternateName() : this.alternateName)
-                .description(this.description == null ? service.getDescription() : this.description)
-                .url(this.url == null ? service.getUrl() : this.url)
-                .email(this.email == null ? service.getEmail() : this.email)
-                .status(this.status == null ? service.getStatus() : this.status)
-                .interpretationServices(this.interpretationServices == null ? service.getInterpretationServices() : this.interpretationServices)
-                .applicationProcess(this.applicationProcess == null ? service.getApplicationProcess() : this.applicationProcess)
-                .feesDescription(this.feesDescription == null ? service.getFeesDescription() : this.feesDescription)
-                .waitTime(this.waitTime == null ? service.getWaitTime() : this.waitTime)
-                .fees(this.fees == null ? service.getFees() : this.fees)
-                .accreditations(this.accreditations == null ? service.getAccreditations() : this.accreditations)
-                .eligibilityDescription(this.eligibilityDescription == null ? service.getEligibilityDescription() : this.eligibilityDescription)
-                .minimumAge(this.minimumAge == null ? service.getMinimumAge() : this.minimumAge)
-                .maximumAge(this.maximumAge == null ? service.getMaximumAge() : this.maximumAge)
-                .assuredDate(this.assuredDate == null ? service.getAssuredDate() : this.assuredDate)
-                .assurerEmail(this.assurerEmail == null ? null : this.assurerEmail)
-                .licenses(this.licenses == null ? service.getLicenses() : this.licenses)
-                .alert(this.alert == null ? service.getAlert() : this.alert)
-                .lastModified(this.lastModified == null ? service.getLastModified() : this.lastModified)
+                .name(Utility.getOrDefault(this.name, service.getName()))
+                .alternateName(Utility.getOrDefault(this.alternateName, service.getAlternateName()))
+                .description(Utility.getOrDefault(this.description, service.getDescription()))
+                .url(Utility.getOrDefault(this.url, service.getUrl()))
+                .email(Utility.getOrDefault(this.email, service.getEmail()))
+                .status(Utility.getOrDefault(this.status, service.getStatus()))
+                .interpretationServices(Utility.getOrDefault(this.interpretationServices, service.getInterpretationServices()))
+                .applicationProcess(Utility.getOrDefault(this.applicationProcess, service.getApplicationProcess()))
+                .feesDescription(Utility.getOrDefault(this.feesDescription, service.getFeesDescription()))
+                .waitTime(Utility.getOrDefault(this.waitTime, service.getWaitTime()))
+                .fees(Utility.getOrDefault(this.fees, service.getFees()))
+                .accreditations(Utility.getOrDefault(this.accreditations, service.getAccreditations()))
+                .eligibilityDescription(Utility.getOrDefault(this.eligibilityDescription, service.getEligibilityDescription()))
+                .minimumAge(Utility.getOrDefault(this.minimumAge, service.getMinimumAge()))
+                .maximumAge(Utility.getOrDefault(this.maximumAge, service.getMaximumAge()))
+                .assuredDate(Utility.getOrDefault(this.assuredDate, service.getAssuredDate()))
+                .assurerEmail(Utility.getOrDefault(this.assurerEmail, service.getAssurerEmail()))
+                .licenses(Utility.getOrDefault(this.licenses, service.getLicenses()))
+                .alert(Utility.getOrDefault(this.alert, service.getAlert()))
+                .lastModified(Utility.getOrDefault(this.lastModified, service.getLastModified()))
                 .organization(service.getOrganization())
                 .program(service.getProgram())
                 .additionalUrls(service.getAdditionalUrls())
@@ -117,7 +118,7 @@ public class UpsertServiceDTO {
                 .costOptions(service.getCostOptions())
                 .requiredDocuments(service.getRequiredDocuments())
                 .contacts(service.getContacts())
-                .capacities(service.getCapacities())
+                .capacities(service.getServiceCapacities())
                 .build();
     }
 }

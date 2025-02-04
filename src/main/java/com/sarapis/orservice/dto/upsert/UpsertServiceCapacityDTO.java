@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.ServiceCapacity;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -35,10 +36,10 @@ public class UpsertServiceCapacityDTO {
     public ServiceCapacity merge(ServiceCapacity serviceCapacity) {
         return ServiceCapacity.builder()
                 .id(serviceCapacity.getId())
-                .available(this.available == null ? serviceCapacity.getAvailable() : this.available)
-                .maximum(this.maximum == null ? serviceCapacity.getMaximum() : this.maximum)
-                .description(this.description == null ? serviceCapacity.getDescription() : this.description)
-                .updated(this.updated == null ? serviceCapacity.getUpdated() : this.updated)
+                .available(Utility.getOrDefault(this.available, serviceCapacity.getAvailable()))
+                .maximum(Utility.getOrDefault(this.maximum, serviceCapacity.getMaximum()))
+                .description(Utility.getOrDefault(this.description, serviceCapacity.getDescription()))
+                .updated(Utility.getOrDefault(this.updated, serviceCapacity.getUpdated()))
                 .service(serviceCapacity.getService())
                 .unit(serviceCapacity.getUnit())
                 .build();

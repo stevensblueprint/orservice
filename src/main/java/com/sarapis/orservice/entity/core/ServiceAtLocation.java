@@ -62,18 +62,10 @@ public class ServiceAtLocation {
     public void preRemove() {
         this.service.getServiceAtLocations().remove(this);
         this.location.getServiceAtLocations().remove(this);
-        for (ServiceArea serviceArea : this.serviceAreas) {
-            serviceArea.setServiceAtLocation(null);
-        }
-        for (Contact contact : this.contacts) {
-            contact.setServiceAtLocation(null);
-        }
-        for (Phone phone : this.phones) {
-            phone.setServiceAtLocation(null);
-        }
-        for (Schedule schedule : this.schedules) {
-            schedule.setServiceAtLocation(null);
-        }
+        this.serviceAreas.forEach(serviceArea -> serviceArea.setServiceAtLocation(this));
+        this.contacts.forEach(contact -> contact.setServiceAtLocation(this));
+        this.phones.forEach(phone -> phone.setServiceAtLocation(this));
+        this.schedules.forEach(schedule -> schedule.setServiceAtLocation(this));
     }
 
     public ServiceAtLocationDTO toDTO() {
@@ -86,7 +78,7 @@ public class ServiceAtLocation {
                 .contacts(this.contacts.stream().map(Contact::toDTO).toList())
                 .phones(this.phones.stream().map(Phone::toDTO).toList())
                 .schedules(this.schedules.stream().map(Schedule::toDTO).toList())
-                .location(this.location != null ? this.location.toDTO() : null)
+                .location(this.location == null ? null : this.location.toDTO())
                 .attributes(new ArrayList<>())
                 .metadata(new ArrayList<>())
                 .build();

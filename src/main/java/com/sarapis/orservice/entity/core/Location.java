@@ -93,27 +93,13 @@ public class Location {
         if (this.organization != null) {
             this.organization.getLocations().remove(this);
         }
-        for (ServiceAtLocation serviceAtLocation : this.serviceAtLocations) {
-            serviceAtLocation.setLocation(null);
-        }
-        for (Language language : this.languages) {
-            language.setLocation(null);
-        }
-        for (Address address : this.addresses) {
-            address.setLocation(null);
-        }
-        for (Contact contact : this.contacts) {
-            contact.setLocation(null);
-        }
-        for (Accessibility accessibility : this.accessibility) {
-            accessibility.setLocation(null);
-        }
-        for (Phone phone : this.phones) {
-            phone.setLocation(null);
-        }
-        for (Schedule schedule : this.schedules) {
-            schedule.setLocation(null);
-        }
+        this.serviceAtLocations.forEach(serviceAtLocation -> serviceAtLocation.setLocation(null));
+        this.languages.forEach(language -> language.setLocation(null));
+        this.addresses.forEach(address -> address.setLocation(null));
+        this.contacts.forEach(contact -> contact.setLocation(null));
+        this.accessibility.forEach(accessibility -> accessibility.setLocation(null));
+        this.phones.forEach(phone -> phone.setLocation(null));
+        this.schedules.forEach(schedule -> schedule.setLocation(null));
     }
 
     public LocationDTO toDTO() {

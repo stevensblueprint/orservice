@@ -133,7 +133,7 @@ public class Service {
     private List<Contact> contacts;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "service")
-    private List<ServiceCapacity> capacities;
+    private List<ServiceCapacity> serviceCapacities;
 
     //================================================================================
     // Methods
@@ -145,39 +145,17 @@ public class Service {
         if (this.program != null) {
             this.program.getServices().remove(this);
         }
-        for (Url url : this.additionalUrls) {
-            url.setService(null);
-        }
-        for (Phone phone : this.phones) {
-            phone.setService(null);
-        }
-        for (Schedule schedule : this.schedules) {
-            schedule.setService(null);
-        }
-        for (ServiceArea serviceArea : this.serviceAreas) {
-            serviceArea.setService(null);
-        }
-        for (ServiceAtLocation serviceAtLocation : this.serviceAtLocations) {
-            serviceAtLocation.setService(null);
-        }
-        for (Language language : this.languages) {
-            language.setService(null);
-        }
-        for (Funding funding : this.funding) {
-            funding.setService(null);
-        }
-        for (CostOption costOption : this.costOptions) {
-            costOption.setService(null);
-        }
-        for (RequiredDocument requiredDocument : this.requiredDocuments) {
-            requiredDocument.setService(null);
-        }
-        for (Contact contact : this.contacts) {
-            contact.setService(null);
-        }
-        for (ServiceCapacity capacity : this.capacities) {
-            capacity.setService(null);
-        }
+        this.additionalUrls.forEach(additionalUrl -> additionalUrl.setService(null));
+        this.phones.forEach(phone -> phone.setService(null));
+        this.schedules.forEach(schedule -> schedule.setService(null));
+        this.serviceAreas.forEach(serviceArea -> serviceArea.setService(null));
+        this.serviceAtLocations.forEach(serviceAtLocation -> serviceAtLocation.setService(null));
+        this.languages.forEach(language -> language.setService(null));
+        this.funding.forEach(funding -> funding.setService(null));
+        this.costOptions.forEach(costOption -> costOption.setService(null));
+        this.requiredDocuments.forEach(requiredDocument -> requiredDocument.setService(null));
+        this.contacts.forEach(contact -> contact.setService(null));
+        this.serviceCapacities.forEach(serviceCapacity -> serviceCapacity.setService(null));
     }
 
     public ServiceDTO toDTO() {
@@ -215,7 +193,7 @@ public class Service {
                 .programId(this.program == null ? null : this.program.getId())
                 .requiredDocuments(this.requiredDocuments.stream().map(RequiredDocument::toDTO).toList())
                 .contacts(this.contacts.stream().map(Contact::toDTO).toList())
-                .capacities(this.capacities.stream().map(ServiceCapacity::toDTO).toList())
+                .capacities(this.serviceCapacities.stream().map(ServiceCapacity::toDTO).toList())
                 .attributes(new ArrayList<>())
                 .metadata(new ArrayList<>())
                 .build();

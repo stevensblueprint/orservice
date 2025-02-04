@@ -124,36 +124,18 @@ public class Organization {
 
     @PreRemove
     public void preRemove() {
-        for (Organization organization : this.childOrganizations) {
-            organization.setParentOrganization(null);
-        }
-        for (Service service : this.services) {
-            service.setOrganization(null);
-        }
+        this.childOrganizations.forEach(organization -> organization.setParentOrganization(null));
+        this.services.forEach(service -> service.setOrganization(null));
         if (this.parentOrganization != null) {
             this.parentOrganization.getChildOrganizations().remove(this);
         }
-        for (Url url : this.additionalWebsites) {
-            url.setOrganization(null);
-        }
-        for (Funding funding : this.funding) {
-            funding.setOrganization(null);
-        }
-        for (Contact contact : this.contacts) {
-            contact.setOrganization(null);
-        }
-        for (Phone phone : this.phones) {
-            phone.setOrganization(null);
-        }
-        for (Location location : this.locations) {
-            location.setOrganization(null);
-        }
-        for (Program program : this.programs) {
-            program.setOrganization(null);
-        }
-        for (OrganizationIdentifier organizationIdentifier : this.organizationIdentifiers) {
-            organizationIdentifier.setOrganization(null);
-        }
+        this.additionalWebsites.forEach(additionalWebsite -> additionalWebsite.setOrganization(null));
+        this.funding.forEach(funding -> funding.setOrganization(null));
+        this.contacts.forEach(contact -> contact.setOrganization(null));
+        this.phones.forEach(phone -> phone.setOrganization(null));
+        this.locations.forEach(location -> location.setOrganization(null));
+        this.programs.forEach(program -> program.setOrganization(null));
+        this.organizationIdentifiers.forEach(organizationIdentifier -> organizationIdentifier.setOrganization(null));
     }
 
     public OrganizationDTO toDTO() {

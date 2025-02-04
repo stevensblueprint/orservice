@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.util.List;
@@ -55,17 +56,17 @@ public class UpsertOrganizationDTO {
     public Organization merge(Organization organization) {
         return Organization.builder()
                 .id(organization.getId())
-                .name(this.name == null ? organization.getName() : this.name)
-                .alternateName(this.alternateName == null ? organization.getAlternateName() : this.alternateName)
-                .description(this.description == null ? organization.getDescription() : this.description)
-                .email(this.email == null ? organization.getEmail() : this.email)
-                .website(this.website == null ? organization.getWebsite() : this.website)
-                .taxStatus(this.taxStatus == null ? organization.getTaxStatus() : this.taxStatus)
-                .taxId(this.taxId == null ? organization.getTaxId() : this.taxId)
-                .yearIncorporated(this.yearIncorporated == null ? organization.getYearIncorporated() : this.yearIncorporated)
-                .legalStatus(this.legalStatus == null ? organization.getLegalStatus() : this.legalStatus)
-                .logo(this.logo == null ? organization.getLogo() : this.logo)
-                .uri(this.uri == null ? organization.getUri() : this.uri)
+                .name(Utility.getOrDefault(this.name, organization.getName()))
+                .alternateName(Utility.getOrDefault(this.alternateName, organization.getAlternateName()))
+                .description(Utility.getOrDefault(this.description, organization.getDescription()))
+                .email(Utility.getOrDefault(this.email, organization.getEmail()))
+                .website(Utility.getOrDefault(this.website, organization.getWebsite()))
+                .taxStatus(Utility.getOrDefault(this.taxStatus, organization.getTaxStatus()))
+                .taxId(Utility.getOrDefault(this.taxId, organization.getTaxId()))
+                .yearIncorporated(Utility.getOrDefault(this.yearIncorporated, organization.getYearIncorporated()))
+                .legalStatus(Utility.getOrDefault(this.legalStatus, organization.getLegalStatus()))
+                .logo(Utility.getOrDefault(this.logo, organization.getLogo()))
+                .uri(Utility.getOrDefault(this.uri, organization.getUri()))
                 .childOrganizations(organization.getChildOrganizations())
                 .services(organization.getServices())
                 .parentOrganization(organization.getParentOrganization())

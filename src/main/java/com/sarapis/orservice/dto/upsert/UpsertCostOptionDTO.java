@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto.upsert;
 
 import com.sarapis.orservice.entity.CostOption;
+import com.sarapis.orservice.util.Utility;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -38,12 +39,12 @@ public class UpsertCostOptionDTO {
     public CostOption merge(CostOption costOption) {
         return CostOption.builder()
                 .id(costOption.getId())
-                .validFrom(this.validFrom == null ? costOption.getValidFrom() : this.validFrom)
-                .validTo(this.validTo == null ? costOption.getValidTo() : this.validTo)
-                .option(this.option == null ? costOption.getOption() : this.option)
-                .currency(this.currency == null ? costOption.getCurrency() : this.currency)
-                .amount(this.amount == null ? costOption.getAmount() : this.amount)
-                .amountDescription(this.amountDescription == null ? costOption.getAmountDescription() : this.amountDescription)
+                .validFrom(Utility.getOrDefault(this.validFrom, costOption.getValidFrom()))
+                .validTo(Utility.getOrDefault(this.validTo, costOption.getValidTo()))
+                .option(Utility.getOrDefault(this.option, costOption.getOption()))
+                .currency(Utility.getOrDefault(this.currency, costOption.getCurrency()))
+                .amount(Utility.getOrDefault(this.amount, costOption.getAmount()))
+                .amountDescription(Utility.getOrDefault(this.amountDescription, costOption.getAmountDescription()))
                 .service(costOption.getService())
                 .build();
     }
