@@ -118,7 +118,7 @@ public class UpsertServiceDTO {
                 .costOptions(service.getCostOptions())
                 .requiredDocuments(service.getRequiredDocuments())
                 .contacts(service.getContacts())
-                .capacities(service.getServiceCapacities())
+                .serviceCapacities(service.getServiceCapacities())
                 .build();
     }
 }
