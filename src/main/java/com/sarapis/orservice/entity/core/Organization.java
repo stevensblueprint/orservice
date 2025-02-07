@@ -56,7 +56,7 @@ public class Organization {
     private String taxId;
 
     @Column(name = "year_incorporated")
-    private int yearIncorporated;
+    private Integer yearIncorporated;
 
     @Column(name = "legal_status")
     private String legalStatus;
@@ -118,7 +118,7 @@ public class Organization {
             csvPrinter.flush();
             return new ByteArrayInputStream(out.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+            throw new RuntimeException("Failed to export data to CSV file: " + e.getMessage());
         }
     }
 
