@@ -18,5 +18,4 @@ public interface OrganizationService {
     void deleteOrganization(String organizationId);
 
     ByteArrayInputStream loadCSV();
-
 }
