@@ -1,5 +1,6 @@
 package com.sarapis.orservice.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -11,13 +12,29 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private static final List<String> ALLOWED_ORIGINS_DEV = List.of("http://localhost:5173/");
-    private static final List<String> ALLOWED_ORIGINS_PROD = List.of("http://ec2-34-229-138-80.compute-1.amazonaws.com/");
+    private static List<String> ALLOWED_ORIGINS_PROD;
+
+    // Refer to https://www.baeldung.com/spring-inject-static-field
+    @Value("${prod.allowed_origins:#{null}}")
+    private void setAllowedOriginsProd(String rawUrls) {
+        // So that app won't crash in dev env
+        // Ensure that FRONTEND_URLS is defined in .env for prod
+        if(rawUrls == null)
+            return;
+        String[] urls = rawUrls.split(",");
+        ALLOWED_ORIGINS_PROD = List.copyOf(
+            Arrays.stream(urls)
+                .map(String::trim)
+                .toList()
+        );
+    }
 
     @Bean
     @Profile("prod")
