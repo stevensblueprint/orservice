@@ -1,5 +1,8 @@
 package com.sarapis.orservice.entity.core;
 
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
@@ -105,36 +108,6 @@ public class Organization {
     //================================================================================
     // Methods
     //================================================================================
-
-    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
-        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format)) {
-            // Prints header
-            List<String> header = Arrays.asList("id", "name", "alternate_name", "description", "email", "url", "tax_status", "tax_id", "year_incorporated", "legal_status");
-            csvPrinter.printRecord(header);
-            // Prints records
-            for (Organization organization : organizations) {
-                List<String> data = Arrays.asList(
-                        organization.getId(),
-                        organization.getName(),
-                        organization.getAlternateName(),
-                        organization.getDescription(),
-                        organization.getEmail(),
-                        organization.getUri(),
-                        organization.getTaxStatus(),
-                        organization.getTaxId(),
-                        organization.getYearIncorporated() == null ? null : organization.getYearIncorporated().toString(),
-                        organization.getLegalStatus()
-                );
-                csvPrinter.printRecord(data);
-            }
-            csvPrinter.flush();
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to export data to CSV file: " + e.getMessage());
-        }
-    }
 
     @PreRemove
     public void preRemove() {

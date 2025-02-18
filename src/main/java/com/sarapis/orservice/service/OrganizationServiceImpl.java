@@ -1,5 +1,12 @@
 package com.sarapis.orservice.service;
 
+import com.amazonaws.util.IOUtils;
+import com.lowagie.text.Document;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertOrganizationIdentifierDTO;
@@ -7,12 +14,21 @@ import com.sarapis.orservice.entity.*;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.repository.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
@@ -175,9 +191,78 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public ByteArrayInputStream loadCSV() {
-        List<Organization> organizations = organizationRepository.findAll();
-        return Organization.toCSV(organizations);
+    public void writeCsv(ZipOutputStream zipOutputStream) {
+        try {
+            // Sets CSV printer
+            final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+            // Sets CSV header
+            List<String> header = Arrays.asList("id", "name", "alternate_name", "description", "email", "url", "tax_status", "tax_id", "year_incorporated", "legal_status");
+            csvPrinter.printRecord(header);
+            // Sets CSV entries
+            for (Organization organization : organizationRepository.findAll()) {
+                List<String> data = Arrays.asList(
+                        organization.getId(),
+                        organization.getName(),
+                        organization.getAlternateName(),
+                        organization.getDescription(),
+                        organization.getEmail(),
+                        organization.getUri(),
+                        organization.getTaxStatus(),
+                        organization.getTaxId(),
+                        organization.getYearIncorporated() == null ? null : organization.getYearIncorporated().toString(),
+                        organization.getLegalStatus()
+                );
+                csvPrinter.printRecord(data);
+            }
+            // Flushes to zip entry
+            csvPrinter.flush();
+            zipOutputStream.putNextEntry(new ZipEntry("organizations.csv"));
+            IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
+            zipOutputStream.closeEntry();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export data to CSV file: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void writePdf(ZipOutputStream zipOutputStream) {
+        try {
+            // Sets PDF document to write directly to zip entry stream
+            zipOutputStream.putNextEntry(new ZipEntry("organizations.pdf"));
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, zipOutputStream);
+            document.open();
+            // Sets table
+            PdfPTable table = new PdfPTable(10);
+            PdfPCell cell = new PdfPCell();
+            // Sets table header
+            List<String> header = Arrays.asList("id", "name", "alternate_name", "description", "email", "url", "tax_status", "tax_id", "year_incorporated", "legal_status");
+            header.forEach(column -> {
+                cell.setPhrase(new Phrase(column));
+                table.addCell(cell);
+            });
+            // Sets table entries
+            for (Organization organization : organizationRepository.findAll()) {
+                table.addCell(organization.getId());
+                table.addCell(organization.getName());
+                table.addCell(organization.getAlternateName());
+                table.addCell(organization.getDescription());
+                table.addCell(organization.getEmail());
+                table.addCell(organization.getUri());
+                table.addCell(organization.getTaxStatus());
+                table.addCell(organization.getTaxId());
+                table.addCell(organization.getYearIncorporated() == null ? null : organization.getYearIncorporated().toString());
+                table.addCell(organization.getLegalStatus());
+            }
+            document.add(table);
+            document.close();
+            zipOutputStream.closeEntry();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export data to PDF file: " + e.getMessage());
+        }
     }
 
     private void addRelatedData(OrganizationDTO organizationDTO) {

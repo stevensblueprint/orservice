@@ -1,10 +1,12 @@
 package com.sarapis.orservice.service;
 
+import com.lowagie.text.pdf.PdfPTable;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 public interface OrganizationService {
     List<OrganizationDTO> getAllOrganizations();
@@ -17,5 +19,7 @@ public interface OrganizationService {
 
     void deleteOrganization(String organizationId);
 
-    ByteArrayInputStream loadCSV();
+    void writeCsv(ZipOutputStream zipOutputStream);
+
+    void writePdf(ZipOutputStream zipOutputStream);
 }
