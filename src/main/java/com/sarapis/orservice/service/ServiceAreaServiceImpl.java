@@ -3,6 +3,7 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.ServiceAreaDTO;
 import com.sarapis.orservice.entity.ServiceArea;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.ServiceAreaRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
@@ -43,7 +44,7 @@ public class ServiceAreaServiceImpl implements ServiceAreaService {
     @Override
     public ServiceAreaDTO getServiceAreaById(String serviceAreaId) {
         ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new RuntimeException("Service area not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Service area not found."));
         ServiceAreaDTO serviceAreaDTO = serviceArea.toDTO();
         this.addRelatedData(serviceAreaDTO);
         return serviceAreaDTO;
@@ -56,11 +57,11 @@ public class ServiceAreaServiceImpl implements ServiceAreaService {
 
         if (serviceAreaDTO.getServiceId() != null) {
             service = this.serviceRepository.findById(serviceAreaDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         }
         if (serviceAreaDTO.getServiceAtLocationId() != null) {
             serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAreaDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new RuntimeException("Service atlocation not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service atlocation not found."));
         }
 
         ServiceArea serviceArea = this.serviceAreaRepository.save(serviceAreaDTO.toEntity(service, serviceAtLocation));
@@ -75,7 +76,7 @@ public class ServiceAreaServiceImpl implements ServiceAreaService {
     @Override
     public ServiceAreaDTO updateServiceArea(String serviceAreaId, ServiceAreaDTO serviceAreaDTO) {
         ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new RuntimeException("ServiceArea not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("ServiceArea not found"));
 
         serviceArea.setId(serviceAreaDTO.getId());
         serviceArea.setName(serviceAreaDTO.getName());
@@ -91,7 +92,7 @@ public class ServiceAreaServiceImpl implements ServiceAreaService {
     @Override
     public void deleteServiceArea(String serviceAreaId) {
         ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new RuntimeException("ServiceArea not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("ServiceArea not found"));
         this.attributeService.deleteRelatedAttributes(serviceArea.getId());
         this.metadataService.deleteRelatedMetadata(serviceArea.getId());
         this.serviceAreaRepository.delete(serviceArea);

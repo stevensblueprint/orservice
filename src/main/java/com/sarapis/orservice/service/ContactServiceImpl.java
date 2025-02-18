@@ -6,6 +6,7 @@ import com.sarapis.orservice.entity.Contact;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDTO getContactById(String contactId) {
         Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new RuntimeException("Contact not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
         ContactDTO contactDTO = contact.toDTO();
         this.addRelatedData(contactDTO);
         return contactDTO;
@@ -61,7 +62,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (upsertContactDTO.getOrganizationId() != null) {
             Organization organization = this.organizationRepository.findById(upsertContactDTO.getOrganizationId())
-                    .orElseThrow(() -> new RuntimeException("Organization not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
             organization.getContacts().add(createdContact);
             this.organizationRepository.save(organization);
             createdContact.setOrganization(organization);
@@ -69,7 +70,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (upsertContactDTO.getServiceId() != null) {
             com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertContactDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
             service.getContacts().add(createdContact);
             this.serviceRepository.save(service);
             createdContact.setService(service);
@@ -77,7 +78,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (upsertContactDTO.getServiceAtLocationId() != null) {
             ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(upsertContactDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new RuntimeException("Service at location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
             serviceAtLocation.getContacts().add(createdContact);
             this.serviceAtLocationRepository.save(serviceAtLocation);
             createdContact.setServiceAtLocation(serviceAtLocation);
@@ -85,7 +86,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (upsertContactDTO.getLocationId() != null) {
             Location location = this.locationRepository.findById(upsertContactDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
             location.getContacts().add(createdContact);
             this.locationRepository.save(location);
             createdContact.setLocation(location);
@@ -98,7 +99,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDTO updateContact(String contactId, ContactDTO contactDTO) {
         Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new RuntimeException("Contact not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
 
         contact.setName(contactDTO.getName());
         contact.setTitle(contactDTO.getTitle());
@@ -112,7 +113,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public void deleteContact(String contactId) {
         Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new RuntimeException("Contact not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
         this.attributeService.deleteRelatedAttributes(contact.getId());
         this.metadataService.deleteRelatedMetadata(contact.getId());
         this.contactRepository.delete(contact);

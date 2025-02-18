@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.entity.Schedule;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.ServiceAtLocation;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
@@ -45,7 +46,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleDTO getScheduleById(String scheduleId) {
         Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
         ScheduleDTO scheduleDTO = schedule.toDTO();
         this.addRelatedData(scheduleDTO);
         return scheduleDTO;
@@ -59,15 +60,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         if (scheduleDTO.getServiceId() != null) {
             service = this.serviceRepository.findById(scheduleDTO.getServiceId())
-                    .orElseThrow(() -> new RuntimeException("Service not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
         }
         if (scheduleDTO.getLocationId() != null) {
             location = this.locationRepository.findById(scheduleDTO.getLocationId())
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
         }
         if (scheduleDTO.getServiceAtLocationId() != null) {
             serviceAtLocation = this.serviceAtLocationRepository.findById(scheduleDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new RuntimeException("Service at location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
         }
 
         Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity(service, location, serviceAtLocation));
@@ -82,7 +83,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleDTO updateSchedule(String scheduleId, ScheduleDTO scheduleDTO) {
         Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
 
         schedule.setValidFrom(scheduleDTO.getValidFrom());
         schedule.setValidTo(scheduleDTO.getValidTo());
@@ -111,7 +112,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void deleteSchedule(String scheduleId) {
         Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
         this.attributeService.deleteRelatedAttributes(schedule.getId());
         this.metadataService.deleteRelatedMetadata(schedule.getId());
         this.scheduleRepository.delete(schedule);

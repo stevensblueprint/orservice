@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
 import com.sarapis.orservice.entity.Program;
 import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ProgramRepository;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public ProgramDTO getProgramDTOById(String programId) {
         Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new RuntimeException("Program not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
         ProgramDTO programDTO = program.toDTO();
         this.addRelatedData(programDTO);
         return programDTO;
@@ -49,7 +50,7 @@ public class ProgramServiceImpl implements ProgramService {
         Program program = upsertProgramDTO.create();
 
         Organization organization = this.organizationRepository.findById(upsertProgramDTO.getOrganizationId())
-                .orElseThrow(() -> new RuntimeException("Organization not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
         program.setOrganization(organization);
 
         Program createdProgram = this.programRepository.save(program);
@@ -61,7 +62,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public ProgramDTO updateProgram(String programId, ProgramDTO programDTO) {
         Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new RuntimeException("Program not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
 
         program.setId(programDTO.getId());
         program.setName(programDTO.getName());
@@ -75,7 +76,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public void deleteProgram(String programId) {
         Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new RuntimeException("Program not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
         this.attributeService.deleteRelatedAttributes(program.getId());
         this.metadataService.deleteRelatedMetadata(program.getId());
         this.programRepository.delete(program);

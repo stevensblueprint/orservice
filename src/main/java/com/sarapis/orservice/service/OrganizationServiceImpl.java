@@ -13,6 +13,7 @@ import com.sarapis.orservice.dto.upsert.UpsertOrganizationIdentifierDTO;
 import com.sarapis.orservice.entity.*;
 import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.Organization;
+import com.sarapis.orservice.exception.ResourceNotFoundException;
 import com.sarapis.orservice.repository.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -77,7 +78,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public OrganizationDTO getOrganizationById(String organizationId) {
         Organization organization = this.organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new RuntimeException("Organization not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
         OrganizationDTO organizationDTO = organization.toDTO();
         this.addRelatedData(organizationDTO);
         return organizationDTO;
@@ -90,14 +91,14 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (upsertOrganizationDTO.getParentOrganizationId() != null) {
             Organization parentOrganization = this.organizationRepository
                     .findById(upsertOrganizationDTO.getParentOrganizationId())
-                    .orElseThrow(() -> new RuntimeException("Parent organization not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent organization not found."));
             createdOrganization.setParentOrganization(parentOrganization);
         }
 
         createdOrganization.setAdditionalWebsites(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getAdditionalWebsites()) {
             Url url = this.urlRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Url not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Url not found."));
             url.setOrganization(createdOrganization);
             this.urlRepository.save(url);
             createdOrganization.getAdditionalWebsites().add(url);
@@ -106,7 +107,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         createdOrganization.setFunding(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getFundings()) {
             Funding funding = this.fundingRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Funding not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Funding not found."));
             funding.setOrganization(createdOrganization);
             this.fundingRepository.save(funding);
             createdOrganization.getFunding().add(funding);
@@ -115,7 +116,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         createdOrganization.setLocations(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getLocations()) {
             Location location = this.locationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Location not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
             location.setOrganization(createdOrganization);
             this.locationRepository.save(location);
             createdOrganization.getLocations().add(location);
@@ -124,7 +125,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         createdOrganization.setPhones(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getPhones()) {
             Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Phone not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
             phone.setOrganization(createdOrganization);
             this.phoneRepository.save(phone);
             createdOrganization.getPhones().add(phone);
@@ -133,7 +134,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         createdOrganization.setContacts(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getContacts()) {
             Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Contact not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
             contact.setOrganization(createdOrganization);
             this.contactRepository.save(contact);
             createdOrganization.getContacts().add(contact);
@@ -142,7 +143,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         createdOrganization.setPrograms(new ArrayList<>());
         for (String id : upsertOrganizationDTO.getPrograms()) {
             Program program = this.programRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Program not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
             program.setOrganization(createdOrganization);
             this.programRepository.save(program);
             createdOrganization.getPrograms().add(program);
@@ -163,7 +164,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO) {
         Organization organization = this.organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new RuntimeException("Organization not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
 
         organization.setName(organizationDTO.getName());
         organization.setAlternateName(organizationDTO.getAlternateName());
@@ -184,7 +185,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public void deleteOrganization(String organizationId) {
         Organization organization = this.organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new RuntimeException("Organization not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
         this.attributeService.deleteRelatedAttributes(organization.getId());
         this.metadataService.deleteRelatedMetadata(organization.getId());
         this.organizationRepository.delete(organization);
