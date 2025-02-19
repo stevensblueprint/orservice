@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.TaxonomyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +20,21 @@ public class TaxonomyController {
         this.taxonomyService = taxonomyService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<TaxonomyDTO>> getAllTaxonomies() {
-        List<TaxonomyDTO> taxonomies = this.taxonomyService.getAllTaxonomies();
-        return ResponseEntity.ok(taxonomies);
-    }
+  @GetMapping
+  public ResponseEntity<PaginationDTO<TaxonomyDTO>> getAllTaxonomies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                     @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+    List<TaxonomyDTO> taxonomyDTOs = this.taxonomyService.getAllTaxonomies();
+
+    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+    PaginationDTO<TaxonomyDTO> paginationDTO = PaginationDTO.of(
+        taxonomyDTOs,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
+  }
 
     @GetMapping("/{taxonomyId}")
     public ResponseEntity<TaxonomyDTO> getTaxonomyById(@PathVariable String taxonomyId) {

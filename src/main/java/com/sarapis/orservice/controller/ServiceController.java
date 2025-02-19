@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +21,21 @@ public class ServiceController {
         this.serviceService = service;
     }
 
-    @GetMapping
-    public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices() {
-        List<ServiceDTO> services = this.serviceService.getAllServices();
-        PaginationDTO<ServiceDTO> pagination = PaginationDTO.of(
-                services.size(),
-                1,
-                1,
-                services.size(),
-                true,
-                false,
-                false,
-                services
-        );
-        return ResponseEntity.ok(pagination);
-    }
+  @GetMapping
+  public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                  @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+    List<ServiceDTO> services = serviceService.getAllServices();
+
+    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+    PaginationDTO<ServiceDTO> paginationDTO = PaginationDTO.of(
+        services,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
+  }
 
     @GetMapping("/{serviceId}")
     public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String serviceId) {
