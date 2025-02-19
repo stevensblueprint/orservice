@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ServiceAtLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +21,22 @@ public class ServiceAtLocationController {
         this.serviceAtLocationService = serviceAtLocationService;
     }
 
-    @GetMapping
-    public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations() {
-        List<ServiceAtLocationDTO> servicesAtLocations = this.serviceAtLocationService.getAllServicesAtLocation();
-        PaginationDTO<ServiceAtLocationDTO> pagination = PaginationDTO.of(
-                servicesAtLocations.size(),
-                1,
-                1,
-                servicesAtLocations.size(),
-                true,
-                false,
-                false,
-                servicesAtLocations
-        );
-        return ResponseEntity.ok(pagination);
-    }
+  @GetMapping
+  public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                                      @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+    List<ServiceAtLocationDTO> servLocDTOs = this.serviceAtLocationService.getAllServicesAtLocation();
+
+    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+
+    PaginationDTO<ServiceAtLocationDTO> paginationDTO = PaginationDTO.of(
+        servLocDTOs,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
+  }
 
     @GetMapping("/{serviceAtLocationId}")
     public ResponseEntity<ServiceAtLocationDTO> getServiceAtLocationById(@PathVariable String serviceAtLocationId) {

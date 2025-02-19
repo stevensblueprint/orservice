@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAreaDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ServiceAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,19 @@ public class ServiceAreaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceAreaDTO>> getAllServiceAreas() {
-        List<ServiceAreaDTO> serviceAreas = this.serviceAreaService.getAllServiceAreas();
-        return ResponseEntity.ok(serviceAreas);
+    public ResponseEntity<PaginationDTO<ServiceAreaDTO>> getAllServiceAreas(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                            @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+        List<ServiceAreaDTO> serviceAreaDTOs = serviceAreaService.getAllServiceAreas();
+
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<ServiceAreaDTO> paginationDTO = PaginationDTO.of(
+            serviceAreaDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{serviceAreaId}")

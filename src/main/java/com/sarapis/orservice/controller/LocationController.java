@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,17 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations() {
+    public ResponseEntity<PaginationDTO<LocationDTO>> getAllLocations(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                      @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
         List<LocationDTO> locations = this.locationService.getAllLocations();
+
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
         PaginationDTO<LocationDTO> pagination = PaginationDTO.of(
-                locations.size(),
-                1,
-                1,
-                locations.size(),
-                true,
-                false,
-                false,
-                locations
+            locations,
+            page,
+            perPage
         );
         return ResponseEntity.ok(pagination);
     }

@@ -1,8 +1,10 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
 import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +22,21 @@ public class ProgramController {
         this.programService = programService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProgramDTO>> getAllPrograms() {
-        List<ProgramDTO> programs = this.programService.getAllPrograms();
-        return ResponseEntity.ok(programs);
-    }
+  @GetMapping
+  public ResponseEntity<PaginationDTO<ProgramDTO>> getAllPrograms(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                  @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+    List<ProgramDTO> programDTOs = this.programService.getAllPrograms();
+
+    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+    PaginationDTO<ProgramDTO> paginationDTO = PaginationDTO.of(
+        programDTOs,
+        page,
+        perPage
+    );
+    return ResponseEntity.ok(paginationDTO);
+  }
 
     @GetMapping("/{programId}")
     public ResponseEntity<ProgramDTO> getProgramById(@PathVariable String programId) {

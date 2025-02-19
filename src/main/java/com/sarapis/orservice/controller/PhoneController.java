@@ -1,6 +1,8 @@
 package com.sarapis.orservice.controller;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.PhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,19 @@ public class PhoneController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PhoneDTO>> getAllPhones() {
-        List<PhoneDTO> phones = this.phoneService.getAllPhones();
-        return ResponseEntity.ok(phones);
+    public ResponseEntity<PaginationDTO<PhoneDTO>> getAllPhones(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
+        List<PhoneDTO> phoneDTOs = this.phoneService.getAllPhones();
+
+        if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
+        if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
+
+        PaginationDTO<PhoneDTO> paginationDTO = PaginationDTO.of(
+            phoneDTOs,
+            page,
+            perPage
+        );
+        return ResponseEntity.ok(paginationDTO);
     }
 
     @GetMapping("/{phoneId}")
