@@ -1,5 +1,8 @@
 package com.sarapis.orservice.entity.core;
 
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
@@ -56,7 +59,7 @@ public class Organization {
     private String taxId;
 
     @Column(name = "year_incorporated")
-    private int yearIncorporated;
+    private Integer yearIncorporated;
 
     @Column(name = "legal_status")
     private String legalStatus;
@@ -105,22 +108,6 @@ public class Organization {
     //================================================================================
     // Methods
     //================================================================================
-
-    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
-        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format)) {
-            for (Organization organization : organizations) {
-                List<String> data = Arrays.asList(String.valueOf(organization.getId()), organization.getName(),
-                        organization.getDescription());
-                csvPrinter.printRecord(data);
-            }
-            csvPrinter.flush();
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
-        }
-    }
 
     @PreRemove
     public void preRemove() {
