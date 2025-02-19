@@ -9,7 +9,7 @@ cp .env.example .env
 
 Start the db container with the following command
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 In your terminal you will find the logs of the database. If you see 
 the following log the database has started gracefully.
