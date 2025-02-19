@@ -13,7 +13,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -24,16 +27,11 @@ public class SecurityConfig {
     // Refer to https://www.baeldung.com/spring-inject-static-field
     @Value("${prod.allowed_origins:#{null}}")
     private void setAllowedOriginsProd(String rawUrls) {
-        // So that app won't crash in dev env
-        // Ensure that FRONTEND_URLS is defined in .env for prod
-        if(rawUrls == null)
-            return;
-        String[] urls = rawUrls.split(",");
-        ALLOWED_ORIGINS_PROD = List.copyOf(
-            Arrays.stream(urls)
-                .map(String::trim)
-                .toList()
-        );
+        ALLOWED_ORIGINS_PROD = Optional.ofNullable(rawUrls)
+                .map(urls -> Arrays.stream(urls.split(","))
+                        .map(String::trim)
+                        .collect(Collectors.toUnmodifiableList()))
+                .orElse(Collections.emptyList());
     }
 
     @Bean
