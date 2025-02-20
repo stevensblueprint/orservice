@@ -1,29 +1,31 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
-import java.util.ArrayList;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
-/**
- * Returned response for a service at location entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#service-at-location">Reference</a>
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ServiceAtLocationDTO {
     private String id;
     private String serviceId;
     private String locationId;
     private String description;
-    private List<ServiceAreaDTO> serviceAreas = new ArrayList<>();
-    private List<ContactDTO> contacts = new ArrayList<>();
-    private List<PhoneDTO> phones = new ArrayList<>();
-    private List<ScheduleDTO> schedules = new ArrayList<>();
+
+    // Related entities represented as DTOs
+    private List<ServiceAreaDTO> serviceAreas;
+    private List<ContactDTO> contacts;
+    private List<PhoneDTO> phones;
+    private List<ScheduleDTO> schedules;
+
+    // In case you want to expose the full location details
     private LocationDTO location;
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
+
+    // Additional fields for flexibility (attributes, metadata)
+    private List<Object> attributes;
+    private List<Object> metadata;
 }

@@ -2,7 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
 import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,28 +36,27 @@ public class LocationController {
         return ResponseEntity.ok(pagination);
     }
 
-    @GetMapping("/{locationId}")
-    public ResponseEntity<LocationDTO> getLocation(@PathVariable String locationId) {
-        LocationDTO location = this.locationService.getLocationById(locationId);
-        return ResponseEntity.ok(location);
+    @GetMapping("/{id}")
+    public ResponseEntity<LocationDTO> getLocationById(@PathVariable String id) {
+        LocationDTO locationDTO = locationService.getLocationById(id);
+        return ResponseEntity.ok(locationDTO);
     }
 
     @PostMapping
-    public ResponseEntity<LocationDTO> createLocation(@RequestBody UpsertLocationDTO upsertLocationDTO) {
-        LocationDTO createdLocation = this.locationService.createLocation(upsertLocationDTO);
-        return ResponseEntity.ok(createdLocation);
+    public ResponseEntity<LocationDTO> createLocation(@RequestBody LocationDTO locationDTO) {
+        LocationDTO created = locationService.createLocation(locationDTO);
+        return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{locationId}")
-    public ResponseEntity<LocationDTO> updateLocation(@PathVariable String locationId,
-                                                      @RequestBody LocationDTO locationDTO) {
-        LocationDTO updatedLocation = this.locationService.updateLocation(locationId, locationDTO);
-        return ResponseEntity.ok(updatedLocation);
+    @PutMapping("/{id}")
+    public ResponseEntity<LocationDTO> updateLocation(@PathVariable String id, @RequestBody LocationDTO locationDTO) {
+        LocationDTO updated = locationService.updateLocation(id, locationDTO);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{locationId}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable String locationId) {
-        this.locationService.deleteLocation(locationId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLocation(@PathVariable String id) {
+        locationService.deleteLocation(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -63,53 +63,33 @@ public class Location {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "location")
-    private List<ServiceAtLocation> serviceAtLocations;
+    private List<ServiceAtLocation> serviceAtLocations = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Language> languages;
+    private List<Language> languages = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Address> addresses;
+    private List<Address> addresses = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Contact> contacts;
+    private List<Contact> contacts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Accessibility> accessibility;
+    private List<Accessibility> accessibility = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Phone> phones;
+    private List<Phone> phones = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "location")
-    private List<Schedule> schedules;
-
-    //================================================================================
-    // Methods
-    //================================================================================
-
-    @PreRemove
-    public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Language language : languages) {
-            language.setLocation(null);
-        }
-        for (Address address : addresses) {
-            address.setLocation(null);
-        }
-        for (Contact contact : contacts) {
-            contact.setLocation(null);
-        }
-        for (Accessibility accessibility : accessibility) {
-            accessibility.setLocation(null);
-        }
-        for (Phone phone : phones) {
-            phone.setLocation(null);
-        }
-        for (Schedule schedule : schedules) {
-            schedule.setLocation(null);
-        }
-    }
+    private List<Schedule> schedules = new ArrayList<>();
 
     public LocationDTO toDTO() {
         return LocationDTO.builder()

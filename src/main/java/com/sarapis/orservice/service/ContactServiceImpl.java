@@ -1,126 +1,83 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ContactDTO;
-import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
 import com.sarapis.orservice.entity.Contact;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
+import com.sarapis.orservice.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ContactServiceImpl implements ContactService {
+
     private final ContactRepository contactRepository;
-    private final OrganizationRepository organizationRepository;
-    private final ServiceRepository serviceRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final LocationRepository locationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository,
-                              OrganizationRepository organizationRepository,
-                              ServiceRepository serviceRepository,
-                              ServiceAtLocationRepository serviceAtLocationRepository,
-                              LocationRepository locationRepository,
-                              AttributeService attributeService,
-                              MetadataService metadataService) {
+    public ContactServiceImpl(ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
-        this.organizationRepository = organizationRepository;
-        this.serviceRepository = serviceRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.locationRepository = locationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
     }
 
     @Override
     public List<ContactDTO> getAllContacts() {
-        List<ContactDTO> contactDTOs = this.contactRepository.findAll().stream().map(Contact::toDTO).toList();
-        contactDTOs.forEach(this::addRelatedData);
-        return contactDTOs;
+        return contactRepository.findAll().stream()
+            .map(Contact::toDTO)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public ContactDTO getContactById(String contactId) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-        ContactDTO contactDTO = contact.toDTO();
-        this.addRelatedData(contactDTO);
-        return contactDTO;
+    public ContactDTO getContactById(String id) {
+        Contact contact = contactRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Contact not found with id: " + id));
+        return contact.toDTO();
     }
 
     @Override
-    public ContactDTO createContact(UpsertContactDTO upsertContactDTO) {
-        Contact createdContact = this.contactRepository.save(upsertContactDTO.create());
-
-        if (upsertContactDTO.getOrganizationId() != null) {
-            Organization organization = this.organizationRepository.findById(upsertContactDTO.getOrganizationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-            organization.getContacts().add(createdContact);
-            this.organizationRepository.save(organization);
-            createdContact.setOrganization(organization);
+    public ContactDTO createContact(ContactDTO contactDTO) {
+        // Generate an ID if none is provided
+        if (contactDTO.getId() == null || contactDTO.getId().isEmpty()) {
+            contactDTO.setId(UUID.randomUUID().toString());
         }
-
-        if (upsertContactDTO.getServiceId() != null) {
-            com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertContactDTO.getServiceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-            service.getContacts().add(createdContact);
-            this.serviceRepository.save(service);
-            createdContact.setService(service);
-        }
-
-        if (upsertContactDTO.getServiceAtLocationId() != null) {
-            ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(upsertContactDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
-            serviceAtLocation.getContacts().add(createdContact);
-            this.serviceAtLocationRepository.save(serviceAtLocation);
-            createdContact.setServiceAtLocation(serviceAtLocation);
-        }
-
-        if (upsertContactDTO.getLocationId() != null) {
-            Location location = this.locationRepository.findById(upsertContactDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-            location.getContacts().add(createdContact);
-            this.locationRepository.save(location);
-            createdContact.setLocation(location);
-        }
-
-        this.contactRepository.save(createdContact);
-        return this.getContactById(createdContact.getId());
+        Contact contact = mapToEntity(contactDTO);
+        Contact savedContact = contactRepository.save(contact);
+        return savedContact.toDTO();
     }
 
     @Override
-    public ContactDTO updateContact(String contactId, ContactDTO contactDTO) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
+    public ContactDTO updateContact(String id, ContactDTO contactDTO) {
+        Contact existingContact = contactRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Contact not found with id: " + id));
+        // Update basic fields
+        existingContact.setName(contactDTO.getName());
+        existingContact.setTitle(contactDTO.getTitle());
+        existingContact.setDepartment(contactDTO.getDepartment());
+        existingContact.setEmail(contactDTO.getEmail());
+        // For relations (organization, service, etc.) add update logic if required
 
-        contact.setName(contactDTO.getName());
-        contact.setTitle(contactDTO.getTitle());
-        contact.setDepartment(contactDTO.getDepartment());
-        contact.setEmail(contactDTO.getEmail());
-
-        Contact updatedContact = this.contactRepository.save(contact);
-        return this.getContactById(updatedContact.getId());
+        Contact updatedContact = contactRepository.save(existingContact);
+        return updatedContact.toDTO();
     }
 
     @Override
-    public void deleteContact(String contactId) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-        this.attributeService.deleteRelatedAttributes(contact.getId());
-        this.metadataService.deleteRelatedMetadata(contact.getId());
-        this.contactRepository.delete(contact);
+    public void deleteContact(String id) {
+        Contact existingContact = contactRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Contact not found with id: " + id));
+        contactRepository.delete(existingContact);
     }
 
-    private void addRelatedData(ContactDTO contactDTO) {
-        contactDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(contactDTO.getId()));
-        contactDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(contactDTO.getId()));
+    // Helper method to map a ContactDTO to a Contact entity.
+    // This simple version only maps basic fields.
+    private Contact mapToEntity(ContactDTO contactDTO) {
+        return Contact.builder()
+            .id(contactDTO.getId())
+            .name(contactDTO.getName())
+            .title(contactDTO.getTitle())
+            .department(contactDTO.getDepartment())
+            .email(contactDTO.getEmail())
+            // Relations such as organization, service, etc. could be set here if needed.
+            .build();
     }
 }

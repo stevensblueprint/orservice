@@ -2,7 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
 import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,28 +36,27 @@ public class ServiceController {
     return ResponseEntity.ok(paginationDTO);
   }
 
-    @GetMapping("/{serviceId}")
-    public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String serviceId) {
-        ServiceDTO service = this.serviceService.getServiceById(serviceId);
-        return ResponseEntity.ok(service);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String id) {
+    ServiceDTO serviceDTO = serviceService.getServiceById(id);
+    return ResponseEntity.ok(serviceDTO);
+  }
 
-    @PostMapping
-    public ResponseEntity<ServiceDTO> createService(@RequestBody UpsertServiceDTO upsertServiceDTO) {
-        ServiceDTO createdService = this.serviceService.createService(upsertServiceDTO);
-        return ResponseEntity.ok(createdService);
-    }
+  @PostMapping
+  public ResponseEntity<ServiceDTO> createService(@RequestBody ServiceDTO serviceDTO) {
+    ServiceDTO created = serviceService.createService(serviceDTO);
+    return ResponseEntity.ok(created);
+  }
 
-    @PutMapping("/{serviceId}")
-    public ResponseEntity<ServiceDTO> updateService(@PathVariable String serviceId,
-                                                    @RequestBody ServiceDTO serviceDTO) {
-        ServiceDTO updatedService = this.serviceService.updateService(serviceId, serviceDTO);
-        return ResponseEntity.ok(updatedService);
-    }
+  @PutMapping("/{id}")
+  public ResponseEntity<ServiceDTO> updateService(@PathVariable String id, @RequestBody ServiceDTO serviceDTO) {
+    ServiceDTO updated = serviceService.updateService(id, serviceDTO);
+    return ResponseEntity.ok(updated);
+  }
 
-    @DeleteMapping("/{serviceId}")
-    public ResponseEntity<Void> deleteService(@PathVariable String serviceId) {
-        this.serviceService.deleteService(serviceId);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteService(@PathVariable String id) {
+    serviceService.deleteService(id);
+    return ResponseEntity.noContent().build();
+  }
 }

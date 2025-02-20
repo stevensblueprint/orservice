@@ -1,29 +1,31 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
-/**
- * Returned response for a contact entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#contact">Reference</a>
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ContactDTO {
     private String id;
-    private String organizationId;
-    private String serviceId;
-    private String serviceAtLocationId;
-    private String locationId;
     private String name;
     private String title;
     private String department;
     private String email;
+
+    private String organizationId;
+    private String serviceId;
+    private String serviceAtLocationId;
+    private String locationId;
+
+    // Assuming PhoneDTO is defined elsewhere
     private List<PhoneDTO> phones;
-    private List<AttributeDTO> attributes;
-    private List<MetadataDTO> metadata;
+
+    // Additional attributes/metadata if needed
+    private List<Object> attributes;
+    private List<Object> metadata;
 }

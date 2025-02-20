@@ -1,29 +1,25 @@
 package com.sarapis.orservice.dto;
 
 import com.sarapis.orservice.entity.core.Status;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Returned response for a service entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#service">Reference</a>
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ServiceDTO {
     private String id;
     private String name;
     private String alternateName;
     private String description;
     private String url;
-    private List<UrlDTO> additionalUrls = new ArrayList<>();
+    private List<UrlDTO> additionalUrls;
     private String email;
     private Status status;
     private String interpretationServices;
@@ -40,18 +36,18 @@ public class ServiceDTO {
     private String licenses;
     private String alert;
     private LocalDateTime lastModified;
-    private List<PhoneDTO> phones = new ArrayList<>();
-    private List<ScheduleDTO> schedules = new ArrayList<>();
-    private List<ServiceAreaDTO> serviceAreas = new ArrayList<>();
-    private List<ServiceAtLocationDTO> serviceAtLocations = new ArrayList<>();
-    private List<LanguageDTO> languages = new ArrayList<>();
+    private List<PhoneDTO> phones;
+    private List<ScheduleDTO> schedules;
+    private List<ServiceAreaDTO> serviceAreas;
+    private List<ServiceAtLocationDTO> serviceAtLocations;
+    private List<LanguageDTO> languages;
     private String organizationId;
-    private List<FundingDTO> funding = new ArrayList<>();
-    private List<CostOptionDTO> costOptions = new ArrayList<>();
+    private List<FundingDTO> funding;
+    private List<CostOptionDTO> costOptions;
     private String programId;
-    private List<RequiredDocumentDTO> requiredDocuments = new ArrayList<>();
-    private List<ContactDTO> contacts = new ArrayList<>();
-    private List<ServiceCapacityDTO> capacities = new ArrayList<>();
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
+    private List<RequiredDocumentDTO> requiredDocuments;
+    private List<ContactDTO> contacts;
+    private List<ServiceCapacityDTO> capacities;
+    private List<Object> attributes;
+    private List<Object> metadata;
 }

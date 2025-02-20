@@ -1,89 +1,77 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ProgramDTO;
-import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
 import com.sarapis.orservice.entity.Program;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ProgramRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProgramServiceImpl implements ProgramService {
-    private final OrganizationRepository organizationRepository;
-    private final ProgramRepository programRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
-    public ProgramServiceImpl(OrganizationRepository organizationRepository,
-                              ProgramRepository programRepository,
-                              AttributeService attributeService,
-                              MetadataService metadataService) {
+    private final ProgramRepository programRepository;
+
+    @Autowired
+    public ProgramServiceImpl(ProgramRepository programRepository) {
         this.programRepository = programRepository;
-        this.organizationRepository = organizationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
     }
 
     @Override
     public List<ProgramDTO> getAllPrograms() {
-        List<ProgramDTO> programDTOs = this.programRepository.findAll()
-                .stream().map(Program::toDTO).toList();
-        programDTOs.forEach(this::addRelatedData);
-        return programDTOs;
+        return programRepository.findAll().stream()
+            .map(Program::toDTO)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public ProgramDTO getProgramDTOById(String programId) {
-        Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
-        ProgramDTO programDTO = program.toDTO();
-        this.addRelatedData(programDTO);
-        return programDTO;
+    public ProgramDTO getProgramById(String id) {
+        Program program = programRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Program not found with id: " + id));
+        return program.toDTO();
     }
 
     @Override
-    public ProgramDTO createProgram(UpsertProgramDTO upsertProgramDTO) {
-        Program program = upsertProgramDTO.create();
-
-        Organization organization = this.organizationRepository.findById(upsertProgramDTO.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-        program.setOrganization(organization);
-
-        Program createdProgram = this.programRepository.save(program);
-        organization.getPrograms().add(createdProgram);
-        this.organizationRepository.save(organization);
-        return this.getProgramDTOById(createdProgram.getId());
+    public ProgramDTO createProgram(ProgramDTO programDTO) {
+        // Generate an ID if not provided
+        if (programDTO.getId() == null || programDTO.getId().isEmpty()) {
+            programDTO.setId(UUID.randomUUID().toString());
+        }
+        Program program = mapToEntity(programDTO);
+        Program savedProgram = programRepository.save(program);
+        return savedProgram.toDTO();
     }
 
     @Override
-    public ProgramDTO updateProgram(String programId, ProgramDTO programDTO) {
-        Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
+    public ProgramDTO updateProgram(String id, ProgramDTO programDTO) {
+        Program existingProgram = programRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Program not found with id: " + id));
+        existingProgram.setName(programDTO.getName());
+        existingProgram.setAlternateName(programDTO.getAlternateName());
+        existingProgram.setDescription(programDTO.getDescription());
+        // If organization or other relationships require updating, include that logic here
 
-        program.setId(programDTO.getId());
-        program.setName(programDTO.getName());
-        program.setAlternateName(programDTO.getAlternateName());
-        program.setDescription(programDTO.getDescription());
-
-        Program updatedProgram = this.programRepository.save(program);
-        return this.getProgramDTOById(updatedProgram.getId());
+        Program updatedProgram = programRepository.save(existingProgram);
+        return updatedProgram.toDTO();
     }
 
     @Override
-    public void deleteProgram(String programId) {
-        Program program = this.programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
-        this.attributeService.deleteRelatedAttributes(program.getId());
-        this.metadataService.deleteRelatedMetadata(program.getId());
-        this.programRepository.delete(program);
+    public void deleteProgram(String id) {
+        Program existingProgram = programRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Program not found with id: " + id));
+        programRepository.delete(existingProgram);
     }
 
-    private void addRelatedData(ProgramDTO programDTO) {
-        programDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(programDTO.getId()));
-        programDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(programDTO.getId()));
+    private Program mapToEntity(ProgramDTO programDTO) {
+        return Program.builder()
+            .id(programDTO.getId())
+            .name(programDTO.getName())
+            .alternateName(programDTO.getAlternateName())
+            .description(programDTO.getDescription())
+            .build();
     }
 }

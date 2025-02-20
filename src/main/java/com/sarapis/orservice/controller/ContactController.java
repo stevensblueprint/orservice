@@ -2,7 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
 import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,28 +36,27 @@ public class ContactController {
         return ResponseEntity.ok(paginationDTO);
     }
 
-    @GetMapping("/{contactId}")
-    public ResponseEntity<ContactDTO> getContactById(@PathVariable String contactId) {
-        ContactDTO contact = this.contactService.getContactById(contactId);
-        return ResponseEntity.ok(contact);
+    @GetMapping("/{id}")
+    public ResponseEntity<ContactDTO> getContactById(@PathVariable String id) {
+        ContactDTO contactDTO = contactService.getContactById(id);
+        return ResponseEntity.ok(contactDTO);
     }
 
     @PostMapping
-    public ResponseEntity<ContactDTO> createContact(@RequestBody UpsertContactDTO upsertContactDTO) {
-        ContactDTO createdContact = this.contactService.createContact(upsertContactDTO);
+    public ResponseEntity<ContactDTO> createContact(@RequestBody ContactDTO contactDTO) {
+        ContactDTO createdContact = contactService.createContact(contactDTO);
         return ResponseEntity.ok(createdContact);
     }
 
-    @PutMapping("/{contactId}")
-    public ResponseEntity<ContactDTO> updateContact(@PathVariable String contactId,
-                                                    @RequestBody ContactDTO contactDTO) {
-        ContactDTO updatedContact = this.contactService.updateContact(contactId, contactDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<ContactDTO> updateContact(@PathVariable String id, @RequestBody ContactDTO contactDTO) {
+        ContactDTO updatedContact = contactService.updateContact(id, contactDTO);
         return ResponseEntity.ok(updatedContact);
     }
 
-    @DeleteMapping("/{contactId}")
-    public ResponseEntity<Void> deleteContact(@PathVariable String contactId) {
-        this.contactService.deleteContact(contactId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteContact(@PathVariable String id) {
+        contactService.deleteContact(id);
         return ResponseEntity.noContent().build();
     }
 }

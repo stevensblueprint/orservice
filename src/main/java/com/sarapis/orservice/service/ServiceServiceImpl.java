@@ -1,246 +1,111 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.ServiceDTO;
-import com.sarapis.orservice.dto.upsert.UpsertCostOptionDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceCapacityDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
-import com.sarapis.orservice.entity.*;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
+import com.sarapis.orservice.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ServiceServiceImpl implements ServiceService {
+
     private final ServiceRepository serviceRepository;
-    private final OrganizationRepository organizationRepository;
-    private final UrlRepository urlRepository;
-    private final LanguageRepository languageRepository;
-    private final FundingRepository fundingRepository;
-    private final ProgramRepository programRepository;
-    private final RequiredDocumentRepository requiredDocumentRepository;
-    private final LocationRepository locationRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final PhoneRepository phoneRepository;
-    private final ContactRepository contactRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final ServiceAreaRepository serviceAreaRepository;
-    private final CostOptionRepository costOptionRepository;
-    private final ServiceCapacityRepository serviceCapacityRepository;
-    private final UnitRepository unitRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
     @Autowired
-    public ServiceServiceImpl(ServiceRepository serviceRepository,
-                              OrganizationRepository organizationRepository,
-                              UrlRepository urlRepository,
-                              LanguageRepository languageRepository,
-                              FundingRepository fundingRepository,
-                              ProgramRepository programRepository,
-                              RequiredDocumentRepository requiredDocumentRepository,
-                              LocationRepository locationRepository,
-                              ServiceAtLocationRepository serviceAtLocationRepository,
-                              PhoneRepository phoneRepository,
-                              ContactRepository contactRepository,
-                              ScheduleRepository scheduleRepository,
-                              ServiceAreaRepository serviceAreaRepository,
-                              CostOptionRepository costOptionRepository,
-                              ServiceCapacityRepository serviceCapacityRepository,
-                              UnitRepository unitRepository,
-                              AttributeService attributeService,
-                              MetadataService metadataService) {
+    public ServiceServiceImpl(ServiceRepository serviceRepository) {
         this.serviceRepository = serviceRepository;
-        this.organizationRepository = organizationRepository;
-        this.urlRepository = urlRepository;
-        this.languageRepository = languageRepository;
-        this.fundingRepository = fundingRepository;
-        this.programRepository = programRepository;
-        this.requiredDocumentRepository = requiredDocumentRepository;
-        this.locationRepository = locationRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.phoneRepository = phoneRepository;
-        this.contactRepository = contactRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.serviceAreaRepository = serviceAreaRepository;
-        this.costOptionRepository = costOptionRepository;
-        this.serviceCapacityRepository = serviceCapacityRepository;
-        this.unitRepository = unitRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
     }
 
     @Override
     public List<ServiceDTO> getAllServices() {
-        List<ServiceDTO> serviceDTOs = this.serviceRepository.findAll().stream()
-                .map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
-        serviceDTOs.forEach(this::addRelatedData);
-        return serviceDTOs;
+        return serviceRepository.findAll().stream()
+            .map(com.sarapis.orservice.entity.core.Service::toDTO)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public ServiceDTO getServiceById(String serviceId) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        ServiceDTO serviceDTO = service.toDTO();
-        this.addRelatedData(serviceDTO);
-        return serviceDTO;
+    public ServiceDTO getServiceById(String id) {
+        com.sarapis.orservice.entity.core.Service service = serviceRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
+        return service.toDTO();
     }
 
     @Override
-    public ServiceDTO createService(UpsertServiceDTO upsertServiceDTO) {
-        com.sarapis.orservice.entity.core.Service service = upsertServiceDTO.create();
-
-        Organization organization = this.organizationRepository.findById(upsertServiceDTO.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-        service.setOrganization(organization);
-
-        com.sarapis.orservice.entity.core.Service createdService = this.serviceRepository.save(service);
-
-        createdService.setAdditionalUrls(new ArrayList<>());
-        for (String id : upsertServiceDTO.getAdditionalUrls()) {
-            Url url = this.urlRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Url not found."));
-            url.setOrganization(organization);
-            this.urlRepository.save(url);
-            createdService.getAdditionalUrls().add(url);
+    public ServiceDTO createService(ServiceDTO serviceDTO) {
+        // Generate a new ID if not provided.
+        if (serviceDTO.getId() == null || serviceDTO.getId().isEmpty()) {
+            serviceDTO.setId(UUID.randomUUID().toString());
         }
-
-        createdService.setLanguages(new ArrayList<>());
-        for (String id : upsertServiceDTO.getLanguages()) {
-            Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
-            language.setService(createdService);
-            this.languageRepository.save(language);
-            createdService.getLanguages().add(language);
-        }
-
-        createdService.setFunding(new ArrayList<>());
-        for (String id : upsertServiceDTO.getFundings()) {
-            Funding funding = this.fundingRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Funding not found."));
-            funding.setService(createdService);
-            this.fundingRepository.save(funding);
-            createdService.getFunding().add(funding);
-        }
-
-        if (upsertServiceDTO.getProgramId() != null) {
-            Program program = this.programRepository.findById(upsertServiceDTO.getProgramId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
-            program.getServices().add(createdService);
-            this.programRepository.save(program);
-            createdService.setProgram(program);
-        }
-
-        createdService.setRequiredDocuments(new ArrayList<>());
-        for (String id : upsertServiceDTO.getRequiredDocuments()) {
-            RequiredDocument requiredDocument = this.requiredDocumentRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Required document not found."));
-            requiredDocument.setService(createdService);
-            this.requiredDocumentRepository.save(requiredDocument);
-            createdService.getRequiredDocuments().add(requiredDocument);
-        }
-
-        createdService.setServiceAtLocations(new ArrayList<>());
-        for (String id : upsertServiceDTO.getLocations()) {
-            Location location = this.locationRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-            ServiceAtLocation serviceAtLocation = UpsertServiceAtLocationDTO.create(createdService, location);
-            ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
-            location.getServiceAtLocations().add(createdServiceAtLocation);
-            this.locationRepository.save(location);
-            createdService.getServiceAtLocations().add(createdServiceAtLocation);
-        }
-
-        createdService.setPhones(new ArrayList<>());
-        for (String id : upsertServiceDTO.getPhones()) {
-            Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-            phone.setService(createdService);
-            this.phoneRepository.save(phone);
-            createdService.getPhones().add(phone);
-        }
-
-        createdService.setContacts(new ArrayList<>());
-        for (String id : upsertServiceDTO.getContacts()) {
-            Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-            contact.setService(createdService);
-            this.contactRepository.save(contact);
-            createdService.getContacts().add(contact);
-        }
-
-        createdService.setSchedules(new ArrayList<>());
-        for (String id : upsertServiceDTO.getSchedules()) {
-            Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-            schedule.setService(createdService);
-            this.scheduleRepository.save(schedule);
-            createdService.getSchedules().add(schedule);
-        }
-
-        createdService.setServiceAreas(new ArrayList<>());
-        for (String id : upsertServiceDTO.getServiceAreas()) {
-            ServiceArea serviceArea = this.serviceAreaRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Service area not found."));
-            serviceArea.setService(createdService);
-            this.serviceAreaRepository.save(serviceArea);
-            createdService.getServiceAreas().add(serviceArea);
-        }
-
-        createdService.setCostOptions(new ArrayList<>());
-        for (UpsertCostOptionDTO dto : upsertServiceDTO.getCostOptions()) {
-            CostOption costOption = dto.create();
-            costOption.setService(createdService);
-            CostOption createdCostOption = this.costOptionRepository.save(costOption);
-            createdService.getCostOptions().add(createdCostOption);
-        }
-
-        createdService.setCapacities(new ArrayList<>());
-        for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
-            Unit unit = this.unitRepository.findById(dto.getUnitId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Unit not found."));
-            ServiceCapacity serviceCapacity = dto.create();
-            serviceCapacity.setService(createdService);
-            serviceCapacity.setUnit(unit);
-            unit.getServiceCapacities().add(serviceCapacity);
-            this.unitRepository.save(unit);
-            this.serviceCapacityRepository.save(serviceCapacity);
-            createdService.getCapacities().add(serviceCapacity);
-        }
-
-        this.serviceRepository.save(createdService);
-        return this.getServiceById(createdService.getId());
+        com.sarapis.orservice.entity.core.Service service = mapToEntity(serviceDTO);
+        com.sarapis.orservice.entity.core.Service saved = serviceRepository.save(service);
+        return saved.toDTO();
     }
 
     @Override
-    public ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-
-        com.sarapis.orservice.entity.core.Service updatedService = this.serviceRepository.save(service);
-        return this.getServiceById(updatedService.getId());
+    public ServiceDTO updateService(String id, ServiceDTO serviceDTO) {
+        com.sarapis.orservice.entity.core.Service existing = serviceRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
+        existing.setName(serviceDTO.getName());
+        existing.setAlternateName(serviceDTO.getAlternateName());
+        existing.setDescription(serviceDTO.getDescription());
+        existing.setUrl(serviceDTO.getUrl());
+        existing.setEmail(serviceDTO.getEmail());
+        existing.setStatus(serviceDTO.getStatus());
+        existing.setInterpretationServices(serviceDTO.getInterpretationServices());
+        existing.setApplicationProcess(serviceDTO.getApplicationProcess());
+        existing.setFeesDescription(serviceDTO.getFeesDescription());
+        existing.setWaitTime(serviceDTO.getWaitTime());
+        existing.setFees(serviceDTO.getFees());
+        existing.setAccreditations(serviceDTO.getAccreditations());
+        existing.setEligibilityDescription(serviceDTO.getEligibilityDescription());
+        existing.setMinimumAge(serviceDTO.getMinimumAge());
+        existing.setMaximumAge(serviceDTO.getMaximumAge());
+        existing.setAssuredDate(serviceDTO.getAssuredDate());
+        existing.setAssurerEmail(serviceDTO.getAssurerEmail());
+        existing.setLicenses(serviceDTO.getLicenses());
+        existing.setAlert(serviceDTO.getAlert());
+        existing.setLastModified(serviceDTO.getLastModified());
+        // TODO: Handle updates for collections and related entities.
+        com.sarapis.orservice.entity.core.Service updated = serviceRepository.save(existing);
+        return updated.toDTO();
     }
 
     @Override
-    public void deleteService(String serviceId) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        this.attributeService.deleteRelatedAttributes(service.getId());
-        this.metadataService.deleteRelatedMetadata(service.getId());
-        this.serviceRepository.delete(service);
+    public void deleteService(String id) {
+        com.sarapis.orservice.entity.core.Service existing = serviceRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Service not found with id: " + id));
+        serviceRepository.delete(existing);
     }
 
-    private void addRelatedData(ServiceDTO serviceDTO) {
-        serviceDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(serviceDTO.getId()));
-        serviceDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(serviceDTO.getId()));
+    // Helper method for mapping DTO to entity. Extend this as needed to set related entities.
+    private com.sarapis.orservice.entity.core.Service mapToEntity(ServiceDTO dto) {
+        return com.sarapis.orservice.entity.core.Service.builder()
+            .id(dto.getId())
+            .name(dto.getName())
+            .alternateName(dto.getAlternateName())
+            .description(dto.getDescription())
+            .url(dto.getUrl())
+            .email(dto.getEmail())
+            .status(dto.getStatus())
+            .interpretationServices(dto.getInterpretationServices())
+            .applicationProcess(dto.getApplicationProcess())
+            .feesDescription(dto.getFeesDescription())
+            .waitTime(dto.getWaitTime())
+            .fees(dto.getFees())
+            .accreditations(dto.getAccreditations())
+            .eligibilityDescription(dto.getEligibilityDescription())
+            .minimumAge(dto.getMinimumAge())
+            .maximumAge(dto.getMaximumAge())
+            .assuredDate(dto.getAssuredDate())
+            .assurerEmail(dto.getAssurerEmail())
+            .licenses(dto.getLicenses())
+            .alert(dto.getAlert())
+            .lastModified(dto.getLastModified())
+            // TODO: Map collections and related entities as required.
+            .build();
     }
 }

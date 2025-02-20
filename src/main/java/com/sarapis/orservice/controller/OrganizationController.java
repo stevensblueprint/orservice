@@ -2,7 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
 import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,29 +37,28 @@ public class OrganizationController {
         return ResponseEntity.ok(paginationDTO);
     }
 
-    @GetMapping("/{organizationId}")
-    public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable String organizationId) {
-        OrganizationDTO organization = this.organizationService.getOrganizationById(organizationId);
-        return ResponseEntity.ok(organization);
+    @GetMapping("/{id}")
+    public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable String id) {
+        OrganizationDTO organizationDTO = organizationService.getOrganizationById(id);
+        return ResponseEntity.ok(organizationDTO);
     }
 
     @PostMapping
-    public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody UpsertOrganizationDTO upsertOrganizationDTO) {
-        OrganizationDTO createdOrganization = this.organizationService.createOrganization(upsertOrganizationDTO);
-        return ResponseEntity.ok(createdOrganization);
+    public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody OrganizationDTO organizationDTO) {
+        OrganizationDTO created = organizationService.createOrganization(organizationDTO);
+        return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{organizationId}")
-    public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String organizationId,
-                                                              @RequestBody OrganizationDTO organizationDTO) {
-        OrganizationDTO updatedOrganization = this.organizationService
-                .updateOrganization(organizationId, organizationDTO);
-        return ResponseEntity.ok(updatedOrganization);
+    @PutMapping("/{id}")
+    public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String id,
+        @RequestBody OrganizationDTO organizationDTO) {
+        OrganizationDTO updated = organizationService.updateOrganization(id, organizationDTO);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{organizationId}")
-    public ResponseEntity<Void> deleteOrganization(@PathVariable String organizationId) {
-        this.organizationService.deleteOrganization(organizationId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
+        organizationService.deleteOrganization(id);
         return ResponseEntity.noContent().build();
     }
 }

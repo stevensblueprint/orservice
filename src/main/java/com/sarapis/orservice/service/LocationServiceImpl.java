@@ -1,172 +1,77 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.LocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
-import com.sarapis.orservice.entity.*;
 import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
+import com.sarapis.orservice.repository.LocationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class LocationServiceImpl implements LocationService {
+
     private final LocationRepository locationRepository;
-    private final OrganizationRepository organizationRepository;
-    private final LanguageRepository languageRepository;
-    private final AddressRepository addressRepository;
-    private final PhoneRepository phoneRepository;
-    private final ContactRepository contactRepository;
-    private final AccessibilityRepository accessibilityRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
+    Logger logger = LoggerFactory.getLogger(LocationServiceImpl.class);
 
     @Autowired
-    public LocationServiceImpl(LocationRepository locationRepository,
-                               OrganizationRepository organizationRepository,
-                               LanguageRepository languageRepository,
-                               AddressRepository addressRepository,
-                               PhoneRepository phoneRepository,
-                               ContactRepository contactRepository,
-                               AccessibilityRepository accessibilityRepository,
-                               ScheduleRepository scheduleRepository,
-                               AttributeService attributeService,
-                               MetadataService metadataService) {
+    public LocationServiceImpl(LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
-        this.organizationRepository = organizationRepository;
-        this.languageRepository = languageRepository;
-        this.addressRepository = addressRepository;
-        this.phoneRepository = phoneRepository;
-        this.contactRepository = contactRepository;
-        this.accessibilityRepository = accessibilityRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
     }
 
     @Override
     public List<LocationDTO> getAllLocations() {
-        List<LocationDTO> locationDTOs = this.locationRepository.findAll()
-                .stream().map(Location::toDTO).toList();
-        locationDTOs.forEach(this::addRelatedData);
-        return locationDTOs;
+        return locationRepository.findAll().stream()
+            .map(Location::toDTO)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public LocationDTO getLocationById(String locationId) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        LocationDTO locationDTO = location.toDTO();
-        this.addRelatedData(locationDTO);
-        return locationDTO;
+    public LocationDTO getLocationById(String id) {
+        Location location = locationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
+        return location.toDTO();
     }
 
     @Override
-    public LocationDTO createLocation(UpsertLocationDTO upsertLocationDTO) {
-        Location createdLocation = upsertLocationDTO.create();
-
-        if (upsertLocationDTO.getOrganizationId() != null) {
-            Organization organization = this.organizationRepository.findById(upsertLocationDTO.getOrganizationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-            organization.getLocations().add(createdLocation);
-            this.organizationRepository.save(organization);
-            createdLocation.setOrganization(organization);
+    public LocationDTO createLocation(LocationDTO locationDTO) {
+        if (locationDTO.getId() == null || locationDTO.getId().isEmpty()) {
+            locationDTO.setId(UUID.randomUUID().toString());
         }
-
-        createdLocation.setLanguages(new ArrayList<>());
-        for (String id : upsertLocationDTO.getLanguages()) {
-            Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
-            language.setLocation(createdLocation);
-            this.languageRepository.save(language);
-            createdLocation.getLanguages().add(language);
-        }
-
-        createdLocation.setAddresses(new ArrayList<>());
-        for (String id : upsertLocationDTO.getAddresses()) {
-            Address address = this.addressRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
-            address.setLocation(createdLocation);
-            this.addressRepository.save(address);
-            createdLocation.getAddresses().add(address);
-        }
-
-        createdLocation.setPhones(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getPhones()) {
-            Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-            phone.setLocation(createdLocation);
-            this.phoneRepository.save(phone);
-            createdLocation.getPhones().add(phone);
-        }
-
-        createdLocation.setContacts(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getContacts()) {
-            Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-            contact.setLocation(createdLocation);
-            this.contactRepository.save(contact);
-            createdLocation.getContacts().add(contact);
-        }
-
-        createdLocation.setAccessibility(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getAccessibility()) {
-            Accessibility accessibility = this.accessibilityRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
-            accessibility.setLocation(createdLocation);
-            this.accessibilityRepository.save(accessibility);
-            createdLocation.getAccessibility().add(accessibility);
-        }
-
-        createdLocation.setSchedules(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getSchedules()) {
-            Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-            schedule.setLocation(createdLocation);
-            this.scheduleRepository.save(schedule);
-            createdLocation.getSchedules().add(schedule);
-        }
-
-        this.locationRepository.save(createdLocation);
-        return this.getLocationById(createdLocation.getId());
+        logger.info(locationDTO.toString());
+        Location location = locationDTO.toEntity();
+        Location saved = locationRepository.save(location);
+        logger.info(saved.toString());
+        return saved.toDTO();
     }
 
     @Override
-    public LocationDTO updateLocation(String locationId, LocationDTO locationDTO) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-
-        location.setLocationType(locationDTO.getLocationType());
-        location.setUrl(locationDTO.getUrl());
-        location.setName(locationDTO.getName());
-        location.setAlternateName(locationDTO.getAlternateName());
-        location.setDescription(locationDTO.getDescription());
-        location.setTransportation(locationDTO.getTransportation());
-        location.setLatitude(locationDTO.getLatitude());
-        location.setLongitude(locationDTO.getLongitude());
-        location.setExternalIdentifier(locationDTO.getExternalIdentifier());
-        location.setExternalIdentifierType(locationDTO.getExternalIdentifierType());
-
-        Location updatedLocation = this.locationRepository.save(location);
-        return this.getLocationById(updatedLocation.getId());
+    public LocationDTO updateLocation(String id, LocationDTO locationDTO) {
+        Location existing = locationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
+        existing.setLocationType(locationDTO.getLocationType());
+        existing.setUrl(locationDTO.getUrl());
+        existing.setName(locationDTO.getName());
+        existing.setAlternateName(locationDTO.getAlternateName());
+        existing.setDescription(locationDTO.getDescription());
+        existing.setTransportation(locationDTO.getTransportation());
+        existing.setLatitude(locationDTO.getLatitude());
+        existing.setLongitude(locationDTO.getLongitude());
+        existing.setExternalIdentifier(locationDTO.getExternalIdentifier());
+        existing.setExternalIdentifierType(locationDTO.getExternalIdentifierType());
+        Location updated = locationRepository.save(existing);
+        return updated.toDTO();
     }
 
     @Override
-    public void deleteLocation(String locationId) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        this.attributeService.deleteRelatedAttributes(location.getId());
-        this.metadataService.deleteRelatedMetadata(location.getId());
-        this.locationRepository.delete(location);
-    }
-
-    private void addRelatedData(LocationDTO locationDTO) {
-        locationDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(locationDTO.getId()));
-        locationDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(locationDTO.getId()));
+    public void deleteLocation(String id) {
+        Location existing = locationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
+        locationRepository.delete(existing);
     }
 }

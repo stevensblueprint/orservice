@@ -2,8 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
-import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertProgramDTO;
 import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,28 +36,27 @@ public class ProgramController {
     return ResponseEntity.ok(paginationDTO);
   }
 
-    @GetMapping("/{programId}")
-    public ResponseEntity<ProgramDTO> getProgramById(@PathVariable String programId) {
-        ProgramDTO program = this.programService.getProgramDTOById(programId);
-        return ResponseEntity.ok(program);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<ProgramDTO> getProgramById(@PathVariable String id) {
+    ProgramDTO programDTO = programService.getProgramById(id);
+    return ResponseEntity.ok(programDTO);
+  }
 
-    @PostMapping
-    public ResponseEntity<ProgramDTO> createProgram(@RequestBody UpsertProgramDTO upsertProgramDTO) {
-        ProgramDTO createdProgram = this.programService.createProgram(upsertProgramDTO);
-        return ResponseEntity.ok(createdProgram);
-    }
+  @PostMapping
+  public ResponseEntity<ProgramDTO> createProgram(@RequestBody ProgramDTO programDTO) {
+    ProgramDTO createdProgram = programService.createProgram(programDTO);
+    return ResponseEntity.ok(createdProgram);
+  }
 
-    @PutMapping("/{programId}")
-    public ResponseEntity<ProgramDTO> updateProgram(@PathVariable String programId,
-                                                    @RequestBody ProgramDTO programDTO) {
-        ProgramDTO updatedProgram = this.programService.updateProgram(programId, programDTO);
-        return ResponseEntity.ok(updatedProgram);
-    }
+  @PutMapping("/{id}")
+  public ResponseEntity<ProgramDTO> updateProgram(@PathVariable String id, @RequestBody ProgramDTO programDTO) {
+    ProgramDTO updatedProgram = programService.updateProgram(id, programDTO);
+    return ResponseEntity.ok(updatedProgram);
+  }
 
-    @DeleteMapping("/{programId}")
-    public ResponseEntity<Void> deleteProgram(@PathVariable String programId) {
-        this.programService.deleteProgram(programId);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteProgram(@PathVariable String id) {
+    programService.deleteProgram(id);
+    return ResponseEntity.noContent().build();
+  }
 }

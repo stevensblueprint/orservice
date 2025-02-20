@@ -1,40 +1,36 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
-import java.util.ArrayList;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
-/**
- * Returned response for organization entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#organization">Reference</a>
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class OrganizationDTO {
     private String id;
+    private String parentOrganizationId;
     private String name;
     private String alternateName;
     private String description;
     private String email;
     private String website;
-    private List<UrlDTO> additionalWebsites = new ArrayList<>();
     private String taxStatus;
     private String taxId;
     private int yearIncorporated;
     private String legalStatus;
     private String logo;
     private String uri;
-    private String parentOrganizationId;
-    private List<FundingDTO> funding = new ArrayList<>();
-    private List<ContactDTO> contacts = new ArrayList<>();
-    private List<PhoneDTO> phones = new ArrayList<>();
-    private List<LocationDTO> locations = new ArrayList<>();
-    private List<ProgramDTO> programs = new ArrayList<>();
-    private List<OrganizationIdentifierDTO> organizationIdentifiers = new ArrayList<>();
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
+    private List<UrlDTO> additionalWebsites;
+    private List<FundingDTO> funding;
+    private List<ContactDTO> contacts;
+    private List<PhoneDTO> phones;
+    private List<LocationDTO> locations;
+    private List<ProgramDTO> programs;
+    private List<OrganizationIdentifierDTO> organizationIdentifiers;
+    private List<Object> attributes;
+    private List<Object> metadata;
 }
