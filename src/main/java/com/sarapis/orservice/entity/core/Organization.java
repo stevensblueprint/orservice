@@ -81,69 +81,38 @@ public class Organization {
     @JoinColumn(name = "parent_organization_id")
     private Organization parentOrganization;
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Url> additionalWebsites;
+    private List<Url> additionalWebsites = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Funding> funding;
+    private List<Funding> funding = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Contact> contacts;
+    private List<Contact> contacts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Phone> phones;
+    private List<Phone> phones = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "organization")
-    private List<Location> locations;
+    private List<Location> locations = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
-    private List<Program> programs;
+    private List<Program> programs = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "organization")
-    private List<OrganizationIdentifier> organizationIdentifiers;
+    private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();;
 
     //================================================================================
     // Methods
     //================================================================================
 
-    public static ByteArrayInputStream toCSV(List<Organization> organizations) {
-        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format)) {
-            for (Organization organization : organizations) {
-                List<String> data = Arrays.asList(String.valueOf(organization.getId()), organization.getName(),
-                        organization.getDescription());
-                csvPrinter.printRecord(data);
-            }
-            csvPrinter.flush();
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
-        }
-    }
-
-    @PreRemove
-    public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Organization organization : childOrganizations) {
-            organization.setParentOrganization(null);
-        }
-        for (Url url : additionalWebsites) {
-            url.setOrganization(null);
-        }
-        for (Funding funding : funding) {
-            funding.setOrganization(null);
-        }
-        for (Contact contact : contacts) {
-            contact.setOrganization(null);
-        }
-        for (Phone phone : phones) {
-            phone.setOrganization(null);
-        }
-        for (Location location : locations) {
-            location.setOrganization(null);
-        }
-    }
 
     public OrganizationDTO toDTO() {
         return OrganizationDTO.builder()

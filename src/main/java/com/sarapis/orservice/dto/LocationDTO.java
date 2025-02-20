@@ -6,6 +6,7 @@ import com.sarapis.orservice.entity.core.Location;
 import com.sarapis.orservice.entity.core.LocationType;
 import com.sarapis.orservice.entity.core.Organization;
 import java.util.ArrayList;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +28,7 @@ public class LocationDTO {
     private String id;
 
     @NotBlank
-    private String organizationId;
+    private OrganizationDTO organization;
 
     @NotNull
     private LocationType locationType;
@@ -84,18 +85,19 @@ public class LocationDTO {
 
     public Location toEntity() {
         return Location.builder()
-                .id(this.id)
-                .organization(this.organizationId == null? null : Organization.builder().id(this.organizationId).build())
-                .locationType(this.locationType)
-                .url(this.url)
-                .name(this.name)
-                .alternateName(this.alternateName)
-                .description(this.description)
-                .transportation(this.transportation)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .externalIdentifier(this.externalIdentifier)
-                .externalIdentifierType(this.externalIdentifierType)
-                .build();
+            .id(this.id)
+            .organization(this.organization != null ? this.organization.toEntity() : null)
+            .locationType(this.locationType)
+            .url(this.url)
+            .name(this.name)
+            .alternateName(this.alternateName)
+            .description(this.description)
+            .transportation(this.transportation)
+            .latitude(this.latitude)
+            .longitude(this.longitude)
+            .externalIdentifier(this.externalIdentifier)
+            .externalIdentifierType(this.externalIdentifierType)
+            .build();
     }
+
 }

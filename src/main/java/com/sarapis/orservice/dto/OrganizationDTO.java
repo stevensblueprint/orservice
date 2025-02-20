@@ -1,5 +1,6 @@
 package com.sarapis.orservice.dto;
 
+import com.sarapis.orservice.entity.core.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,4 +34,8 @@ public class OrganizationDTO {
     private List<OrganizationIdentifierDTO> organizationIdentifiers;
     private List<Object> attributes;
     private List<Object> metadata;
+
+    public Organization toEntity() {
+        return Organization.builder().build();
+    }
 }

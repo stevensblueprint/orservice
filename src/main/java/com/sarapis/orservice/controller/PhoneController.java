@@ -36,27 +36,27 @@ public class PhoneController {
         return ResponseEntity.ok(paginationDTO);
     }
 
-    @GetMapping("/{phoneId}")
-    public ResponseEntity<PhoneDTO> getPhoneById(@PathVariable String phoneId) {
-        PhoneDTO phone = this.phoneService.getPhoneById(phoneId);
-        return ResponseEntity.ok(phone);
+    @GetMapping("/{id}")
+    public ResponseEntity<PhoneDTO> getPhoneById(@PathVariable String id) {
+        PhoneDTO phoneDTO = phoneService.getPhoneById(id);
+        return ResponseEntity.ok(phoneDTO);
     }
 
     @PostMapping
     public ResponseEntity<PhoneDTO> createPhone(@RequestBody PhoneDTO phoneDTO) {
-        PhoneDTO createdPhone = this.phoneService.createPhone(phoneDTO);
+        PhoneDTO createdPhone = phoneService.createPhone(phoneDTO);
         return ResponseEntity.ok(createdPhone);
     }
 
-    @PutMapping("/{phoneId}")
-    public ResponseEntity<PhoneDTO> updatePhone(@PathVariable String phoneId, @RequestBody PhoneDTO phoneDTO) {
-        PhoneDTO updatedPhone = this.phoneService.updatePhone(phoneId, phoneDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<PhoneDTO> updatePhone(@PathVariable String id, @RequestBody PhoneDTO phoneDTO) {
+        PhoneDTO updatedPhone = phoneService.updatePhone(id, phoneDTO);
         return ResponseEntity.ok(updatedPhone);
     }
 
-    @DeleteMapping("/{phoneId}")
-    public ResponseEntity<Void> deletePhone(@PathVariable String phoneId) {
-        this.phoneService.deletePhone(phoneId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePhone(@PathVariable String id) {
+        phoneService.deletePhone(id);
         return ResponseEntity.noContent().build();
     }
 }

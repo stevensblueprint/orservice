@@ -1,6 +1,7 @@
 package com.sarapis.orservice.entity.core;
 
 import com.sarapis.orservice.dto.LocationDTO;
+import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -94,7 +95,7 @@ public class Location {
     public LocationDTO toDTO() {
         return LocationDTO.builder()
                 .id(this.id)
-                .organizationId(this.organization == null ? null : this.organization.getId())
+                .organization(this.organization != null ? this.organization.toDTO() : OrganizationDTO.builder().build())
                 .locationType(this.locationType)
                 .url(this.url)
                 .name(this.name)

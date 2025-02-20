@@ -58,16 +58,9 @@ public class Phone {
     @Column(name = "description")
     private String description;
 
+    @Builder.Default
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "phone")
     private List<Language> languages = new ArrayList<>();
-
-    @PreRemove
-    public void preRemove() {
-        // Sets optional foreign keys to null since we're not using CascadeType.ALL
-        for (Language language : languages) {
-            language.setPhone(null);
-        }
-    }
 
     public PhoneDTO toDTO() {
         return PhoneDTO.builder()
