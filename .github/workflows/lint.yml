@@ -23,7 +23,7 @@ jobs:
         with:
           maven-version: '3.8.6'
       - name: Run Spotbugs
-        run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
+        run: mvn -B verify spotbugs:check
 
   checkstyle-check:
     runs-on: ubuntu-latest
@@ -42,4 +42,4 @@ jobs:
         with:
           maven-version: '3.8.6'
       - name: Run Checkstyle
-        run: mvn org.apache.maven.plugins:maven-checkstyle-plugin:check
+        run: mvn -B verify checkstyle:check
