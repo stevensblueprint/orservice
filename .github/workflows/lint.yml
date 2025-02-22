@@ -27,6 +27,7 @@ jobs:
       - name: Run Spotbugs
         run: mvn -B verify spotbugs:check
       - uses: jwgmeligmeyling/spotbugs-github-action@master
+        if: failure()
         with:
           path: '**/spotbugsXml.xml'
 
@@ -51,5 +52,6 @@ jobs:
       - name: Run Checkstyle
         run: mvn -B verify checkstyle:check
       - uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: failure()
         with:
           path: '**/checkstyle-result.xml'
