@@ -84,11 +84,6 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.8</version>
 		</dependency>
-		<dependency>
-			<groupId>com.puppycrawl.tools</groupId>
-			<artifactId>checkstyle</artifactId>
-			<version>10.18.1</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -114,6 +109,25 @@
 						<groupId>com.github.spotbugs</groupId>
 						<artifactId>spotbugs</artifactId>
 						<version>4.8.5</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>10.18.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>
