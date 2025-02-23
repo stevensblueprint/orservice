@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -26,7 +27,8 @@ jobs:
           maven-version: '3.8.6'
       - name: Run Spotbugs
         run: mvn -B verify spotbugs:check
-      - uses: jwgmeligmeyling/spotbugs-github-action@master
+      - name: Write Spotbugs Report
+        uses: jwgmeligmeyling/spotbugs-github-action@master
         if: failure()
         with:
           path: '**/spotbugsXml.xml'
@@ -35,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -51,7 +54,8 @@ jobs:
           maven-version: '3.8.6'
       - name: Run Checkstyle
         run: mvn -B verify checkstyle:check
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
+      - name: Write Checkstyle Report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
         if: failure()
         with:
           path: '**/checkstyle-result.xml'
