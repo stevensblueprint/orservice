@@ -1,45 +1,60 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.TaxonomyTerm;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.UUID;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class TaxonomyTermDTO {
+
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Request {
     private String id;
+
+    @NotBlank(message = "Name is required")
+    private String name;
+
+    private String vocabulary;
 
     private String parentId;
 
-    private String code;
-    private String name;
     private String description;
-    private String taxonomy;
-    private String language;
-    private String termUri;
+  }
 
-    private TaxonomyDTO taxonomyDetail;
-    private List<MetadataDTO> metadata = new ArrayList<>();
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Response {
+    private String id;
+    private String name;
+    private String vocabulary;
+    private String parentId;
+    private String description;
+    private TaxonomyTermDTO.Response parent;
+    private TaxonomyDTO.Response taxonomy;
+    private List<TaxonomyTermDTO.Response> children;
+    private List<MetadataDTO.Response> metadata;
+  }
 
-    public TaxonomyTerm toEntity(TaxonomyTerm parent) {
-        TaxonomyTerm taxonomyTerm = TaxonomyTerm.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .parent(parent)
-                .code(this.code)
-                .name(this.name)
-                .description(this.description)
-                .taxonomy(this.taxonomy)
-                .language(this.language)
-                .termUri(this.termUri)
-                .build();
-        taxonomyTerm.setTaxonomyDetail(this.taxonomyDetail == null ? null : this.taxonomyDetail.toEntity());
-        return taxonomyTerm;
-    }
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class UpdateRequest {
+    private String name;
+    private String vocabulary;
+    private String parentId;
+    private String description;
+  }
 }

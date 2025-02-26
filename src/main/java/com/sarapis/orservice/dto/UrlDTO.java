@@ -1,38 +1,56 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Url;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import lombok.*;
+import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class UrlDTO {
-    private String id;
 
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Request {
+    private String id;
+    private String label;
+    @NotBlank
+    private String url;
     private String organizationId;
     private String serviceId;
+    private List<AttributeDTO.Request> attributes;
+  }
 
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Response {
+    private String id;
     private String label;
     private String url;
-    
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
+    private String organizationId;
+    private String serviceId;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 
-    public Url toEntity(Organization organization, Service service) {
-        return Url.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .organization(organization)
-                .service(service)
-                .label(this.label)
-                .url(this.url)
-                .build();
-    }
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class UpdateRequest {
+    private String label;
+    private String url;
+    private String organizationId;
+    private String serviceId;
+    private List<AttributeDTO.Request> attributes;
+  }
 }

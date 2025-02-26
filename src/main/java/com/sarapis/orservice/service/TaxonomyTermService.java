@@ -1,16 +1,13 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.TaxonomyTermDTO;
-import java.util.List;
+import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.repository.TaxonomyTermRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-public interface TaxonomyTermService {
-    List<TaxonomyTermDTO> getAllTaxonomyTerms();
-
-    TaxonomyTermDTO getTaxonomyTermById(String taxonomyTermId);
-
-    TaxonomyTermDTO createTaxonomyTerm(TaxonomyTermDTO taxonomyTermDTO);
-
-    TaxonomyTermDTO updateTaxonomyTerm(String taxonomyTermId, TaxonomyTermDTO taxonomyTermDTO);
-
-    void deleteTaxonomyTerm(String taxonomyTermId);
+@Service
+@RequiredArgsConstructor
+public class TaxonomyTermService {
+  private final TaxonomyTermRepository taxonomyTermRepository;
+  private final MetadataRepository metadataRepository;
 }
