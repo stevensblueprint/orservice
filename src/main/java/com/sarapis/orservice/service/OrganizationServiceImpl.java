@@ -6,6 +6,7 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
 import com.sarapis.orservice.model.Organization;
@@ -29,6 +30,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final UrlService urlService;
   private final FundingService fundingService;
   private final ContactService contactService;
+  private final PhoneService phoneService;
 
   @Override
   @Transactional(readOnly = true)
@@ -43,15 +45,17 @@ public class OrganizationServiceImpl implements OrganizationService {
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
 
-    // Map each Organization entity to a DTO and populate additionalWebsites
+    // Map each Organization entity to a DTO and populate fields
     Page<OrganizationDTO.Response> dtoPage = organizationPage.map(organization -> {
       OrganizationDTO.Response response = organizationMapper.toResponseDTO(organization);
       List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
       List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
       List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
+      List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
       response.setAdditionalWebsites(urls);
       response.setFunding(fundingList);
       response.setContacts(contacts);
+      response.setPhones(phones);
       return response;
     });
 
@@ -67,9 +71,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
     List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
     List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
+    List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
     response.setAdditionalWebsites(urls);
     response.setFunding(fundingList);
     response.setContacts(contacts);
+    response.setPhones(phones);
     return response;
   }
 
@@ -109,10 +115,20 @@ public class OrganizationServiceImpl implements OrganizationService {
       }
     }
 
+    List<PhoneDTO.Response> savedPhones = new ArrayList<>();
+    if (requestDto.getPhones()!= null) {
+      for (PhoneDTO.Request phoneDTO : requestDto.getPhones()) {
+        phoneDTO.setOrganizationId(savedOrganization.getId());
+        PhoneDTO.Response savedPhone = phoneService.createPhone(phoneDTO);
+        savedPhones.add(savedPhone);
+      }
+    }
+
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
     response.setFunding(savedFunding);
     response.setContacts(savedContacts);
+    response.setPhones(savedPhones);
     return response;
   }
 }

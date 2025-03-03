@@ -41,6 +41,7 @@ public class OrganizationDTO {
     private List<UrlDTO.Request> additionalWebsites;
     private List<FundingDTO.Request> funding;
     private List<ContactDTO.Request> contacts;
+    private List<PhoneDTO.Request> phones;
   }
 
   @Getter
@@ -64,5 +65,6 @@ public class OrganizationDTO {
     private List<UrlDTO.Response> additionalWebsites;
     private List<FundingDTO.Response> funding;
     private List<ContactDTO.Response> contacts;
+    private List<PhoneDTO.Response> phones;
   }
 }
