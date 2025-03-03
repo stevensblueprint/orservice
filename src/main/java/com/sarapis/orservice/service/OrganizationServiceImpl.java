@@ -1,5 +1,6 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.FundingDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
@@ -7,7 +8,6 @@ import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
-import com.sarapis.orservice.model.Funding;
 import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
@@ -28,6 +28,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationMapper organizationMapper;
   private final UrlService urlService;
   private final FundingService fundingService;
+  private final ContactService contactService;
 
   @Override
   @Transactional(readOnly = true)
@@ -47,8 +48,10 @@ public class OrganizationServiceImpl implements OrganizationService {
       OrganizationDTO.Response response = organizationMapper.toResponseDTO(organization);
       List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
       List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
+      List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
       response.setAdditionalWebsites(urls);
       response.setFunding(fundingList);
+      response.setContacts(contacts);
       return response;
     });
 
@@ -63,8 +66,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     Response response = organizationMapper.toResponseDTO(organization);
     List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
     List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
+    List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
     response.setAdditionalWebsites(urls);
     response.setFunding(fundingList);
+    response.setContacts(contacts);
     return response;
   }
 
@@ -95,9 +100,19 @@ public class OrganizationServiceImpl implements OrganizationService {
       }
     }
 
+    List<ContactDTO.Response> savedContacts = new ArrayList<>();
+    if (requestDto.getContacts() != null) {
+      for (ContactDTO.Request contactDTO : requestDto.getContacts()) {
+        contactDTO.setOrganizationId(savedOrganization.getId());
+        ContactDTO.Response savedContact = contactService.createContact(contactDTO);
+        savedContacts.add(savedContact);
+      }
+    }
+
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
     response.setFunding(savedFunding);
+    response.setContacts(savedContacts);
     return response;
   }
 }

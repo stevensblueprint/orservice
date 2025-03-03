@@ -40,6 +40,7 @@ public class OrganizationDTO {
     private String uri;
     private List<UrlDTO.Request> additionalWebsites;
     private List<FundingDTO.Request> funding;
+    private List<ContactDTO.Request> contacts;
   }
 
   @Getter
@@ -62,5 +63,6 @@ public class OrganizationDTO {
     private String uri;
     private List<UrlDTO.Response> additionalWebsites;
     private List<FundingDTO.Response> funding;
+    private List<ContactDTO.Response> contacts;
   }
 }
