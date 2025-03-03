@@ -3,6 +3,7 @@ package com.sarapis.orservice.controller;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.service.TaxonomyService;
+import com.sarapis.orservice.service.TaxonomyServiceImpl;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -53,9 +54,12 @@ public class TaxonomyController {
   }
 
   @PostMapping
-  public ResponseEntity<TaxonomyDTO.Response> createTaxonomy(@Valid @RequestBody TaxonomyDTO.Request requestDto) {
+  public ResponseEntity<TaxonomyDTO.Response> createTaxonomy(
+      @Valid @RequestBody TaxonomyDTO.Request requestDto,
+      @RequestHeader("X-Updated-By") String updatedBy
+  ) {
     log.info("Received request to create taxonomy with data: {}", requestDto);
-    TaxonomyDTO.Response createdTaxonomy = taxonomyService.createTaxonomy(requestDto);
+    TaxonomyDTO.Response createdTaxonomy = taxonomyService.createTaxonomy(requestDto, updatedBy);
     log.info("Created taxonomy with id: {}", createdTaxonomy.getId());
     return new ResponseEntity<>(createdTaxonomy, HttpStatus.CREATED);
   }

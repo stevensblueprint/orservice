@@ -40,10 +40,6 @@ public class TaxonomyTerm {
   @Exclude
   private TaxonomyTerm parent;
 
-  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
-  @Exclude
-  private List<TaxonomyTerm> children;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "taxonomy_id", nullable = false)
   private Taxonomy taxonomy;

@@ -1,9 +1,7 @@
-
 package com.sarapis.orservice.dto;
 
 import java.util.Collections;
 import java.util.List;
-
 import lombok.*;
 
 @Getter
@@ -43,6 +41,10 @@ public class PaginationDTO<T> {
     return paginationDTO;
   }
 
+  /**
+   * Constructs a PaginationDTO from a list using manual pagination.
+   * Page number is 1-indexed.
+   */
   public static <T> PaginationDTO<T> of(List<T> contents, int pageNumber, int perPage) {
     int totalItems = contents.size();
     int totalPages = Math.max((int) Math.ceil((double) totalItems / perPage), 1);
@@ -58,12 +60,29 @@ public class PaginationDTO<T> {
     return PaginationDTO.of(
         totalItems,         // total_items (Query Result Size)
         totalPages,         // total_pages
-        pageNumber,         // page_number [User-provided]
-        pageSize,           // size: (Query Result to be shown on this page_number)
-        isFirstPage,        // first_page
-        isLastPage,         // last_page
-        isEmpty,            // empty
-        contentSubset       // content (for this page_number)
+        pageNumber,         // page_number [User-provided (1-indexed)]
+        pageSize,           // size: (Number of items on this page)
+        isFirstPage,        // first_page flag
+        isLastPage,         // last_page flag
+        isEmpty,            // empty flag
+        contentSubset       // the paginated subset of content
+    );
+  }
+
+  /**
+   * Constructs a PaginationDTO from a Spring Data Page object.
+   * Converts the 0-indexed page number to 1-indexed.
+   */
+  public static <T> PaginationDTO<T> fromPage(org.springframework.data.domain.Page<T> page) {
+    return PaginationDTO.of(
+        (int) page.getTotalElements(),       // totalItems
+        page.getTotalPages(),                  // totalPages
+        page.getNumber() + 1,                  // pageNumber (converted to 1-indexed)
+        page.getNumberOfElements(),            // size for current page
+        page.isFirst(),                        // firstPage flag
+        page.isLast(),                         // lastPage flag
+        page.isEmpty(),                        // empty flag
+        page.getContent()                      // contents of the current page
     );
   }
 }
