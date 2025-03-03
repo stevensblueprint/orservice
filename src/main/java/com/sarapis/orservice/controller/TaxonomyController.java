@@ -49,4 +49,10 @@ public class TaxonomyController {
     TaxonomyDTO.Response taxonomy = taxonomyService.getTaxonomyById(id);
     return ResponseEntity.ok(taxonomy);
   }
+
+  @PostMapping
+  public ResponseEntity<TaxonomyDTO.Response> createTaxonomy(@RequestBody @Valid TaxonomyDTO.Request requestDto) {
+    TaxonomyDTO.Response taxonomy = taxonomyService.createTaxonomy(requestDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(taxonomy);
+  }
 }

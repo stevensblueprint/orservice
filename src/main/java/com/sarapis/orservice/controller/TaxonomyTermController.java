@@ -55,4 +55,11 @@ public class TaxonomyTermController {
     return ResponseEntity.ok(taxonomyTerm);
   }
 
+  @PostMapping
+  public ResponseEntity<TaxonomyTermDTO.Response> createTaxonomyTerm(
+      @Valid @RequestBody TaxonomyTermDTO.Request taxonomyTerm
+  ) {
+    return ResponseEntity.ok(taxonomyTermService.createTaxonomyTerm(taxonomyTerm));
+  }
+
 }
