@@ -32,8 +32,8 @@ public class TaxonomyController {
   @GetMapping
   public ResponseEntity<PaginationDTO<TaxonomyDTO.Response>> getAllTaxonomies(
       @RequestParam(name = "search") String search,
-      @RequestParam(name = "page") Integer page,
-      @RequestParam(name = "per_page") Integer perPage,
+      @RequestParam(name = "page", defaultValue = "1") Integer page,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format
   ) {
     return ResponseEntity.ok(taxonomyService.getAllTaxonomies(

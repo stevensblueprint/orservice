@@ -30,47 +30,29 @@ public class TaxonomyTermController {
 
   @GetMapping
   public ResponseEntity<PaginationDTO<TaxonomyTermDTO.Response>> getAllTaxonomyTerms(
-      @RequestParam(name = "page", defaultValue = "1")
-      @Min(value = 1, message = "Invalid input provided for page")
-      int page,
-      @RequestParam(name = "perPage", defaultValue = "10")
-      @Min(value = 1, message = "Invalid input provided for perPage")
-      int perPage
+      @RequestParam(name = "search") String search,
+      @RequestParam(name = "page", defaultValue = "1") Integer page,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
+      @RequestParam(name = "format", defaultValue = "json") String format,
+      @RequestParam(name = "taxonomy_id") String taxonomyId,
+      @RequestParam(name = "top_only", defaultValue = "false") boolean topOnly,
+      @RequestParam(name = "parent_id") String parentId
   ) {
-    log.info("Received request to get all TaxonomyTerms");
-    List<Response> taxonomyTerms = taxonomyTermService.getAllTaxonomyTerms();
-    PaginationDTO<Response> paginationDTO = PaginationDTO.of(taxonomyTerms, page, perPage);
-    log.info("Returning {} TaxonomyTerms", taxonomyTerms.size());
-    return ResponseEntity.ok(paginationDTO);
+    return ResponseEntity.ok(taxonomyTermService.getAllTaxonomyTerms(
+        search,
+        page,
+        perPage,
+        format,
+        taxonomyId,
+        topOnly,
+        parentId
+    ));
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<TaxonomyTermDTO.Response> getTaxonomyTermById(@PathVariable String id) {
-    log.info("Received request to get TaxonomyTerm by id: {}", id);
     TaxonomyTermDTO.Response taxonomyTerm = taxonomyTermService.getTaxonomyTermById(id);
-    log.info("Returning URL with id: {}", id);
     return ResponseEntity.ok(taxonomyTerm);
   }
 
-  @PostMapping
-  public ResponseEntity<TaxonomyTermDTO.Response> createTaxonomyTerm(
-      @Valid @RequestBody TaxonomyTermDTO.Request requestDto,
-      @RequestHeader("X-Updated-By") String updatedBy
-  ) {
-    log.info("Received request to create TaxonomyTerm with data: {}", requestDto);
-    TaxonomyTermDTO.Response createdTaxonomyTerm = taxonomyTermService.createTaxonomyTerm(requestDto, updatedBy);
-    log.info("Created TaxonomyTerm with id: {}", createdTaxonomyTerm.getId());
-    return new ResponseEntity<>(createdTaxonomyTerm, org.springframework.http.HttpStatus.CREATED);
-  }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<Void> deleteUrl(
-      @PathVariable String id,
-      @RequestHeader("X-Deleted-By") String deletedBy
-  ) {
-    log.info("Received request to delete TaxonomyTerm with id: {} by user: {}", id, deletedBy);
-    taxonomyTermService.deleteTaxonomyTerm(id, deletedBy);
-    log.info("Deleted TaxonomyTerm with id: {}", id);
-    return ResponseEntity.noContent().build();
-  }
 }

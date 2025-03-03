@@ -21,12 +21,12 @@ public class OrganizationController {
   @GetMapping
   public ResponseEntity<PaginationDTO<OrganizationDTO.Response>> getAllOrganizations(
       @RequestParam(name = "search") String search,
-      @RequestParam(name = "full_service") Boolean fullService,
-      @RequestParam(name = "full") Boolean full,
+      @RequestParam(name = "full_service", defaultValue = "false") Boolean fullService,
+      @RequestParam(name = "full", defaultValue = "true") Boolean full,
       @RequestParam(name = "taxonomy_term_id") String taxonomyTermId,
       @RequestParam(name = "taxonomy_id") String taxonomyId,
-      @RequestParam(name = "page") Integer page,
-      @RequestParam(name = "per_page") Integer perPage,
+      @RequestParam(name = "page", defaultValue = "1") Integer page,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format
   ) {
     return ResponseEntity.ok(organizationService.getAllOrganizations(

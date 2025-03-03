@@ -23,14 +23,14 @@ public class ServiceController {
   public ResponseEntity<PaginationDTO<ServiceDTO.Response>> getAllServices(
       @RequestParam(name = "search") String search,
       @RequestParam(name = "page", defaultValue = "1") Integer page,
-      @RequestParam(name = "per_page") Integer perPage,
-      @RequestParam(name = "format") String format,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
+      @RequestParam(name = "format", defaultValue = "json") String format,
       @RequestParam(name = "taxonomy_term_id") String taxonomyTermId,
       @RequestParam(name = "taxonomy_id") String taxonomyId,
       @RequestParam(name = "organization_id") String organizationId,
       @RequestParam(name = "modified_after") String modifiedAfter,
-      @RequestParam(name = "minimal") Boolean minimal,
-      @RequestParam(name = "full") Boolean full
+      @RequestParam(name = "minimal", defaultValue = "false") Boolean minimal,
+      @RequestParam(name = "full", defaultValue = "false") Boolean full
   ) {
     return ResponseEntity.ok(service.getAllServices(
         search,

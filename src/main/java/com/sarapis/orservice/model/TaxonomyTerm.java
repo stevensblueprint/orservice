@@ -35,14 +35,6 @@ public class TaxonomyTerm {
   @Column(name = "description", columnDefinition = "TEXT")
   private String description;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parent_id", insertable = false, updatable = false)
-  @Exclude
-  private TaxonomyTerm parent;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "taxonomy_id", nullable = false)
-  private Taxonomy taxonomy;
 
   @Column
   private String language;

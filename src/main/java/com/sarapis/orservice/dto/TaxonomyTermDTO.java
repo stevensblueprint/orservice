@@ -39,9 +39,6 @@ public class TaxonomyTermDTO {
     private String name;
     private String description;
     private String parentId;
-    private TaxonomyTermDTO.Response parent;
-    private TaxonomyTermDTO.Response children;
-    private TaxonomyDTO.Response taxonomy;
     private String language;
     private String termUri;
     private List<MetadataDTO.Response> metadata;
@@ -57,8 +54,6 @@ public class TaxonomyTermDTO {
     private String vocabulary;
     private String description;
     private String parentId;
-    private List<String> childrenId;
-    private String taxonomyId;
     private String language;
     private String termUri;
   }

@@ -11,12 +11,5 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = {MetadataMapper.class})
 public interface TaxonomyTermMapper {
   TaxonomyTerm toEntity(TaxonomyTermDTO.Request dto);
-
-  @Mapping(target = "parent", source = "parent")
-  @Mapping(target = "metadata", source = "metadata")
   Response toResponseDTO(TaxonomyTerm entity);
-
-  List<Response> toResponseDTOList(List<TaxonomyTerm> entities);
-
-  void updateEntityFromDto(TaxonomyTermDTO.UpdateRequest dto, @MappingTarget TaxonomyTerm entity);
 }

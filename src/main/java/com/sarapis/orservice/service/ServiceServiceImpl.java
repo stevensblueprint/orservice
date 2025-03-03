@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class ServiceServiceImpl implements ServiceService {
-  private ServiceRepository serviceRepository;
-  private ServiceMapper serviceMapper;
+  private final ServiceRepository serviceRepository;
+  private final ServiceMapper serviceMapper;
 
 
   @Override
