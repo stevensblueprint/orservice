@@ -2,7 +2,6 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
-import java.util.List;
 
 public interface ServiceService {
   PaginationDTO<ServiceDTO.Response> getAllServices(

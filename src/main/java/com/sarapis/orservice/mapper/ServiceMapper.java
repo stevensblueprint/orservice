@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 public interface ServiceMapper {
   Service toEntity(ServiceDTO.Request dto);
 
-  ServiceDTO.Response toResponseDTO(Service dto);
+  ServiceDTO.Response toResponseDTO(Service entity);
 }

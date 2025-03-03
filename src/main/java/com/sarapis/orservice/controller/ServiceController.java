@@ -22,7 +22,7 @@ public class ServiceController {
   @GetMapping
   public ResponseEntity<PaginationDTO<ServiceDTO.Response>> getAllServices(
       @RequestParam(name = "search") String search,
-      @RequestParam(name = "page") Integer page,
+      @RequestParam(name = "page", defaultValue = "1") Integer page,
       @RequestParam(name = "per_page") Integer perPage,
       @RequestParam(name = "format") String format,
       @RequestParam(name = "taxonomy_term_id") String taxonomyTermId,
