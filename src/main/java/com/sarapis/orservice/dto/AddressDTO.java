@@ -3,7 +3,6 @@ package com.sarapis.orservice.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.sarapis.orservice.dto.AttributeDTO.Response;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class PhoneDTO {
+public class AddressDTO {
   @Getter
   @Setter
   @Builder
@@ -22,16 +21,21 @@ public class PhoneDTO {
   public static class Request {
     private String id;
     private String locationId;
-    private String serviceId;
-    private String organizationId;
-    private String contactId;
-    private String serviceAtLocationId;
+    private String attention;
     @NotBlank
-    private String number;
-    private String extension;
-    private String type;
-    private String description;
-    private List<LanguageDTO.Request> languages;
+    private String address1;
+    private String address2;
+    @NotBlank
+    private String city;
+    private String region;
+    @NotBlank
+    private String stateProvince;
+    @NotBlank
+    private String postalCode;
+    @NotBlank
+    private String country;
+    @NotBlank
+    private String addressType;
   }
 
   @Getter
@@ -44,19 +48,15 @@ public class PhoneDTO {
     private String id;
     @JsonIgnore
     private String locationId;
-    @JsonIgnore
-    private String serviceId;
-    @JsonIgnore
-    private String organizationId;
-    @JsonIgnore
-    private String contactId;
-    @JsonIgnore
-    private String serviceAtLocationId;
-    private String number;
-    private String extension;
-    private String type;
-    private String description;
-    private List<LanguageDTO.Response> languages;
+    private String attention;
+    private String address1;
+    private String address2;
+    private String city;
+    private String region;
+    private String stateProvince;
+    private String postalCode;
+    private String country;
+    private String addressType;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }

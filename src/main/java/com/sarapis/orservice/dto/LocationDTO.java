@@ -1,73 +1,69 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.sarapis.orservice.validator.ValidEmail;
-import com.sarapis.orservice.validator.ValidUrl;
-import com.sarapis.orservice.validator.ValidYear;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class OrganizationDTO {
+public class LocationDTO {
   @Getter
   @Setter
+  @Builder
   @NoArgsConstructor
   @AllArgsConstructor
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
-    @NotBlank
+    private String locationType;
+    private String url;
+    private String organizationId;
     private String name;
     private String alternateName;
-    @NotBlank
     private String description;
-    @ValidEmail
-    private String email;
-    @ValidUrl
-    private String website;
-    private String taxStatus;
-    private String taxId;
-    @ValidYear
-    private Integer yearIncorporated;
-    private String legalStatus;
-    @ValidUrl
-    private String logo;
-    @ValidUrl
-    private String uri;
-    private String parentOrganizationId;
-    private List<UrlDTO.Request> additionalWebsites;
-    private List<FundingDTO.Request> funding;
+    private String transportation;
+    private String latitude;
+    private String longitude;
+    private String externalIdentifier;
+    private String externalIdentifierType;
+    private List<LanguageDTO.Request> languages;
+    private List<AddressDTO.Request> addresses;
     private List<ContactDTO.Request> contacts;
+    private List<AccessibilityDTO.Request> accessibility;
     private List<PhoneDTO.Request> phones;
+    private List<ScheduleDTO.Request> schedules;
   }
 
-  @Getter
   @Setter
+  @Getter
+  @Builder
   @NoArgsConstructor
   @AllArgsConstructor
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
+    private String locationType;
+    private String url;
+    @JsonIgnore
+    private String organizationId;
     private String name;
     private String alternateName;
     private String description;
-    private String email;
-    private String website;
-    private String taxStatus;
-    private String taxId;
-    private Integer yearIncorporated;
-    private String legalStatus;
-    private String logo;
-    private String uri;
-    private String parentOrganizationId;
-    private List<UrlDTO.Response> additionalWebsites;
-    private List<FundingDTO.Response> funding;
+    private String transportation;
+    private String latitude;
+    private String longitude;
+    private String externalIdentifier;
+    private String externalIdentifierType;
+    private List<LanguageDTO.Response> languages;
+    private List<AddressDTO.Response> addresses;
     private List<ContactDTO.Response> contacts;
+    private List<AccessibilityDTO.Response> accessibility;
     private List<PhoneDTO.Response> phones;
+    private List<ScheduleDTO.Response> schedules;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }

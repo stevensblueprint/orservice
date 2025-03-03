@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -76,7 +77,7 @@ public class Schedule {
   private String description;
 
   @Column(name = "opens_at")
-  private String OpensAt;
+  private String opensAt;
 
   @Column(name = "closes_at")
   private String closesAt;
@@ -90,9 +91,11 @@ public class Schedule {
   @Column(name = "notes")
   private String notes;
 
-  @OneToMany(mappedBy = "linkId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "link_id", referencedColumnName = "id")
   private List<Attribute> attributes;
 
-  @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private List<Metadata> metadata;
 }

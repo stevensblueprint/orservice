@@ -13,31 +13,31 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "service_area")
-@Getter
+@Table(name = "language")
 @Setter
-public class ServiceArea {
+@Getter
+public class Language {
   @Id
-  @Column(name = "id", updatable = false, nullable = false)
+  @Column(name = "id", nullable = false, insertable = false)
   private String id;
 
   @Column(name = "service_id")
   private String serviceId;
 
+  @Column(name = "location_id")
+  private String locationId;
+
+  @Column(name = "phone_id")
+  private String phoneId;
+
   @Column(name = "name")
   private String name;
 
-  @Column(name = "description")
-  private String description;
+  @Column(name = "code")
+  private String code;
 
-  @Column(name = "extent")
-  private String extent;
-
-  @Column(name = "extent_type")
-  private String extentType;
-
-  @Column(name = "uri")
-  private String uri;
+  @Column(name = "note")
+  private String note;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "link_id", referencedColumnName = "id")
@@ -46,4 +46,5 @@ public class ServiceArea {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private List<Metadata> metadata;
+
 }

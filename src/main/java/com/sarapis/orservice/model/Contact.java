@@ -1,5 +1,6 @@
 package com.sarapis.orservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +46,9 @@ public class Contact {
  @Column(name = "email")
   private String email;
 
- // TODO: Implement Phones
+ @OneToMany
+ @JoinColumn(name = "contact_id", referencedColumnName = "id")
+ private List<Phone> phones;
 
  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
  @JoinColumn(name = "link_id", referencedColumnName = "id")

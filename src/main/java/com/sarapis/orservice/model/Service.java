@@ -1,10 +1,16 @@
 package com.sarapis.orservice.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -73,4 +79,56 @@ public class Service {
 
   @Column(name = "last_modified")
   private LocalDate lastModified;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<Phone> phones;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<Schedule> schedules;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<ServiceArea> serviceAreas;
+
+  // TODO: add service_at_location
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<Language> languages;
+
+  @OneToOne
+  private Organization organization;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<Funding> funding;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<CostOption> costOptions;
+
+  @OneToOne
+  private Program program;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<RequiredDocument> requiredDocuments;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<Contact> contacts;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<ServiceAtLocation> serviceAtLocations;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "link_id", referencedColumnName = "id")
+  private List<Attribute> attributes;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "resource_id", referencedColumnName = "id")
+  private List<Metadata> metadata;
 }

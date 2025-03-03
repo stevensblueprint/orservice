@@ -2,9 +2,11 @@ package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.dto.PhoneDTO.Request;
 import com.sarapis.orservice.validator.ValidEmail;
 import com.sarapis.orservice.validator.ValidUrl;
 import java.time.LocalDate;
+import java.util.List;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -55,6 +57,16 @@ public class ServiceDTO {
     private String assurerEmail;
 
     private LocalDate lastModified;
+    private List<PhoneDTO.Request> phones;
+    private List<ScheduleDTO.Request> schedules;
+    private List<ServiceAreaDTO.Request> serviceAreas;
+    private List<LanguageDTO.Request> languages;
+    private OrganizationDTO.Request organization;
+    private List<FundingDTO.Request> funding;
+    private List<CostOptionDTO.Request> costOptions;
+    private ProgramDTO.Request program;
+    private List<RequiredDocumentDTO.Request> requiredDocuments;
+    private List<ContactDTO.Request> contacts;
   }
 
   @Getter
@@ -80,5 +92,15 @@ public class ServiceDTO {
     private String assuredDate;
     private String assurerEmail;
     private LocalDate lastModified;
+    private List<PhoneDTO.Response> phones;
+    private List<ScheduleDTO.Response> schedules;
+    private List<ServiceAreaDTO.Response> serviceAreas;
+    private List<LanguageDTO.Response> languages;
+    private OrganizationDTO.Response organization;
+    private List<FundingDTO.Response> funding;
+    private List<CostOptionDTO.Response> costOptions;
+    private ProgramDTO.Response program;
+    private List<RequiredDocumentDTO.Response> requiredDocuments;
+    private List<ContactDTO.Response> contacts;
   }
 }

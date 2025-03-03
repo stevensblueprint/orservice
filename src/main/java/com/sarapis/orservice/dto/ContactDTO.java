@@ -30,6 +30,7 @@ public class ContactDTO {
     private String serviceId;
     private String serviceAtLocationId;
     private String locationId;
+    private List<PhoneDTO.Request> phones;
   }
 
 
@@ -53,6 +54,7 @@ public class ContactDTO {
     private String serviceAtLocationId;
     @JsonIgnore
     private String locationId;
+    private List<PhoneDTO.Response> phones;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }

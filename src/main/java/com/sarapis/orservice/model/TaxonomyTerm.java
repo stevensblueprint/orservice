@@ -42,8 +42,8 @@ public class TaxonomyTerm {
   @Column
   private String termUri;
 
-  @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Exclude
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private List<Metadata> metadata;
 
 }

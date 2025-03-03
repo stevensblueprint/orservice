@@ -14,7 +14,6 @@ import java.util.List;
 import lombok.Setter;
 
 public class UrlDTO {
-
   @Getter
   @Setter
   @Builder
