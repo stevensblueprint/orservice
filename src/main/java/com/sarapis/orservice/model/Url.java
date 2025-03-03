@@ -28,9 +28,11 @@ public class Url {
   @Column(name = "service_id")
   private String serviceId;
 
-  @OneToMany(mappedBy = "linkId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "link_id", referencedColumnName = "id")
   private List<Attribute> attributes;
 
-  @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private List<Metadata> metadata;
 }

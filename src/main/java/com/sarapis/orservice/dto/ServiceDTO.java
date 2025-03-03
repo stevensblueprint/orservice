@@ -1,8 +1,9 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.sarapis.orservice.validator.ValidEmail;
 import com.sarapis.orservice.validator.ValidUrl;
-import com.sarapis.orservice.validator.ValidYear;
 import java.time.LocalDate;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -17,6 +18,7 @@ public class ServiceDTO {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
 
@@ -59,6 +61,7 @@ public class ServiceDTO {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
     private String name;

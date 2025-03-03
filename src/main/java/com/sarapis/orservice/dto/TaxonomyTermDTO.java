@@ -1,5 +1,7 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +19,7 @@ public class TaxonomyTermDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
     @NotBlank(message = "Code is required")
@@ -33,6 +36,7 @@ public class TaxonomyTermDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
     private String code;
@@ -42,19 +46,5 @@ public class TaxonomyTermDTO {
     private String language;
     private String termUri;
     private List<MetadataDTO.Response> metadata;
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class UpdateRequest {
-    private String code;
-    private String name;
-    private String vocabulary;
-    private String description;
-    private String parentId;
-    private String language;
-    private String termUri;
   }
 }

@@ -1,5 +1,7 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -17,6 +19,7 @@ public class MetadataDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
 
@@ -50,6 +53,7 @@ public class MetadataDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
     private String resourceId;

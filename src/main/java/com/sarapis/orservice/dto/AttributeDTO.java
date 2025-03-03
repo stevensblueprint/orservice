@@ -1,5 +1,7 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ public class AttributeDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
 
@@ -39,6 +42,7 @@ public class AttributeDTO {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
     private String linkId;
