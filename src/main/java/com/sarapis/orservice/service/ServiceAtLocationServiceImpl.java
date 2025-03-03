@@ -9,6 +9,9 @@ import com.sarapis.orservice.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -32,11 +35,28 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
         this.metadataService = metadataService;
     }
 
+    private boolean inProximity(ServiceAtLocation serviceAtLocation, Double longitude, Double latitude, Integer proximity) {
+        return latitude - proximity <= serviceAtLocation.getLocation().getLatitude() &&
+                serviceAtLocation.getLocation().getLatitude() <= latitude + proximity &&
+                longitude - proximity <= serviceAtLocation.getLocation().getLongitude() &&
+                serviceAtLocation.getLocation().getLongitude() <= longitude + proximity;
+    }
+
+    private double distance(ServiceAtLocation serviceAtLocation, Double longitude, Double latitude) {
+        return Math.sqrt(Math.pow(serviceAtLocation.getLocation().getLongitude() - longitude, 2) +
+                Math.pow(serviceAtLocation.getLocation().getLatitude() - latitude, 2));
+    }
+
     @Override
-    public List<ServiceAtLocationDTO> getAllServicesAtLocations(String search) {
-        String[] queries = search.split(";");
-        List<ServiceAtLocationDTO> serviceAtLocationDTOs = this.serviceAtLocationRepository.getAllServiceAtLocations(queries[0], queries[1])
-                .stream().map(ServiceAtLocation::toDTO).toList();
+    public List<ServiceAtLocationDTO> getAllServicesAtLocations(String serviceQuery, String locationQuery, Double longitude, Double latitude, Integer proximity) {
+        List<ServiceAtLocation> serviceAtLocations = this.serviceAtLocationRepository.getAllServiceAtLocations(serviceQuery, locationQuery);
+        if (longitude != null && latitude != null) {
+            serviceAtLocations = serviceAtLocations
+                    .stream().filter(e -> inProximity(e, longitude, latitude, proximity)).toList();
+        }
+        Comparator<ServiceAtLocation> distanceComparator = Comparator.comparingDouble(e -> distance(e, longitude, latitude));
+        serviceAtLocations.sort(distanceComparator);
+        List<ServiceAtLocationDTO> serviceAtLocationDTOs = serviceAtLocations.stream().map(ServiceAtLocation::toDTO).toList();
         serviceAtLocationDTOs.forEach(this::addRelatedData);
         return serviceAtLocationDTOs;
     }

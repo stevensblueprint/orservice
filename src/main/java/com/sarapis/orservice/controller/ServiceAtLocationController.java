@@ -20,8 +20,20 @@ public class ServiceAtLocationController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(@RequestParam(required = false, name = "search") String search) {
-        List<ServiceAtLocationDTO> servicesAtLocations = this.serviceAtLocationService.getAllServicesAtLocations(search);
+    public ResponseEntity<PaginationDTO<ServiceAtLocationDTO>> getAllServiceAtLocations(
+            @RequestParam(name = "service") String serviceQuery,
+            @RequestParam(name = "location") String locationQuery,
+            @RequestParam(required = false, name = "longitude") Double longitude,
+            @RequestParam(required = false, name = "latitude") Double latitude,
+            @RequestParam(name = "proximity", defaultValue = "100") Integer proximity
+    ) {
+        List<ServiceAtLocationDTO> servicesAtLocations = this.serviceAtLocationService.getAllServicesAtLocations(
+                serviceQuery,
+                locationQuery,
+                longitude,
+                latitude,
+                proximity
+        );
         PaginationDTO<ServiceAtLocationDTO> pagination = PaginationDTO.of(
                 servicesAtLocations.size(),
                 1,
