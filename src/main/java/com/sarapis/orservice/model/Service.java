@@ -92,7 +92,9 @@ public class Service {
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<ServiceArea> serviceAreas;
 
-  // TODO: add service_at_location
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<ServiceAtLocation> serviceAtLocations;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
@@ -119,10 +121,6 @@ public class Service {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Contact> contacts;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "service_id", referencedColumnName = "id")
-  private List<ServiceAtLocation> serviceAtLocations;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "link_id", referencedColumnName = "id")

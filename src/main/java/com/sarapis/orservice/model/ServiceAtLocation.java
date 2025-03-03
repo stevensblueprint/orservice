@@ -21,6 +21,7 @@ public class ServiceAtLocation {
   @Column(name = "id", insertable = false, updatable = false)
   private String id;
 
+  @Column(name = "service_id")
   private String serviceId;
   private String description;
 
