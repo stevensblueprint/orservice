@@ -31,19 +31,15 @@ public class OrganizationDTO {
     private String website;
     private String taxStatus;
     private String taxId;
-
     @ValidYear
     private Integer yearIncorporated;
-
     private String legalStatus;
-
     @ValidUrl
     private String logo;
-
     @ValidUrl
     private String uri;
-
     private List<UrlDTO.Request> additionalWebsites;
+    private List<FundingDTO.Request> funding;
   }
 
   @Getter
@@ -65,5 +61,6 @@ public class OrganizationDTO {
     private String logo;
     private String uri;
     private List<UrlDTO.Response> additionalWebsites;
+    private List<FundingDTO.Response> funding;
   }
 }

@@ -1,11 +1,13 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.FundingDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
+import com.sarapis.orservice.model.Funding;
 import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
@@ -25,6 +27,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationRepository organizationRepository;
   private final OrganizationMapper organizationMapper;
   private final UrlService urlService;
+  private final FundingService fundingService;
 
   @Override
   @Transactional(readOnly = true)
@@ -43,7 +46,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     Page<OrganizationDTO.Response> dtoPage = organizationPage.map(organization -> {
       OrganizationDTO.Response response = organizationMapper.toResponseDTO(organization);
       List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
+      List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
       response.setAdditionalWebsites(urls);
+      response.setFunding(fundingList);
       return response;
     });
 
@@ -57,7 +62,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     Organization organization = organizationRepository.findById(id).orElseThrow();
     Response response = organizationMapper.toResponseDTO(organization);
     List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
+    List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
     response.setAdditionalWebsites(urls);
+    response.setFunding(fundingList);
     return response;
   }
 
@@ -78,8 +85,19 @@ public class OrganizationServiceImpl implements OrganizationService {
         savedUrls.add(savedUrl);
       }
     }
+
+    List<FundingDTO.Response> savedFunding = new ArrayList<>();
+    if (requestDto.getFunding() != null) {
+      for (FundingDTO.Request fundingDTO : requestDto.getFunding()) {
+        fundingDTO.setOrganizationId(savedOrganization.getId());
+        FundingDTO.Response savedFundingItem = fundingService.createFunding(fundingDTO);
+        savedFunding.add(savedFundingItem);
+      }
+    }
+
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
+    response.setFunding(savedFunding);
     return response;
   }
 }

@@ -22,7 +22,7 @@ public class UrlServiceImpl implements UrlService {
   @Override
   @Transactional
   public Response createUrl(Request urlDto) {
-    if (urlDto.getId() == null || urlDto.getUrl().trim().isEmpty()) {
+    if (urlDto.getId() == null || urlDto.getId().trim().isEmpty()) {
       urlDto.setId(UUID.randomUUID().toString());
     }
     Url url = urlMapper.toEntity(urlDto);
