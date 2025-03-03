@@ -21,7 +21,7 @@ public class OrganizationController {
 
   @GetMapping
   public ResponseEntity<PaginationDTO<OrganizationDTO.Response>> getAllOrganizations(
-      @RequestParam(name = "search") String search,
+      @RequestParam(name = "search", defaultValue = "") String search,
       @RequestParam(name = "full_service", defaultValue = "false") Boolean fullService,
       @RequestParam(name = "full", defaultValue = "true") Boolean full,
       @RequestParam(name = "taxonomy_term_id") String taxonomyTermId,
