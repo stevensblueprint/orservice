@@ -2,7 +2,6 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.service.OrganizationService;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;

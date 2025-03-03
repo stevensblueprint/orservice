@@ -29,10 +29,10 @@ public class ServiceController {
       @RequestParam(name = "page", defaultValue = "0") Integer page,
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format,
-      @RequestParam(name = "taxonomy_term_id") String taxonomyTermId,
-      @RequestParam(name = "taxonomy_id") String taxonomyId,
-      @RequestParam(name = "organization_id") String organizationId,
-      @RequestParam(name = "modified_after") String modifiedAfter,
+      @RequestParam(name = "taxonomy_term_id", defaultValue = "") String taxonomyTermId,
+      @RequestParam(name = "taxonomy_id", defaultValue = "") String taxonomyId,
+      @RequestParam(name = "organization_id", defaultValue = "") String organizationId,
+      @RequestParam(name = "modified_after", defaultValue = "") String modifiedAfter,
       @RequestParam(name = "minimal", defaultValue = "false") Boolean minimal,
       @RequestParam(name = "full", defaultValue = "false") Boolean full
   ) {
