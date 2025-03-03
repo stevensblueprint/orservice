@@ -7,6 +7,7 @@ import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
 import com.sarapis.orservice.model.Organization;
@@ -31,6 +32,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final FundingService fundingService;
   private final ContactService contactService;
   private final PhoneService phoneService;
+  private final ProgramService programService;
 
   @Override
   @Transactional(readOnly = true)
@@ -52,10 +54,12 @@ public class OrganizationServiceImpl implements OrganizationService {
       List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
       List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
       List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
+      List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
       response.setAdditionalWebsites(urls);
       response.setFunding(fundingList);
       response.setContacts(contacts);
       response.setPhones(phones);
+      response.setPrograms(programs);
       return response;
     });
 
@@ -72,10 +76,12 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
     List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
     List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
+    List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
     response.setAdditionalWebsites(urls);
     response.setFunding(fundingList);
     response.setContacts(contacts);
     response.setPhones(phones);
+    response.setPrograms(programs);
     return response;
   }
 
@@ -124,11 +130,21 @@ public class OrganizationServiceImpl implements OrganizationService {
       }
     }
 
+    List<ProgramDTO.Response> savedPrograms = new ArrayList<>();
+    if (requestDto.getPrograms() != null) {
+      for (ProgramDTO.Request programDTO : requestDto.getPrograms()) {
+        programDTO.setOrganizationId(savedOrganization.getId());
+        ProgramDTO.Response savedProgram = programService.createProgram(programDTO);
+        savedPrograms.add(savedProgram);
+      }
+    }
+
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
     response.setFunding(savedFunding);
     response.setContacts(savedContacts);
     response.setPhones(savedPhones);
+    response.setPrograms(savedPrograms);
     return response;
   }
 }

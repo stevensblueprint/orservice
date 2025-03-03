@@ -43,6 +43,7 @@ public class OrganizationDTO {
     private List<FundingDTO.Request> funding;
     private List<ContactDTO.Request> contacts;
     private List<PhoneDTO.Request> phones;
+    private List<ProgramDTO.Request> programs;
   }
 
   @Getter
@@ -68,6 +69,7 @@ public class OrganizationDTO {
     private List<FundingDTO.Response> funding;
     private List<ContactDTO.Response> contacts;
     private List<PhoneDTO.Response> phones;
+    private List<ProgramDTO.Response> programs;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }
