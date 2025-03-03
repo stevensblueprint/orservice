@@ -44,6 +44,7 @@ public class OrganizationDTO {
     private List<ContactDTO.Request> contacts;
     private List<PhoneDTO.Request> phones;
     private List<ProgramDTO.Request> programs;
+    private List<OrganizationIdentifierDTO.Request> organizationIdentifiers;
   }
 
   @Getter
@@ -70,6 +71,7 @@ public class OrganizationDTO {
     private List<ContactDTO.Response> contacts;
     private List<PhoneDTO.Response> phones;
     private List<ProgramDTO.Response> programs;
+    private List<OrganizationIdentifierDTO.Response> organizationIdentifiers;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }

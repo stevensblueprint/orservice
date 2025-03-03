@@ -5,12 +5,14 @@ import com.sarapis.orservice.dto.FundingDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
+import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
 import com.sarapis.orservice.model.Organization;
+import com.sarapis.orservice.model.OrganizationIdentifier;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final ContactService contactService;
   private final PhoneService phoneService;
   private final ProgramService programService;
+  private final OrganizationIdentifierService organizationIdentifierService;
 
   @Override
   @Transactional(readOnly = true)
@@ -55,11 +58,14 @@ public class OrganizationServiceImpl implements OrganizationService {
       List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
       List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
       List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
+      List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
+          organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
       response.setAdditionalWebsites(urls);
       response.setFunding(fundingList);
       response.setContacts(contacts);
       response.setPhones(phones);
       response.setPrograms(programs);
+      response.setOrganizationIdentifiers(organizationIdentifiers);
       return response;
     });
 
@@ -77,11 +83,14 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
     List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
     List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
+    List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
+        organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
     response.setAdditionalWebsites(urls);
     response.setFunding(fundingList);
     response.setContacts(contacts);
     response.setPhones(phones);
     response.setPrograms(programs);
+    response.setOrganizationIdentifiers(organizationIdentifiers);
     return response;
   }
 
@@ -139,12 +148,23 @@ public class OrganizationServiceImpl implements OrganizationService {
       }
     }
 
+    List<OrganizationIdentifierDTO.Response> savedOrganizationIdentifiers = new ArrayList<>();
+    if (requestDto.getOrganizationIdentifiers() != null) {
+      for (OrganizationIdentifierDTO.Request organizationIdentifierDTO : requestDto.getOrganizationIdentifiers()) {
+        organizationIdentifierDTO.setOrganizationId(savedOrganization.getId());
+        OrganizationIdentifierDTO.Response savedOrganizationIdentifier =
+            organizationIdentifierService.createOrganizationIdentifier(organizationIdentifierDTO);
+        savedOrganizationIdentifiers.add(savedOrganizationIdentifier);
+      }
+    }
+
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
     response.setFunding(savedFunding);
     response.setContacts(savedContacts);
     response.setPhones(savedPhones);
     response.setPrograms(savedPrograms);
+    response.setOrganizationIdentifiers(savedOrganizationIdentifiers);
     return response;
   }
 }
