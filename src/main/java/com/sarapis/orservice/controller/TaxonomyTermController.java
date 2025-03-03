@@ -31,7 +31,7 @@ public class TaxonomyTermController {
   @GetMapping
   public ResponseEntity<PaginationDTO<TaxonomyTermDTO.Response>> getAllTaxonomyTerms(
       @RequestParam(name = "search", defaultValue = "") String search,
-      @RequestParam(name = "page", defaultValue = "1") Integer page,
+      @RequestParam(name = "page", defaultValue = "0") Integer page,
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format,
       @RequestParam(name = "taxonomy_id") String taxonomyId,
