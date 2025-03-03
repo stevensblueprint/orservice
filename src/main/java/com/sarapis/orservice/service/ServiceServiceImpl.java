@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class ServiceServiceImpl implements ServiceService {
 
 
   @Override
+  @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllServices(String search, Integer page, Integer perPage,
       String format, String taxonomyTermId, String taxonomyId, String organizationId,
       String modifiedAfter, Boolean minimal, Boolean full) {
@@ -43,12 +45,14 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Response getServiceById(String id) {
     Service service = serviceRepository.findById(id).orElseThrow();
     return serviceMapper.toResponseDTO(service);
   }
 
   @Override
+  @Transactional
   public Response createService(Request requestDto) {
     return null;
   }

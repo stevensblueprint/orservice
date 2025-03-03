@@ -1,13 +1,15 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO;
-import com.sarapis.orservice.dto.TaxonomyDTO.Response;
-import java.util.List;
 
 public interface TaxonomyService {
-  List<Response> getAllTaxonomies();
+  PaginationDTO<TaxonomyDTO.Response> getAllTaxonomies(
+      String search,
+      Integer page,
+      Integer perPage,
+      String format
+  );
   TaxonomyDTO.Response getTaxonomyById(String id);
-  TaxonomyDTO.Response createTaxonomy(TaxonomyDTO.Request requestDto, String updatedBy);
-  TaxonomyDTO.Response updateTaxonomy(String id, TaxonomyDTO.UpdateRequest updateDto, String updatedBy);
-  void deleteTaxonomy(String id, String deletedBy);
+  TaxonomyDTO.Response createTaxonomy(TaxonomyDTO.Request requestDto);
 }

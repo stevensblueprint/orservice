@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private OrganizationMapper organizationMapper;
 
   @Override
+  @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllOrganizations(String search, Boolean full_service,
       Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
       String format) {
@@ -36,12 +38,14 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Response getOrganizationById(String id) {
     Organization organization = organizationRepository.findById(id).orElseThrow();
     return organizationMapper.toResponseDTO(organization);
   }
 
   @Override
+  @Transactional
   public Response createOrganization(Request requestDto) {
     return null;
   }

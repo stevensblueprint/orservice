@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/taxonomies")
+@RequestMapping("/taxonomies")
 @RequiredArgsConstructor
 @Slf4j
 public class TaxonomyController {
@@ -31,59 +31,22 @@ public class TaxonomyController {
 
   @GetMapping
   public ResponseEntity<PaginationDTO<TaxonomyDTO.Response>> getAllTaxonomies(
-      @RequestParam(name = "page", defaultValue = "1")
-      @Min(value = 1, message = "Invalid input provided for 'page'.")
-      int page,
-      @RequestParam(name = "perPage", defaultValue = "10")
-      @Min(value = 1, message = "Invalid input provided for 'perPage'.")
-      int perPage
+      @RequestParam(name = "search") String search,
+      @RequestParam(name = "page") Integer page,
+      @RequestParam(name = "per_page") Integer perPage,
+      @RequestParam(name = "format", defaultValue = "json") String format
   ) {
-    log.info("Received request to get all taxonomies");
-    List<TaxonomyDTO.Response> taxonomies = taxonomyService.getAllTaxonomies();
-    PaginationDTO<TaxonomyDTO.Response> paginationDTO = PaginationDTO.of(taxonomies, page, perPage);
-    log.info("Returning {} taxonomies", taxonomies.size());
-    return ResponseEntity.ok(paginationDTO);
+    return ResponseEntity.ok(taxonomyService.getAllTaxonomies(
+        search,
+        page,
+        perPage,
+        format
+    ));
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<TaxonomyDTO.Response> getTaxonomyById(@PathVariable String id) {
-    log.info("Received request to get taxonomy by id: {}", id);
     TaxonomyDTO.Response taxonomy = taxonomyService.getTaxonomyById(id);
-    log.info("Returning taxonomy with id: {}", id);
     return ResponseEntity.ok(taxonomy);
-  }
-
-  @PostMapping
-  public ResponseEntity<TaxonomyDTO.Response> createTaxonomy(
-      @Valid @RequestBody TaxonomyDTO.Request requestDto,
-      @RequestHeader("X-Updated-By") String updatedBy
-  ) {
-    log.info("Received request to create taxonomy with data: {}", requestDto);
-    TaxonomyDTO.Response createdTaxonomy = taxonomyService.createTaxonomy(requestDto, updatedBy);
-    log.info("Created taxonomy with id: {}", createdTaxonomy.getId());
-    return new ResponseEntity<>(createdTaxonomy, HttpStatus.CREATED);
-  }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<TaxonomyDTO.Response> updateTaxonomy(
-      @PathVariable String id,
-      @Valid @RequestBody TaxonomyDTO.UpdateRequest updateDto,
-      @RequestHeader("X-Updated-By") String updatedBy
-  ) {
-    log.info("Received request to update Taxonomy with id: {} by user: {}", id, updateDto);
-    TaxonomyDTO.Response updatedTaxonomy = taxonomyService.updateTaxonomy(id, updateDto, updatedBy);
-    log.info("Updated taxonomy with id: {}", id);
-    return ResponseEntity.ok(updatedTaxonomy);
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteTaxonomy(
-      @PathVariable String id,
-      @RequestHeader("X-Deleted-By") String deletedBy
-  ) {
-    log.info("Received request to delete Taxonomy with id: {} by user: {}", id, deletedBy);
-    taxonomyService.deleteTaxonomy(id, deletedBy);
-    log.info("Deleted Taxonomy with id: {}", id);
-    return ResponseEntity.noContent().build();
   }
 }

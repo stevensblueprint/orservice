@@ -37,9 +37,6 @@ public class Taxonomy {
   @Column(name = "version")
   private String version;
 
-  @OneToMany(mappedBy = "taxonomy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<TaxonomyTerm> taxonomyTerms;
-
   @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Exclude
   private List<Metadata> metadata;
