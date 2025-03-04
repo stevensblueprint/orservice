@@ -13,7 +13,6 @@ import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
