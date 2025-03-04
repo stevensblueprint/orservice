@@ -43,6 +43,7 @@ public class OrganizationDTO {
     private List<FundingDTO.Request> funding;
     private List<ContactDTO.Request> contacts;
     private List<PhoneDTO.Request> phones;
+    private List<LocationDTO.Request> locations;
     private List<ProgramDTO.Request> programs;
     private List<OrganizationIdentifierDTO.Request> organizationIdentifiers;
   }
@@ -70,6 +71,7 @@ public class OrganizationDTO {
     private List<FundingDTO.Response> funding;
     private List<ContactDTO.Response> contacts;
     private List<PhoneDTO.Response> phones;
+    private List<LocationDTO.Response> locations;
     private List<ProgramDTO.Response> programs;
     private List<OrganizationIdentifierDTO.Response> organizationIdentifiers;
     private List<AttributeDTO.Response> attributes;

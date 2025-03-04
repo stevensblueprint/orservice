@@ -81,4 +81,8 @@ public class Organization {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<OrganizationIdentifier> organizationIdentifiers;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "organization_id", referencedColumnName = "id")
+  private List<Location> locations;
 }

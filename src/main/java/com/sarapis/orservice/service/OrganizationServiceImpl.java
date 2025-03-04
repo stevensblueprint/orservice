@@ -6,6 +6,7 @@ import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TY
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.FundingDTO;
+import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
@@ -43,6 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final PhoneService phoneService;
   private final ProgramService programService;
   private final OrganizationIdentifierService organizationIdentifierService;
+  private final LocationService locationService;
   private final MetadataService metadataService;
 
   @Override
@@ -67,6 +69,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
       List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
           organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
+      List<LocationDTO.Response> locations = locationService.getLocationByOrganizationId(organization.getId());
       List<MetadataDTO.Response> metadata =
           metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
       response.setAdditionalWebsites(urls);
@@ -75,6 +78,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       response.setPhones(phones);
       response.setPrograms(programs);
       response.setOrganizationIdentifiers(organizationIdentifiers);
+      response.setLocations(locations);
       response.setMetadata(metadata);
       return response;
     });
@@ -95,6 +99,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
     List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
         organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
+    List<LocationDTO.Response> locations = locationService.getLocationByOrganizationId(organization.getId());
     List<MetadataDTO.Response> metadata =
         metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
     response.setAdditionalWebsites(urls);
@@ -103,6 +108,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     response.setPhones(phones);
     response.setPrograms(programs);
     response.setOrganizationIdentifiers(organizationIdentifiers);
+    response.setLocations(locations);
     response.setMetadata(metadata);
     return response;
   }
@@ -182,6 +188,15 @@ public class OrganizationServiceImpl implements OrganizationService {
       }
     }
 
+    List<LocationDTO.Response> savedLocations = new ArrayList<>();
+    if (requestDto.getLocations() != null) {
+      for (LocationDTO.Request locationDTO : requestDto.getLocations()) {
+        locationDTO.setOrganizationId(savedOrganization.getId());
+        LocationDTO.Response savedLocation = locationService.createLocation(locationDTO);
+        savedLocations.add(savedLocation);
+      }
+    }
+
     List<MetadataDTO.Response> metadata =
         metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
     Response response = organizationMapper.toResponseDTO(savedOrganization);
@@ -191,6 +206,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     response.setPhones(savedPhones);
     response.setPrograms(savedPrograms);
     response.setOrganizationIdentifiers(savedOrganizationIdentifiers);
+    response.setLocations(savedLocations);
     response.setMetadata(metadata);
     return response;
   }
