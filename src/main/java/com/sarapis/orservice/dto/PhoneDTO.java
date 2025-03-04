@@ -1,58 +1,63 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Contact;
-import com.sarapis.orservice.entity.Phone;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import lombok.*;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.dto.AttributeDTO.Response;
 import java.util.List;
-import java.util.UUID;
+import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class PhoneDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
     private String locationId;
     private String serviceId;
     private String organizationId;
     private String contactId;
     private String serviceAtLocationId;
-
+    @NotBlank
     private String number;
     private String extension;
     private String type;
     private String description;
+    private List<LanguageDTO.Request> languages;
+  }
 
-    private List<LanguageDTO> languages = new ArrayList<>();
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Phone toEntity(Location location,
-                          Service service,
-                          Organization organization,
-                          Contact contact,
-                          ServiceAtLocation serviceAtLocation) {
-        Phone phone = Phone.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .location(location)
-                .service(service)
-                .organization(organization)
-                .contact(contact)
-                .serviceAtLocation(serviceAtLocation)
-                .number(this.number)
-                .extension(this.extension)
-                .type(this.type)
-                .description(this.description)
-                .build();
-        phone.setLanguages(this.languages.stream().map(e -> e.toEntity(null, null, phone)).toList());
-        return phone;
-    }
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    @JsonIgnore
+    private String locationId;
+    @JsonIgnore
+    private String serviceId;
+    @JsonIgnore
+    private String organizationId;
+    @JsonIgnore
+    private String contactId;
+    @JsonIgnore
+    private String serviceAtLocationId;
+    private String number;
+    private String extension;
+    private String type;
+    private String description;
+    private List<LanguageDTO.Response> languages;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }

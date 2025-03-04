@@ -1,36 +1,44 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Funding;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.Service;
-import lombok.*;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class FundingDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
+    private String source;
     private String organizationId;
     private String serviceId;
+  }
 
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
     private String source;
+    @JsonIgnore
+    private String organizationId;
+    @JsonIgnore
+    private String serviceId;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Funding toEntity(Organization organization, Service service) {
-        return Funding.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .organization(organization)
-                .service(service)
-                .source(this.source)
-                .build();
-    }
 }

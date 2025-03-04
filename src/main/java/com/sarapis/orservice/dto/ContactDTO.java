@@ -1,29 +1,62 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.validator.ValidEmail;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Returned response for a contact entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#contact">Reference</a>
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ContactDTO {
+
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
+    private String name;
+    private String title;
+    private String department;
+    @ValidEmail
+    private String email;
     private String organizationId;
     private String serviceId;
     private String serviceAtLocationId;
     private String locationId;
+    private List<PhoneDTO.Request> phones;
+  }
+
+
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
     private String name;
     private String title;
     private String department;
     private String email;
-    private List<PhoneDTO> phones;
-    private List<AttributeDTO> attributes;
-    private List<MetadataDTO> metadata;
+    @JsonIgnore
+    private String organizationId;
+    @JsonIgnore
+    private String serviceId;
+    @JsonIgnore
+    private String serviceAtLocationId;
+    @JsonIgnore
+    private String locationId;
+    private List<PhoneDTO.Response> phones;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
+
 }

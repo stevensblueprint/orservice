@@ -1,28 +1,48 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
-import java.time.LocalDate;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Returned response for a cost option entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#cost-option">Reference</a>
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class CostOptionDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
     private String serviceId;
-    private LocalDate validFrom;
-    private LocalDate validTo;
+    private String validFrom;
+    private String validTo;
     private String option;
     private String currency;
-    private int amount;
+    private Integer amount;
     private String amountDescription;
-    private List<AttributeDTO> attributes;
-    private List<MetadataDTO> metadata;
+  }
+
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    private String serviceId;
+    private String validFrom;
+    private String validTo;
+    private String option;
+    private String currency;
+    private Integer amount;
+    private String amountDescription;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }

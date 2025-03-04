@@ -1,18 +1,24 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
-
 import java.util.List;
 
 public interface ServiceAtLocationService {
-    List<ServiceAtLocationDTO> getAllServicesAtLocation();
+  PaginationDTO<ServiceAtLocationDTO.Response> getAllServicesAtLocation(
+      String search,
+      String taxonomyTermId,
+      String taxonomyId,
+      String organizationId,
+      String modifiedAfter,
+      Boolean full,
+      Integer page,
+      Integer perPage,
+      String format,
+      String postcode,
+      String proximity
+  );
+  ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto);
+  ServiceAtLocationDTO.Response getServiceAtLocationById(String id);
 
-    ServiceAtLocationDTO getServiceAtLocationById(String serviceAtLocationId);
-
-    ServiceAtLocationDTO createServiceAtLocation(UpsertServiceAtLocationDTO upsertServiceAtLocationDTO);
-
-    ServiceAtLocationDTO updateServiceAtLocation(String serviceAtLocationId, ServiceAtLocationDTO serviceAtLocationDTO);
-
-    void deleteServiceAtLocation(String serviceAtLocationId);
 }

@@ -1,125 +1,82 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.ScheduleDTO;
-import com.sarapis.orservice.entity.Schedule;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.LocationRepository;
-import com.sarapis.orservice.repository.ScheduleRepository;
-import com.sarapis.orservice.repository.ServiceAtLocationRepository;
-import com.sarapis.orservice.repository.ServiceRepository;
-import org.springframework.stereotype.Service;
 
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.SCHEDULE_RESOURCE_TYPE;
+
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.ScheduleDTO;
+import com.sarapis.orservice.dto.ScheduleDTO.Request;
+import com.sarapis.orservice.dto.ScheduleDTO.Response;
+import com.sarapis.orservice.mapper.ScheduleMapper;
+import com.sarapis.orservice.model.Schedule;
+import com.sarapis.orservice.repository.ScheduleRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ScheduleServiceImpl implements ScheduleService {
-    private final ScheduleRepository scheduleRepository;
-    private final ServiceRepository serviceRepository;
-    private final LocationRepository locationRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
+  private final ScheduleRepository scheduleRepository;
+  private final ScheduleMapper scheduleMapper;
+  private final MetadataService metadataService;
 
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository,
-                               ServiceRepository serviceRepository,
-                               LocationRepository locationRepository,
-                               ServiceAtLocationRepository serviceAtLocationRepository,
-                               AttributeService attributeService,
-                               MetadataService metadataService) {
-        this.scheduleRepository = scheduleRepository;
-        this.serviceRepository = serviceRepository;
-        this.locationRepository = locationRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  @Override
+  @Transactional
+  public Response createSchedule(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
     }
+    Schedule schedule = scheduleMapper.toEntity(dto);
+    Schedule savedSchedule = scheduleRepository.save(schedule);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedSchedule.getId(),
+        SCHEDULE_RESOURCE_TYPE,
+        CREATE.name(),
+        "schedule",
+        EMPTY_PREVIOUS_VALUE,
+        scheduleMapper.toResponseDTO(savedSchedule).toString(),
+        "SYSTEM"
+    );
+    ScheduleDTO.Response response = scheduleMapper.toResponseDTO(savedSchedule);
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        savedSchedule.getId(), SCHEDULE_RESOURCE_TYPE
+    );
+    response.setMetadata(metadata);
+    return response;
+  }
 
-    @Override
-    public List<ScheduleDTO> getAllSchedules() {
-        List<ScheduleDTO> scheduleDTOs = this.scheduleRepository.findAll().stream().map(Schedule::toDTO).toList();
-        scheduleDTOs.forEach(this::addRelatedData);
-        return scheduleDTOs;
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getSchedulesByLocationId(String locationId) {
+    List<Schedule> schedules = scheduleRepository.findByLocationId(locationId);
+    List<ScheduleDTO.Response> sceduleDtos = schedules.stream().map(scheduleMapper::toResponseDTO).toList();
+    sceduleDtos = sceduleDtos.stream().peek(schedule -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          schedule.getId(), SCHEDULE_RESOURCE_TYPE
+      );
+      schedule.setMetadata(metadata);
+    }).toList();
+    return sceduleDtos;
+  }
 
-    @Override
-    public ScheduleDTO getScheduleById(String scheduleId) {
-        Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-        ScheduleDTO scheduleDTO = schedule.toDTO();
-        this.addRelatedData(scheduleDTO);
-        return scheduleDTO;
-    }
-
-    @Override
-    public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        com.sarapis.orservice.entity.core.Service service = null;
-        Location location = null;
-        ServiceAtLocation serviceAtLocation = null;
-
-        if (scheduleDTO.getServiceId() != null) {
-            service = this.serviceRepository.findById(scheduleDTO.getServiceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        }
-        if (scheduleDTO.getLocationId() != null) {
-            location = this.locationRepository.findById(scheduleDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        }
-        if (scheduleDTO.getServiceAtLocationId() != null) {
-            serviceAtLocation = this.serviceAtLocationRepository.findById(scheduleDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
-        }
-
-        Schedule schedule = this.scheduleRepository.save(scheduleDTO.toEntity(service, location, serviceAtLocation));
-        scheduleDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(schedule.getId(), attributeDTO));
-        scheduleDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(schedule.getId(), e));
-
-        Schedule createdSchedule = this.scheduleRepository.save(schedule);
-        return this.getScheduleById(createdSchedule.getId());
-    }
-
-    @Override
-    public ScheduleDTO updateSchedule(String scheduleId, ScheduleDTO scheduleDTO) {
-        Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-
-        schedule.setValidFrom(scheduleDTO.getValidFrom());
-        schedule.setValidTo(scheduleDTO.getValidTo());
-        schedule.setDtStart(schedule.getDtStart());
-        schedule.setTimezone(schedule.getTimezone());
-        schedule.setUntil(schedule.getUntil());
-        schedule.setCount(schedule.getCount());
-        schedule.setWkst(schedule.getWkst());
-        schedule.setFreq(schedule.getFreq());
-        schedule.setInterval(schedule.getInterval());
-        schedule.setByday(schedule.getByday());
-        schedule.setByweekno(schedule.getByweekno());
-        schedule.setBymonthday(schedule.getBymonthday());
-        schedule.setByyearday(schedule.getByyearday());
-        schedule.setDescription(schedule.getDescription());
-        schedule.setOpensAt(schedule.getOpensAt());
-        schedule.setClosesAt(schedule.getClosesAt());
-        schedule.setScheduleLink(schedule.getScheduleLink());
-        schedule.setAttendingType(schedule.getAttendingType());
-        schedule.setNotes(schedule.getNotes());
-
-        Schedule updatedSchedule = this.scheduleRepository.save(schedule);
-        return this.getScheduleById(updatedSchedule.getId());
-    }
-
-    @Override
-    public void deleteSchedule(String scheduleId) {
-        Schedule schedule = this.scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-        this.attributeService.deleteRelatedAttributes(schedule.getId());
-        this.metadataService.deleteRelatedMetadata(schedule.getId());
-        this.scheduleRepository.delete(schedule);
-    }
-
-    private void addRelatedData(ScheduleDTO scheduleDTO) {
-        scheduleDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(scheduleDTO.getId()));
-        scheduleDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(scheduleDTO.getId()));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getSchedulesByServiceAtLocationId(String serviceAtLocationId) {
+    List<Schedule> schedules = scheduleRepository.findByServiceAtLocationId(serviceAtLocationId);
+    List<ScheduleDTO.Response> sceduleDtos = schedules.stream().map(scheduleMapper::toResponseDTO).toList();
+    sceduleDtos = sceduleDtos.stream().peek(schedule -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          schedule.getId(), SCHEDULE_RESOURCE_TYPE
+      );
+      schedule.setMetadata(metadata);
+    }).toList();
+    return sceduleDtos;
+  }
 }

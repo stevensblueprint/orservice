@@ -1,74 +1,50 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO;
-import com.sarapis.orservice.entity.Taxonomy;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
+import com.sarapis.orservice.dto.TaxonomyDTO.Request;
+import com.sarapis.orservice.dto.TaxonomyDTO.Response;
+import com.sarapis.orservice.mapper.TaxonomyMapper;
+import com.sarapis.orservice.model.Taxonomy;
 import com.sarapis.orservice.repository.TaxonomyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sarapis.orservice.repository.TaxonomySpecifications;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TaxonomyServiceImpl implements TaxonomyService {
-    private final TaxonomyRepository taxonomyRepository;
-    private final MetadataService metadataService;
+@RequiredArgsConstructor
+public class TaxonomyServiceImpl implements  TaxonomyService {
 
-    @Autowired
-    public TaxonomyServiceImpl(TaxonomyRepository taxonomyRepository, MetadataService metadataService) {
-        this.taxonomyRepository = taxonomyRepository;
-        this.metadataService = metadataService;
+  private final TaxonomyRepository taxonomyRepository;
+  private final TaxonomyMapper taxonomyMapper;
+
+  @Override
+  @Transactional(readOnly = true)
+  public PaginationDTO<Response> getAllTaxonomies(String search, Integer page, Integer perPage, String format) {
+    Specification<Taxonomy> spec = Specification.where(null);
+    if (search != null && !search.isEmpty()) {
+      spec = spec.and(TaxonomySpecifications.hasSearchTerm(search));
     }
 
-    @Override
-    public List<TaxonomyDTO> getAllTaxonomies() {
-        List<TaxonomyDTO> taxonomyDTOs = this.taxonomyRepository.findAll()
-                .stream().map(Taxonomy::toDTO).toList();
-        taxonomyDTOs.forEach(this::addRelatedData);
-        return taxonomyDTOs;
-    }
+    PageRequest pageable = PageRequest.of(page, perPage);
+    Page<Taxonomy> taxonomyPage = taxonomyRepository.findAll(spec, pageable);
+    Page<TaxonomyDTO.Response> dtoPage = taxonomyPage.map(taxonomyMapper::toResponseDTO);
+    return PaginationDTO.fromPage(dtoPage);
+  }
 
-    @Override
-    public TaxonomyDTO getTaxonomyById(String taxonomyId) {
-        Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
-        TaxonomyDTO taxonomyDTO = taxonomy.toDTO();
-        this.addRelatedData(taxonomyDTO);
-        return taxonomyDTO;
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Response getTaxonomyById(String id) {
+    Taxonomy taxonomy = taxonomyRepository.findById(id).orElseThrow();
+    return taxonomyMapper.toResponseDTO(taxonomy);
+  }
 
-    @Override
-    public TaxonomyDTO createTaxonomy(TaxonomyDTO taxonomyDTO) {
-        Taxonomy taxonomy = taxonomyDTO.toEntity();
-        taxonomyDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(taxonomy.getId(), e));
-
-        Taxonomy createdTaxonomy = this.taxonomyRepository.save(taxonomy);
-        return this.getTaxonomyById(createdTaxonomy.getId());
-    }
-
-    @Override
-    public TaxonomyDTO updateTaxonomy(String taxonomyId, TaxonomyDTO taxonomyDTO) {
-        Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
-
-        taxonomy.setName(taxonomyDTO.getName());
-        taxonomy.setDescription(taxonomyDTO.getDescription());
-        taxonomy.setUri(taxonomyDTO.getUri());
-        taxonomy.setVersion(taxonomyDTO.getVersion());
-
-        Taxonomy updatedTaxonomy = this.taxonomyRepository.save(taxonomy);
-        return this.getTaxonomyById(updatedTaxonomy.getId());
-    }
-
-    @Override
-    public void deleteTaxonomy(String taxonomyId) {
-        Taxonomy taxonomy = this.taxonomyRepository.findById(taxonomyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Taxonomy not found."));
-        this.metadataService.deleteRelatedMetadata(taxonomy.getId());
-        this.taxonomyRepository.delete(taxonomy);
-    }
-
-    private void addRelatedData(TaxonomyDTO taxonomyDTO) {
-        taxonomyDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(taxonomyDTO.getId()));
-    }
+  @Override
+  public Response createTaxonomy(Request requestDto) {
+    return null;
+  }
 }

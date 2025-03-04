@@ -1,29 +1,45 @@
 package com.sarapis.orservice.dto;
 
-import lombok.*;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.model.Schedule;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Returned response for a service at location entity.
- * <a href="http://docs.openreferral.org/en/v3.1.1/hsds/schema_reference.html#service-at-location">Reference</a>
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ServiceAtLocationDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
     private String serviceId;
-    private String locationId;
     private String description;
-    private List<ServiceAreaDTO> serviceAreas = new ArrayList<>();
-    private List<ContactDTO> contacts = new ArrayList<>();
-    private List<PhoneDTO> phones = new ArrayList<>();
-    private List<ScheduleDTO> schedules = new ArrayList<>();
-    private LocationDTO location;
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
+    private List<ContactDTO.Request> contacts;
+    private List<PhoneDTO.Request> phones;
+    private List<ScheduleDTO.Request> schedules;
+  }
+
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    private String serviceId;
+    private String description;
+    private List<ContactDTO.Response> contacts;
+    private List<PhoneDTO.Response> phones;
+    private List<ScheduleDTO.Response> schedules;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }

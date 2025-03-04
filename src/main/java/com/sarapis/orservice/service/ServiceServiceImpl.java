@@ -1,246 +1,194 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.ServiceDTO;
-import com.sarapis.orservice.dto.upsert.UpsertCostOptionDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceAtLocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceCapacityDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
-import com.sarapis.orservice.entity.*;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AREA_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
 
+import com.sarapis.orservice.dto.ContactDTO;
+import com.sarapis.orservice.dto.CostOptionDTO;
+import com.sarapis.orservice.dto.FundingDTO;
+import com.sarapis.orservice.dto.LanguageDTO;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.dto.RequiredDocumentDTO;
+import com.sarapis.orservice.dto.ServiceAreaDTO;
+import com.sarapis.orservice.dto.ServiceDTO;
+import com.sarapis.orservice.dto.ServiceDTO.Request;
+import com.sarapis.orservice.dto.ServiceDTO.Response;
+import com.sarapis.orservice.mapper.ServiceMapper;
+import com.sarapis.orservice.model.Service;
+import com.sarapis.orservice.repository.ServiceRepository;
+import com.sarapis.orservice.repository.ServiceSpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@org.springframework.stereotype.Service
+@RequiredArgsConstructor
 public class ServiceServiceImpl implements ServiceService {
-    private final ServiceRepository serviceRepository;
-    private final OrganizationRepository organizationRepository;
-    private final UrlRepository urlRepository;
-    private final LanguageRepository languageRepository;
-    private final FundingRepository fundingRepository;
-    private final ProgramRepository programRepository;
-    private final RequiredDocumentRepository requiredDocumentRepository;
-    private final LocationRepository locationRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final PhoneRepository phoneRepository;
-    private final ContactRepository contactRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final ServiceAreaRepository serviceAreaRepository;
-    private final CostOptionRepository costOptionRepository;
-    private final ServiceCapacityRepository serviceCapacityRepository;
-    private final UnitRepository unitRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
+  private final ServiceRepository serviceRepository;
+  private final ServiceMapper serviceMapper;
+  private final PhoneService phoneService;
+  private final ServiceAreaService serviceAreaService;
+  private final LanguageService languageService;
+  private final FundingService fundingService;
+  private final CostOptionService costOptionService;
+  private final RequiredDocumentService requiredDocumentService;
+  private final ContactService contactService;
+  private final MetadataService metadataService;
 
-    @Autowired
-    public ServiceServiceImpl(ServiceRepository serviceRepository,
-                              OrganizationRepository organizationRepository,
-                              UrlRepository urlRepository,
-                              LanguageRepository languageRepository,
-                              FundingRepository fundingRepository,
-                              ProgramRepository programRepository,
-                              RequiredDocumentRepository requiredDocumentRepository,
-                              LocationRepository locationRepository,
-                              ServiceAtLocationRepository serviceAtLocationRepository,
-                              PhoneRepository phoneRepository,
-                              ContactRepository contactRepository,
-                              ScheduleRepository scheduleRepository,
-                              ServiceAreaRepository serviceAreaRepository,
-                              CostOptionRepository costOptionRepository,
-                              ServiceCapacityRepository serviceCapacityRepository,
-                              UnitRepository unitRepository,
-                              AttributeService attributeService,
-                              MetadataService metadataService) {
-        this.serviceRepository = serviceRepository;
-        this.organizationRepository = organizationRepository;
-        this.urlRepository = urlRepository;
-        this.languageRepository = languageRepository;
-        this.fundingRepository = fundingRepository;
-        this.programRepository = programRepository;
-        this.requiredDocumentRepository = requiredDocumentRepository;
-        this.locationRepository = locationRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.phoneRepository = phoneRepository;
-        this.contactRepository = contactRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.serviceAreaRepository = serviceAreaRepository;
-        this.costOptionRepository = costOptionRepository;
-        this.serviceCapacityRepository = serviceCapacityRepository;
-        this.unitRepository = unitRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  @Override
+  @Transactional(readOnly = true)
+  public PaginationDTO<Response> getAllServices(String search, Integer page, Integer perPage,
+      String format, String taxonomyTermId, String taxonomyId, String organizationId,
+      String modifiedAfter, Boolean minimal, Boolean full) {
+    Specification<Service> spec = Specification.where(null);
+
+    if (search != null && !search.isEmpty()) {
+      spec = spec.and(ServiceSpecifications.hasSearchTerm(search));
     }
 
-    @Override
-    public List<ServiceDTO> getAllServices() {
-        List<ServiceDTO> serviceDTOs = this.serviceRepository.findAll().stream()
-                .map(com.sarapis.orservice.entity.core.Service::toDTO).toList();
-        serviceDTOs.forEach(this::addRelatedData);
-        return serviceDTOs;
+    if (modifiedAfter != null && !modifiedAfter.isEmpty()) {
+      LocalDate modifiedDate = LocalDate.parse(modifiedAfter);
+      spec = spec.and(ServiceSpecifications.modifiedAfter(modifiedDate));
     }
 
-    @Override
-    public ServiceDTO getServiceById(String serviceId) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        ServiceDTO serviceDTO = service.toDTO();
-        this.addRelatedData(serviceDTO);
-        return serviceDTO;
+    PageRequest pageable = PageRequest.of(page, perPage);
+    Page<Service> servicePage = serviceRepository.findAll(spec, pageable);
+    Page<ServiceDTO.Response> dtoPage = servicePage.map(service -> {
+      ServiceDTO.Response response = serviceMapper.toResponseDTO(service);
+      response.setContacts(contactService.getContactsByServiceId(service.getId()));
+      response.setPhones(phoneService.getPhonesByServiceId(service.getId()));
+      response.setLanguages(languageService.getLanguagesByServiceId(service.getId()));
+      response.setFunding(fundingService.getFundingByServiceId(service.getId()));
+      response.setCostOptions(costOptionService.getCostOptionsByServiceId(service.getId()));
+      response.setRequiredDocuments(requiredDocumentService.getRequiredDocumentByServiceId(service.getId()));
+      response.setServiceAreas(serviceAreaService.getServiceAreasByServiceId(service.getId()));
+      response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(service.getId(), SERVICE_RESOURCE_TYPE));
+      return response;
+    });
+    return PaginationDTO.fromPage(dtoPage);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Response getServiceById(String id) {
+    Service service = serviceRepository.findById(id).orElseThrow();
+    Response response = serviceMapper.toResponseDTO(service);
+    response.setContacts(contactService.getContactsByServiceId(id));
+    response.setPhones(phoneService.getPhonesByServiceId(id));
+    response.setLanguages(languageService.getLanguagesByServiceId(id));
+    response.setFunding(fundingService.getFundingByServiceId(id));
+    response.setCostOptions(costOptionService.getCostOptionsByServiceId(id));
+    response.setRequiredDocuments(requiredDocumentService.getRequiredDocumentByServiceId(id));
+    response.setServiceAreas(serviceAreaService.getServiceAreasByServiceId(id));
+    response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(id, SERVICE_RESOURCE_TYPE));
+    return response;
+  }
+
+  @Override
+  @Transactional
+  public Response createService(Request requestDto) {
+    if (requestDto.getId() == null || requestDto.getId().trim().isEmpty()) {
+      requestDto.setId(UUID.randomUUID().toString());
+    }
+    Service service = serviceMapper.toEntity(requestDto);
+    Service savedService = serviceRepository.save(service);
+
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedService.getId(),
+        SERVICE_AREA_RESOURCE_TYPE,
+        CREATE.name(),
+        "service",
+        EMPTY_PREVIOUS_VALUE,
+        service.getName(),
+        "SYSTEM"
+    );
+
+    List<ContactDTO.Response> savedContacts = new ArrayList<>();
+    if (requestDto.getContacts() != null) {
+      for (ContactDTO.Request contactRequest : requestDto.getContacts()) {
+        contactRequest.setServiceId(requestDto.getId());
+        ContactDTO.Response contactResponse = contactService.createContact(contactRequest);
+        savedContacts.add(contactResponse);
+      }
     }
 
-    @Override
-    public ServiceDTO createService(UpsertServiceDTO upsertServiceDTO) {
-        com.sarapis.orservice.entity.core.Service service = upsertServiceDTO.create();
-
-        Organization organization = this.organizationRepository.findById(upsertServiceDTO.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-        service.setOrganization(organization);
-
-        com.sarapis.orservice.entity.core.Service createdService = this.serviceRepository.save(service);
-
-        createdService.setAdditionalUrls(new ArrayList<>());
-        for (String id : upsertServiceDTO.getAdditionalUrls()) {
-            Url url = this.urlRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Url not found."));
-            url.setOrganization(organization);
-            this.urlRepository.save(url);
-            createdService.getAdditionalUrls().add(url);
-        }
-
-        createdService.setLanguages(new ArrayList<>());
-        for (String id : upsertServiceDTO.getLanguages()) {
-            Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
-            language.setService(createdService);
-            this.languageRepository.save(language);
-            createdService.getLanguages().add(language);
-        }
-
-        createdService.setFunding(new ArrayList<>());
-        for (String id : upsertServiceDTO.getFundings()) {
-            Funding funding = this.fundingRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Funding not found."));
-            funding.setService(createdService);
-            this.fundingRepository.save(funding);
-            createdService.getFunding().add(funding);
-        }
-
-        if (upsertServiceDTO.getProgramId() != null) {
-            Program program = this.programRepository.findById(upsertServiceDTO.getProgramId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Program not found."));
-            program.getServices().add(createdService);
-            this.programRepository.save(program);
-            createdService.setProgram(program);
-        }
-
-        createdService.setRequiredDocuments(new ArrayList<>());
-        for (String id : upsertServiceDTO.getRequiredDocuments()) {
-            RequiredDocument requiredDocument = this.requiredDocumentRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Required document not found."));
-            requiredDocument.setService(createdService);
-            this.requiredDocumentRepository.save(requiredDocument);
-            createdService.getRequiredDocuments().add(requiredDocument);
-        }
-
-        createdService.setServiceAtLocations(new ArrayList<>());
-        for (String id : upsertServiceDTO.getLocations()) {
-            Location location = this.locationRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-            ServiceAtLocation serviceAtLocation = UpsertServiceAtLocationDTO.create(createdService, location);
-            ServiceAtLocation createdServiceAtLocation = this.serviceAtLocationRepository.save(serviceAtLocation);
-            location.getServiceAtLocations().add(createdServiceAtLocation);
-            this.locationRepository.save(location);
-            createdService.getServiceAtLocations().add(createdServiceAtLocation);
-        }
-
-        createdService.setPhones(new ArrayList<>());
-        for (String id : upsertServiceDTO.getPhones()) {
-            Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-            phone.setService(createdService);
-            this.phoneRepository.save(phone);
-            createdService.getPhones().add(phone);
-        }
-
-        createdService.setContacts(new ArrayList<>());
-        for (String id : upsertServiceDTO.getContacts()) {
-            Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-            contact.setService(createdService);
-            this.contactRepository.save(contact);
-            createdService.getContacts().add(contact);
-        }
-
-        createdService.setSchedules(new ArrayList<>());
-        for (String id : upsertServiceDTO.getSchedules()) {
-            Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-            schedule.setService(createdService);
-            this.scheduleRepository.save(schedule);
-            createdService.getSchedules().add(schedule);
-        }
-
-        createdService.setServiceAreas(new ArrayList<>());
-        for (String id : upsertServiceDTO.getServiceAreas()) {
-            ServiceArea serviceArea = this.serviceAreaRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Service area not found."));
-            serviceArea.setService(createdService);
-            this.serviceAreaRepository.save(serviceArea);
-            createdService.getServiceAreas().add(serviceArea);
-        }
-
-        createdService.setCostOptions(new ArrayList<>());
-        for (UpsertCostOptionDTO dto : upsertServiceDTO.getCostOptions()) {
-            CostOption costOption = dto.create();
-            costOption.setService(createdService);
-            CostOption createdCostOption = this.costOptionRepository.save(costOption);
-            createdService.getCostOptions().add(createdCostOption);
-        }
-
-        createdService.setCapacities(new ArrayList<>());
-        for (UpsertServiceCapacityDTO dto : upsertServiceDTO.getServiceCapacities()) {
-            Unit unit = this.unitRepository.findById(dto.getUnitId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Unit not found."));
-            ServiceCapacity serviceCapacity = dto.create();
-            serviceCapacity.setService(createdService);
-            serviceCapacity.setUnit(unit);
-            unit.getServiceCapacities().add(serviceCapacity);
-            this.unitRepository.save(unit);
-            this.serviceCapacityRepository.save(serviceCapacity);
-            createdService.getCapacities().add(serviceCapacity);
-        }
-
-        this.serviceRepository.save(createdService);
-        return this.getServiceById(createdService.getId());
+    List<PhoneDTO.Response> savedPhones = new ArrayList<>();
+    if (requestDto.getPhones() != null) {
+      for (PhoneDTO.Request phoneRequest : requestDto.getPhones()) {
+        phoneRequest.setServiceId(requestDto.getId());
+        PhoneDTO.Response phoneResponse = phoneService.createPhone(phoneRequest);
+        savedPhones.add(phoneResponse);
+      }
     }
 
-    @Override
-    public ServiceDTO updateService(String serviceId, ServiceDTO serviceDTO) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-
-        com.sarapis.orservice.entity.core.Service updatedService = this.serviceRepository.save(service);
-        return this.getServiceById(updatedService.getId());
+    List<LanguageDTO.Response> savedLanguages = new ArrayList<>();
+    if (requestDto.getLanguages() != null) {
+      for (LanguageDTO.Request languageRequest : requestDto.getLanguages()) {
+        languageRequest.setServiceId(requestDto.getId());
+        LanguageDTO.Response languageResponse = languageService.createLanguage(languageRequest);
+        savedLanguages.add(languageResponse);
+      }
     }
 
-    @Override
-    public void deleteService(String serviceId) {
-        com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        this.attributeService.deleteRelatedAttributes(service.getId());
-        this.metadataService.deleteRelatedMetadata(service.getId());
-        this.serviceRepository.delete(service);
+    List<FundingDTO.Response> savedFunding = new ArrayList<>();
+    if (requestDto.getFunding()!= null) {
+      for (FundingDTO.Request fundingRequest : requestDto.getFunding()) {
+        fundingRequest.setServiceId(requestDto.getId());
+        FundingDTO.Response fundingResponse = fundingService.createFunding(fundingRequest);
+        savedFunding.add(fundingResponse);
+      }
     }
 
-    private void addRelatedData(ServiceDTO serviceDTO) {
-        serviceDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(serviceDTO.getId()));
-        serviceDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(serviceDTO.getId()));
+    List<CostOptionDTO.Response> savedCostOptions = new ArrayList<>();
+    if (requestDto.getCostOptions()!= null) {
+      for (CostOptionDTO.Request costOptionRequest : requestDto.getCostOptions()) {
+        costOptionRequest.setServiceId(requestDto.getId());
+        CostOptionDTO.Response costOptionResponse = costOptionService.createCostOption(costOptionRequest);
+        savedCostOptions.add(costOptionResponse);
+      }
     }
+
+    List<RequiredDocumentDTO.Response> savedDocuments = new ArrayList<RequiredDocumentDTO.Response>();
+    if (requestDto.getRequiredDocuments()!= null) {
+      for (RequiredDocumentDTO.Request requiredDocumentRequest : requestDto.getRequiredDocuments()) {
+        requiredDocumentRequest.setServiceId(requestDto.getId());
+        RequiredDocumentDTO.Response requiredDocumentResponse = requiredDocumentService.createRequiredDocument(requiredDocumentRequest);
+        savedDocuments.add(requiredDocumentResponse);
+      }
+    }
+
+    List<ServiceAreaDTO.Response> savedServiceAreas = new ArrayList<>();
+    if (requestDto.getServiceAreas()!= null) {
+      for (ServiceAreaDTO.Request serviceAreaRequest : requestDto.getServiceAreas()) {
+        serviceAreaRequest.setServiceId(requestDto.getId());
+        ServiceAreaDTO.Response serviceAreaResponse = serviceAreaService.createServiceArea(serviceAreaRequest);
+        savedServiceAreas.add(serviceAreaResponse);
+      }
+    }
+
+    List<MetadataDTO.Response> metadata =
+        metadataService.getMetadataByResourceIdAndResourceType(requestDto.getId(), SERVICE_RESOURCE_TYPE);
+    Response response = serviceMapper.toResponseDTO(savedService);
+    response.setContacts(savedContacts);
+    response.setPhones(savedPhones);
+    response.setLanguages(savedLanguages);
+    response.setFunding(savedFunding);
+    response.setCostOptions(savedCostOptions);
+    response.setRequiredDocuments(savedDocuments);
+    response.setServiceAreas(savedServiceAreas);
+    response.setMetadata(metadata);
+    return serviceMapper.toResponseDTO(savedService);
+  }
 }

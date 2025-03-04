@@ -1,94 +1,68 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.AccessibilityDTO;
-import com.sarapis.orservice.entity.Accessibility;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.AccessibilityRepository;
-import com.sarapis.orservice.repository.LocationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.ACCESSIBILITY_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
 
+import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.dto.AccessibilityDTO.Request;
+import com.sarapis.orservice.dto.AccessibilityDTO.Response;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.mapper.AccessibilityMapper;
+import com.sarapis.orservice.model.Accessibility;
+import com.sarapis.orservice.repository.AccessibilityRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AccessibilityServiceImpl implements AccessibilityService {
-    private final AccessibilityRepository accessibilityRepository;
-    private final LocationRepository locationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
-    @Autowired
-    public AccessibilityServiceImpl(AccessibilityRepository accessibilityRepository,
-                                    LocationRepository locationRepository,
-                                    AttributeService attributeService,
-                                    MetadataService metadataService) {
-        this.accessibilityRepository = accessibilityRepository;
-        this.locationRepository = locationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  private final AccessibilityRepository accessibilityRepository;
+  private final AccessibilityMapper accessibilityMapper;
+  private final MetadataService metadataService;
+
+  @Override
+  @Transactional
+  public Response createAccessibility(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
     }
+    Accessibility accessibility = accessibilityMapper.toEntity(dto);
+    Accessibility savedAccessibility = accessibilityRepository.save(accessibility);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedAccessibility.getId(),
+        ACCESSIBILITY_RESOURCE_TYPE,
+        CREATE.name(),
+        "accessibility",
+        EMPTY_PREVIOUS_VALUE,
+        accessibilityMapper.toResponseDTO(savedAccessibility).toString(),
+        "SYSTEM"
+    );
+    AccessibilityDTO.Response response = accessibilityMapper.toResponseDTO(savedAccessibility);
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        savedAccessibility.getId(), ACCESSIBILITY_RESOURCE_TYPE
+    );
+    response.setMetadata(metadata);
+    return response;
+  }
 
-    @Override
-    public List<AccessibilityDTO> getAllAccessibilities() {
-        List<AccessibilityDTO> accessibilityDTOs = this.accessibilityRepository.findAll()
-                .stream().map(Accessibility::toDTO).toList();
-        accessibilityDTOs.forEach(this::addRelatedData);
-        return accessibilityDTOs;
-    }
-
-    @Override
-    public AccessibilityDTO getAccessibilityById(String accessibilityId) {
-        Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
-        AccessibilityDTO accessibilityDTO = accessibility.toDTO();
-        this.addRelatedData(accessibilityDTO);
-        return accessibilityDTO;
-    }
-
-    @Override
-    public AccessibilityDTO createAccessibility(AccessibilityDTO accessibilityDTO) {
-        Location location = null;
-
-        if (accessibilityDTO.getLocationId() != null) {
-            location = this.locationRepository.findById(accessibilityDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        }
-
-        Accessibility accessibility = this.accessibilityRepository.save(accessibilityDTO.toEntity(location));
-        accessibilityDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(accessibility.getId(), attributeDTO));
-        accessibilityDTO.getMetadata()
-                .forEach(e -> this.metadataService.createMetadata(accessibility.getId(), e));
-
-        Accessibility createdAccessibility = this.accessibilityRepository.save(accessibility);
-        return this.getAccessibilityById(createdAccessibility.getId());
-    }
-
-    @Override
-    public AccessibilityDTO updateAccessibility(String accessibilityId, AccessibilityDTO accessibilityDTO) {
-        Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
-
-        accessibility.setDescription(accessibilityDTO.getDescription());
-        accessibility.setDetails(accessibilityDTO.getDetails());
-        accessibility.setUrl(accessibilityDTO.getUrl());
-
-        Accessibility updatedAccessibility = this.accessibilityRepository.save(accessibility);
-        return this.getAccessibilityById(updatedAccessibility.getId());
-    }
-
-    @Override
-    public void deleteAccessibility(String accessibilityId) {
-        Accessibility accessibility = this.accessibilityRepository.findById(accessibilityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
-        this.attributeService.deleteRelatedAttributes(accessibility.getId());
-        this.metadataService.deleteRelatedMetadata(accessibility.getId());
-        this.accessibilityRepository.delete(accessibility);
-    }
-
-    private void addRelatedData(AccessibilityDTO accessibilityDTO) {
-        accessibilityDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(accessibilityDTO.getId()));
-        accessibilityDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(accessibilityDTO.getId()));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getAccessibilityByLocationId(String locationId) {
+    List<Accessibility> accessibilityList = accessibilityRepository.findByLocationId(locationId);
+    List<AccessibilityDTO.Response> accessibilityDtos = accessibilityList.stream().map(accessibilityMapper::toResponseDTO).toList();
+    accessibilityDtos = accessibilityDtos.stream().peek(accessibility -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          accessibility.getId(), ACCESSIBILITY_RESOURCE_TYPE
+      );
+      accessibility.setMetadata(metadata);
+    }).toList();
+    return accessibilityDtos;
+  }
 }

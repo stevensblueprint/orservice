@@ -1,22 +1,20 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertOrganizationDTO;
-
-import java.io.ByteArrayInputStream;
-import java.util.List;
+import com.sarapis.orservice.dto.PaginationDTO;
 
 public interface OrganizationService {
-    List<OrganizationDTO> getAllOrganizations();
+  PaginationDTO<OrganizationDTO.Response> getAllOrganizations(
+      String search,
+      Boolean full_service,
+      Boolean full,
+      String taxonomyTerm,
+      String taxonomyId,
+      Integer page,
+      Integer perPage,
+      String format
+  );
 
-    OrganizationDTO getOrganizationById(String organizationId);
-
-    OrganizationDTO createOrganization(UpsertOrganizationDTO upsertOrganizationDTO);
-
-    OrganizationDTO updateOrganization(String organizationId, OrganizationDTO organizationDTO);
-
-    void deleteOrganization(String organizationId);
-
-    ByteArrayInputStream loadCSV();
-
+  OrganizationDTO.Response getOrganizationById(String id);
+  OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto);
 }

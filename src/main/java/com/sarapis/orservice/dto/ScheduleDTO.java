@@ -1,78 +1,83 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Freq;
-import com.sarapis.orservice.entity.Schedule;
-import com.sarapis.orservice.entity.WkSt;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import lombok.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.dto.MetadataDTO.Response;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ScheduleDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
     private String serviceId;
     private String locationId;
     private String serviceAtLocationId;
-
-    private LocalDate validFrom;
-    private LocalDate validTo;
-    private LocalDate dtStart;
-    private int timezone;
-    private LocalDate until;
-    private int count;
-    private WkSt wkst;
-    private Freq freq;
-    private int interval;
-    private String byday;
-    private String byweekno;
-    private String bymonthday;
-    private String byyearday;
+    private String validFrom;
+    private String validTo;
+    private String dtStart;
+    private Integer timezone;
+    private String until;
+    private Integer count;
+    private String wkSt;
+    private String freq;
+    private Integer interval;
+    private String byDay;
+    private String byWeekNo;
+    private String byMonthDay;
+    private String byYearDay;
     private String description;
-    private LocalTime opensAt;
-    private LocalTime closesAt;
+    private String opensAt;
+    private String closesAt;
     private String scheduleLink;
     private String attendingType;
     private String notes;
+  }
 
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Schedule toEntity(Service service, Location location, ServiceAtLocation serviceAtLocation) {
-        return Schedule.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .service(service)
-                .location(location)
-                .serviceAtLocation(serviceAtLocation)
-                .validFrom(this.validFrom)
-                .validTo(this.validTo)
-                .dtStart(this.dtStart)
-                .timezone(this.timezone).until(this.until)
-                .count(this.count)
-                .wkst(this.wkst)
-                .freq(this.freq)
-                .interval(this.interval)
-                .byday(this.byday)
-                .byweekno(this.byweekno)
-                .bymonthday(this.bymonthday)
-                .byyearday(this.byyearday)
-                .description(this.description)
-                .opensAt(this.opensAt)
-                .closesAt(this.closesAt)
-                .scheduleLink(this.scheduleLink)
-                .attendingType(this.attendingType)
-                .notes(this.notes)
-                .build();
-    }
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    @JsonIgnore
+    private String serviceId;
+    @JsonIgnore
+    private String locationId;
+    @JsonIgnore
+    private String serviceAtLocationId;
+    private String validFrom;
+    private String validTo;
+    private String dtStart;
+    private Integer timezone;
+    private String until;
+    private Integer count;
+    private String wkSt;
+    private String freq;
+    private Integer interval;
+    private String byDay;
+    private String byWeekNo;
+    private String byMonthDay;
+    private String byYearDay;
+    private String description;
+    private String opensAt;
+    private String closesAt;
+    private String scheduleLink;
+    private String attendingType;
+    private String notes;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }

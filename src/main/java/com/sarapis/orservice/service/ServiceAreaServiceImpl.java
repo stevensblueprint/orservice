@@ -1,105 +1,67 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.ServiceAreaDTO;
-import com.sarapis.orservice.entity.ServiceArea;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.ServiceAreaRepository;
-import com.sarapis.orservice.repository.ServiceAtLocationRepository;
-import com.sarapis.orservice.repository.ServiceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AREA_RESOURCE_TYPE;
 
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.ServiceAreaDTO;
+import com.sarapis.orservice.dto.ServiceAreaDTO.Request;
+import com.sarapis.orservice.dto.ServiceAreaDTO.Response;
+import com.sarapis.orservice.mapper.ServiceAreaMapper;
+import com.sarapis.orservice.model.ServiceArea;
+import com.sarapis.orservice.repository.ServiceAreaRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ServiceAreaServiceImpl implements ServiceAreaService {
-    private final ServiceAreaRepository serviceAreaRepository;
-    private final ServiceRepository serviceRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
+@RequiredArgsConstructor
+public class ServiceAreaServiceImpl implements ServiceAreaService{
+  private final ServiceAreaRepository serviceAreaRepository;
+  private final ServiceAreaMapper serviceAreaMapper;
+  private final MetadataService metadataService;
 
-    @Autowired
-    public ServiceAreaServiceImpl(ServiceAreaRepository serviceAreaRepository,
-                                  ServiceRepository serviceRepository,
-                                  ServiceAtLocationRepository serviceAtLocationRepository,
-                                  AttributeService attributeService,
-                                  MetadataService metadataService) {
-        this.serviceAreaRepository = serviceAreaRepository;
-        this.serviceRepository = serviceRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  @Override
+  @Transactional
+  public Response createServiceArea(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
     }
+    ServiceArea area = serviceAreaMapper.toEntity(dto);
+    ServiceArea savedArea = serviceAreaRepository.save(area);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedArea.getId(),
+        SERVICE_AREA_RESOURCE_TYPE,
+        CREATE.name(),
+        "service_area",
+        EMPTY_PREVIOUS_VALUE,
+        dto.getName(),
+        "SYSTEM"
+    );
+    ServiceAreaDTO.Response response = serviceAreaMapper.toResponseDTO(savedArea);
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        savedArea.getId(), SERVICE_AREA_RESOURCE_TYPE
+    );
+    response.setMetadata(metadata);
+    return response;
+  }
 
-    @Override
-    public List<ServiceAreaDTO> getAllServiceAreas() {
-        List<ServiceAreaDTO> serviceAreaDTOs = this.serviceAreaRepository.findAll().stream().map(ServiceArea::toDTO)
-                .toList();
-        serviceAreaDTOs.forEach(this::addRelatedData);
-        return serviceAreaDTOs;
-    }
-
-    @Override
-    public ServiceAreaDTO getServiceAreaById(String serviceAreaId) {
-        ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Service area not found."));
-        ServiceAreaDTO serviceAreaDTO = serviceArea.toDTO();
-        this.addRelatedData(serviceAreaDTO);
-        return serviceAreaDTO;
-    }
-
-    @Override
-    public ServiceAreaDTO createServiceArea(ServiceAreaDTO serviceAreaDTO) {
-        com.sarapis.orservice.entity.core.Service service = null;
-        ServiceAtLocation serviceAtLocation = null;
-
-        if (serviceAreaDTO.getServiceId() != null) {
-            service = this.serviceRepository.findById(serviceAreaDTO.getServiceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        }
-        if (serviceAreaDTO.getServiceAtLocationId() != null) {
-            serviceAtLocation = this.serviceAtLocationRepository.findById(serviceAreaDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service atlocation not found."));
-        }
-
-        ServiceArea serviceArea = this.serviceAreaRepository.save(serviceAreaDTO.toEntity(service, serviceAtLocation));
-        serviceAreaDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(serviceArea.getId(), attributeDTO));
-        serviceAreaDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(serviceArea.getId(), e));
-
-        ServiceArea createdServiceArea = this.serviceAreaRepository.save(serviceArea);
-        return this.getServiceAreaById(createdServiceArea.getId());
-    }
-
-    @Override
-    public ServiceAreaDTO updateServiceArea(String serviceAreaId, ServiceAreaDTO serviceAreaDTO) {
-        ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new ResourceNotFoundException("ServiceArea not found"));
-
-        serviceArea.setId(serviceAreaDTO.getId());
-        serviceArea.setName(serviceAreaDTO.getName());
-        serviceArea.setDescription(serviceAreaDTO.getDescription());
-        serviceArea.setExtent(serviceAreaDTO.getExtent());
-        serviceArea.setExtentType(serviceAreaDTO.getExtentType());
-        serviceArea.setUri(serviceAreaDTO.getUri());
-
-        ServiceArea updatedServiceArea = this.serviceAreaRepository.save(serviceArea);
-        return this.getServiceAreaById(updatedServiceArea.getId());
-    }
-
-    @Override
-    public void deleteServiceArea(String serviceAreaId) {
-        ServiceArea serviceArea = this.serviceAreaRepository.findById(serviceAreaId)
-                .orElseThrow(() -> new ResourceNotFoundException("ServiceArea not found"));
-        this.attributeService.deleteRelatedAttributes(serviceArea.getId());
-        this.metadataService.deleteRelatedMetadata(serviceArea.getId());
-        this.serviceAreaRepository.delete(serviceArea);
-    }
-
-    private void addRelatedData(ServiceAreaDTO serviceAreaDTO) {
-        serviceAreaDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(serviceAreaDTO.getId()));
-        serviceAreaDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(serviceAreaDTO.getId()));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getServiceAreasByServiceId(String serviceId) {
+    List<ServiceArea> areas = serviceAreaRepository.findServiceAreaByServiceId(serviceId);
+    List<ServiceAreaDTO.Response> response = areas.stream().map(serviceAreaMapper::toResponseDTO).toList();
+    response = response.stream().peek(area -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          area.getId(), SERVICE_AREA_RESOURCE_TYPE
+      );
+      area.setMetadata(metadata);
+    }).toList();
+    return response;
+  }
 }

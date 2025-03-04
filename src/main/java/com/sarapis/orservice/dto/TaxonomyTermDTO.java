@@ -1,45 +1,50 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Attribute;
-import com.sarapis.orservice.entity.TaxonomyTerm;
-import lombok.*;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.UUID;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class TaxonomyTermDTO {
+
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
+    @NotBlank(message = "Code is required")
+    private String code;
+    @NotBlank(message = "Name is required")
+    private String name;
+    private String vocabulary;
     private String parentId;
+    private String description;
+  }
 
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
     private String code;
     private String name;
     private String description;
-    private String taxonomy;
+    private String parentId;
     private String language;
     private String termUri;
-
-    private TaxonomyDTO taxonomyDetail;
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public TaxonomyTerm toEntity(TaxonomyTerm parent) {
-        TaxonomyTerm taxonomyTerm = TaxonomyTerm.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .parent(parent)
-                .code(this.code)
-                .name(this.name)
-                .description(this.description)
-                .taxonomy(this.taxonomy)
-                .language(this.language)
-                .termUri(this.termUri)
-                .build();
-        taxonomyTerm.setTaxonomyDetail(this.taxonomyDetail == null ? null : this.taxonomyDetail.toEntity());
-        return taxonomyTerm;
-    }
+    private List<MetadataDTO.Response> metadata;
+  }
 }

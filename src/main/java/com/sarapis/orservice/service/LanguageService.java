@@ -1,17 +1,11 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.LanguageDTO;
-
 import java.util.List;
 
 public interface LanguageService {
-    List<LanguageDTO> getAllLanguages();
-
-    LanguageDTO getLanguageById(String languageId);
-
-    LanguageDTO createLanguage(LanguageDTO languageDTO);
-
-    LanguageDTO updateLanguage(String languageId, LanguageDTO languageDTO);
-
-    void deleteLanguage(String languageId);
+  LanguageDTO.Response createLanguage(LanguageDTO.Request request);
+  List<LanguageDTO.Response> getLanguagesByPhoneId(String phoneId);
+  List<LanguageDTO.Response> getLanguagesByLocationId(String locationId);
+  List<LanguageDTO.Response> getLanguagesByServiceId(String serviceId);
 }

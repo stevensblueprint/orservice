@@ -1,50 +1,63 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Address;
-import com.sarapis.orservice.entity.AddressType;
-import com.sarapis.orservice.entity.core.Location;
-import lombok.*;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
-import java.util.UUID;
+import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class AddressDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
     private String locationId;
-
     private String attention;
-    private String address_1;
-    private String address_2;
+    @NotBlank
+    private String address1;
+    private String address2;
+    @NotBlank
+    private String city;
+    private String region;
+    @NotBlank
+    private String stateProvince;
+    @NotBlank
+    private String postalCode;
+    @NotBlank
+    private String country;
+    @NotBlank
+    private String addressType;
+  }
+
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    @JsonIgnore
+    private String locationId;
+    private String attention;
+    private String address1;
+    private String address2;
     private String city;
     private String region;
     private String stateProvince;
     private String postalCode;
     private String country;
-    private AddressType addressType;
-
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Address toEntity(Location location) {
-        return Address.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .location(location)
-                .attention(this.attention)
-                .address_1(this.address_1)
-                .address_2(this.address_2)
-                .city(this.city)
-                .region(this.region)
-                .stateProvince(this.stateProvince)
-                .postalCode(this.postalCode)
-                .country(this.country)
-                .addressType(this.addressType)
-                .build();
-    }
+    private String addressType;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }

@@ -1,17 +1,13 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PhoneDTO;
-
 import java.util.List;
 
 public interface PhoneService {
-    List<PhoneDTO> getAllPhones();
-
-    PhoneDTO getPhoneById(String phoneId);
-
-    PhoneDTO createPhone(PhoneDTO phoneDTO);
-
-    PhoneDTO updatePhone(String phoneId, PhoneDTO phoneDTO);
-
-    void deletePhone(String phoneId);
+  PhoneDTO.Response createPhone(PhoneDTO.Request dto);
+  List<PhoneDTO.Response> getPhonesByOrganizationId(String organizationId);
+  List<PhoneDTO.Response> getPhonesByContactId(String contactId);
+  List<PhoneDTO.Response> getPhonesByLocationId(String locationId);
+  List<PhoneDTO.Response> getPhonesByServiceId(String serviceId);
+  List<PhoneDTO.Response> getPhonesByServiceAtLocationId(String serviceAtLocationId);
 }

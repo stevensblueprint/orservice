@@ -1,127 +1,142 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.PhoneDTO;
-import com.sarapis.orservice.entity.Contact;
-import com.sarapis.orservice.entity.Phone;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
 
+import com.sarapis.orservice.dto.LanguageDTO;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.dto.PhoneDTO.Request;
+import com.sarapis.orservice.dto.PhoneDTO.Response;
+import com.sarapis.orservice.mapper.PhoneMapper;
+import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class PhoneServiceImpl implements PhoneService {
-    private final PhoneRepository phoneRepository;
-    private final LocationRepository locationRepository;
-    private final ServiceRepository serviceRepository;
-    private final OrganizationRepository organizationRepository;
-    private final ContactRepository contactRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
-    @Autowired
-    public PhoneServiceImpl(PhoneRepository phoneRepository,
-                            LocationRepository locationRepository,
-                            ServiceRepository serviceRepository,
-                            OrganizationRepository organizationRepository,
-                            ContactRepository contactRepository,
-                            ServiceAtLocationRepository serviceAtLocationRepository,
-                            AttributeService attributeService,
-                            MetadataService metadataService) {
-        this.phoneRepository = phoneRepository;
-        this.locationRepository = locationRepository;
-        this.serviceRepository = serviceRepository;
-        this.organizationRepository = organizationRepository;
-        this.contactRepository = contactRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  private final PhoneMapper phoneMapper;
+  private final PhoneRepository phoneRepository;
+  private final LanguageService languageService;
+  private final MetadataService metadataService;
+
+  @Override
+  @Transactional
+  public Response createPhone(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
+    }
+    Phone phone = phoneMapper.toEntity(dto);
+    Phone savedPhone = phoneRepository.save(phone);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedPhone.getId(),
+        PHONE_RESOURCE_TYPE,
+        "CREATE",
+        "phone_number",
+        EMPTY_PREVIOUS_VALUE,
+        dto.getNumber(),
+        "SYSTEM"
+    );
+    PhoneDTO.Response response = phoneMapper.toResponseDTO(savedPhone);
+
+    List<LanguageDTO.Response> savedLanguages = new ArrayList<>();
+    if (dto.getLanguages() != null) {
+      for (LanguageDTO.Request languageDTO : dto.getLanguages()) {
+        languageDTO.setPhoneId(savedPhone.getId());
+        LanguageDTO.Response savedLanguage = languageService.createLanguage(languageDTO);
+        savedLanguages.add(savedLanguage);
+      }
     }
 
-    @Override
-    public List<PhoneDTO> getAllPhones() {
-        List<PhoneDTO> phoneDTOs = this.phoneRepository.findAll()
-                .stream().map(Phone::toDTO).toList();
-        phoneDTOs.forEach(this::addRelatedData);
-        return phoneDTOs;
-    }
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        savedPhone.getId(), PHONE_RESOURCE_TYPE
+    );
+    response.setMetadata(metadata);
+    response.setLanguages(savedLanguages);
+    return response;
+  }
 
-    @Override
-    public PhoneDTO getPhoneById(String phoneId) {
-        Phone phone = this.phoneRepository.findById(phoneId)
-                .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-        PhoneDTO phoneDTO = phone.toDTO();
-        this.addRelatedData(phoneDTO);
-        return phoneDTO;
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByOrganizationId(String organizationId) {
+    List<Phone> phones = phoneRepository.findByOrganizationId(organizationId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 
-    @Override
-    public PhoneDTO createPhone(PhoneDTO phoneDTO) {
-        Location location = null;
-        com.sarapis.orservice.entity.core.Service service = null;
-        Organization organization = null;
-        Contact contact = null;
-        ServiceAtLocation serviceAtLocation = null;
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByContactId(String contactId) {
+    List<Phone> phones = phoneRepository.findByContactId(contactId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 
-        if (phoneDTO.getLocationId() != null) {
-            location = this.locationRepository.findById(phoneDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        }
-        if (phoneDTO.getServiceId() != null) {
-            service = this.serviceRepository.findById(phoneDTO.getServiceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-        }
-        if (phoneDTO.getOrganizationId() != null) {
-            organization = this.organizationRepository.findById(phoneDTO.getOrganizationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-        }
-        if (phoneDTO.getContactId() != null) {
-            contact = this.contactRepository.findById(phoneDTO.getContactId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-        }
-        if (phoneDTO.getServiceAtLocationId() != null) {
-            serviceAtLocation = this.serviceAtLocationRepository.findById(phoneDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
-        }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByLocationId(String locationId) {
+    List<Phone> phones = phoneRepository.findByLocationId(locationId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 
-        Phone phone = this.phoneRepository.save(phoneDTO.toEntity(location, service, organization, contact, serviceAtLocation));
-        phoneDTO.getAttributes()
-                .forEach(attributeDTO -> this.attributeService.createAttribute(phone.getId(), attributeDTO));
-        phoneDTO.getMetadata().forEach(e -> this.metadataService.createMetadata(phone.getId(), e));
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByServiceId(String serviceId) {
+    List<Phone> phones = phoneRepository.findByServiceId(serviceId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 
-        Phone createdPhone = this.phoneRepository.save(phone);
-        return this.getPhoneById(createdPhone.getId());
-    }
-
-    @Override
-    public PhoneDTO updatePhone(String phoneId, PhoneDTO phoneDTO) {
-        Phone oldPhone = this.phoneRepository.findById(phoneId).orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-
-        oldPhone.setNumber(phoneDTO.getNumber());
-        oldPhone.setExtension(phoneDTO.getExtension());
-        oldPhone.setType(phoneDTO.getType());
-        oldPhone.setDescription(phoneDTO.getDescription());
-
-        Phone updatedPhone = this.phoneRepository.save(oldPhone);
-        return this.getPhoneById(updatedPhone.getId());
-    }
-
-    @Override
-    public void deletePhone(String phoneId) {
-        Phone phone = this.phoneRepository.findById(phoneId)
-                .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-        this.attributeService.deleteRelatedAttributes(phone.getId());
-        this.metadataService.deleteRelatedMetadata(phone.getId());
-        this.phoneRepository.delete(phone);
-    }
-
-    private void addRelatedData(PhoneDTO phoneDTO) {
-        phoneDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(phoneDTO.getId()));
-        phoneDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(phoneDTO.getId()));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByServiceAtLocationId(String serviceAtLocationId) {
+    List<Phone> phones = phoneRepository.findByServiceAtLocationId(serviceAtLocationId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 }

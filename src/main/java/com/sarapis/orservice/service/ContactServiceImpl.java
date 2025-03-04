@@ -1,126 +1,131 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.ContactDTO;
-import com.sarapis.orservice.dto.upsert.UpsertContactDTO;
-import com.sarapis.orservice.entity.Contact;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.entity.core.ServiceAtLocation;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.CONTACT_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
 
+import com.sarapis.orservice.dto.ContactDTO;
+import com.sarapis.orservice.dto.ContactDTO.Request;
+import com.sarapis.orservice.dto.ContactDTO.Response;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.mapper.ContactMapper;
+import com.sarapis.orservice.model.Contact;
+import com.sarapis.orservice.repository.ContactRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
-    private final ContactRepository contactRepository;
-    private final OrganizationRepository organizationRepository;
-    private final ServiceRepository serviceRepository;
-    private final ServiceAtLocationRepository serviceAtLocationRepository;
-    private final LocationRepository locationRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
-    @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository,
-                              OrganizationRepository organizationRepository,
-                              ServiceRepository serviceRepository,
-                              ServiceAtLocationRepository serviceAtLocationRepository,
-                              LocationRepository locationRepository,
-                              AttributeService attributeService,
-                              MetadataService metadataService) {
-        this.contactRepository = contactRepository;
-        this.organizationRepository = organizationRepository;
-        this.serviceRepository = serviceRepository;
-        this.serviceAtLocationRepository = serviceAtLocationRepository;
-        this.locationRepository = locationRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  private final ContactMapper contactMapper;
+  private final ContactRepository contactRepository;
+  private final PhoneService phoneService;
+  private final MetadataService metadataService;
+
+  @Override
+  @Transactional
+  public Response createContact(Request contactDto) {
+    if (contactDto.getId() == null || contactDto.getId().trim().isEmpty()) {
+      contactDto.setId(UUID.randomUUID().toString());
+    }
+    Contact contact = contactMapper.toEntity(contactDto);
+    Contact savedContact = contactRepository.save(contact);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedContact.getId(),
+        CONTACT_RESOURCE_TYPE,
+        CREATE.name(),
+        "contact",
+        EMPTY_PREVIOUS_VALUE,
+        contactDto.getName(),
+        "SYSTEM"
+    );
+
+    List<PhoneDTO.Response> savedPhones = new ArrayList<>();
+    if (contactDto.getPhones() != null) {
+      for (PhoneDTO.Request phoneDTO : contactDto.getPhones()) {
+        phoneDTO.setContactId(savedContact.getId());
+        PhoneDTO.Response savedPhone = phoneService.createPhone(phoneDTO);
+        savedPhones.add(savedPhone);
+      }
     }
 
-    @Override
-    public List<ContactDTO> getAllContacts() {
-        List<ContactDTO> contactDTOs = this.contactRepository.findAll().stream().map(Contact::toDTO).toList();
-        contactDTOs.forEach(this::addRelatedData);
-        return contactDTOs;
-    }
+    List<MetadataDTO.Response> metadata =
+        metadataService.getMetadataByResourceIdAndResourceType(savedContact.getId(), CONTACT_RESOURCE_TYPE);
+    Response response = contactMapper.toResponseDTO(savedContact);
+    response.setPhones(savedPhones);
+    response.setMetadata(metadata);
+    return response;
+  }
 
-    @Override
-    public ContactDTO getContactById(String contactId) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-        ContactDTO contactDTO = contact.toDTO();
-        this.addRelatedData(contactDTO);
-        return contactDTO;
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getContactsByOrganizationId(String organizationId) {
+    List<Contact> contacts = contactRepository.findByOrganizationId(organizationId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
 
-    @Override
-    public ContactDTO createContact(UpsertContactDTO upsertContactDTO) {
-        Contact createdContact = this.contactRepository.save(upsertContactDTO.create());
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getContactsByLocationId(String locationId) {
+    List<Contact> contacts = contactRepository.findByLocationId(locationId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
 
-        if (upsertContactDTO.getOrganizationId() != null) {
-            Organization organization = this.organizationRepository.findById(upsertContactDTO.getOrganizationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-            organization.getContacts().add(createdContact);
-            this.organizationRepository.save(organization);
-            createdContact.setOrganization(organization);
-        }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getContactsByServiceId(String serviceId) {
+    List<Contact> contacts = contactRepository.findByServiceId(serviceId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
 
-        if (upsertContactDTO.getServiceId() != null) {
-            com.sarapis.orservice.entity.core.Service service = this.serviceRepository.findById(upsertContactDTO.getServiceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service not found."));
-            service.getContacts().add(createdContact);
-            this.serviceRepository.save(service);
-            createdContact.setService(service);
-        }
-
-        if (upsertContactDTO.getServiceAtLocationId() != null) {
-            ServiceAtLocation serviceAtLocation = this.serviceAtLocationRepository.findById(upsertContactDTO.getServiceAtLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Service at location not found."));
-            serviceAtLocation.getContacts().add(createdContact);
-            this.serviceAtLocationRepository.save(serviceAtLocation);
-            createdContact.setServiceAtLocation(serviceAtLocation);
-        }
-
-        if (upsertContactDTO.getLocationId() != null) {
-            Location location = this.locationRepository.findById(upsertContactDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-            location.getContacts().add(createdContact);
-            this.locationRepository.save(location);
-            createdContact.setLocation(location);
-        }
-
-        this.contactRepository.save(createdContact);
-        return this.getContactById(createdContact.getId());
-    }
-
-    @Override
-    public ContactDTO updateContact(String contactId, ContactDTO contactDTO) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-
-        contact.setName(contactDTO.getName());
-        contact.setTitle(contactDTO.getTitle());
-        contact.setDepartment(contactDTO.getDepartment());
-        contact.setEmail(contactDTO.getEmail());
-
-        Contact updatedContact = this.contactRepository.save(contact);
-        return this.getContactById(updatedContact.getId());
-    }
-
-    @Override
-    public void deleteContact(String contactId) {
-        Contact contact = this.contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-        this.attributeService.deleteRelatedAttributes(contact.getId());
-        this.metadataService.deleteRelatedMetadata(contact.getId());
-        this.contactRepository.delete(contact);
-    }
-
-    private void addRelatedData(ContactDTO contactDTO) {
-        contactDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(contactDTO.getId()));
-        contactDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(contactDTO.getId()));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getContactsByServiceAtLocationId(String serviceAtLocationId) {
+    List<Contact> contacts = contactRepository.findByServiceAtLocationId(serviceAtLocationId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
 }

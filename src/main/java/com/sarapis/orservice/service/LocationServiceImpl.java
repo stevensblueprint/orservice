@@ -1,172 +1,146 @@
 package com.sarapis.orservice.service;
 
-import com.sarapis.orservice.dto.LocationDTO;
-import com.sarapis.orservice.dto.upsert.UpsertLocationDTO;
-import com.sarapis.orservice.entity.*;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Organization;
-import com.sarapis.orservice.exception.ResourceNotFoundException;
-import com.sarapis.orservice.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.LOCATION_RESOURCE_TYPE;
 
+import com.sarapis.orservice.dto.AccessibilityDTO;
+import com.sarapis.orservice.dto.AddressDTO;
+import com.sarapis.orservice.dto.ContactDTO;
+import com.sarapis.orservice.dto.LanguageDTO;
+import com.sarapis.orservice.dto.LocationDTO;
+import com.sarapis.orservice.dto.LocationDTO.Request;
+import com.sarapis.orservice.dto.LocationDTO.Response;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.dto.ScheduleDTO;
+import com.sarapis.orservice.mapper.LocationMapper;
+import com.sarapis.orservice.model.Location;
+import com.sarapis.orservice.repository.LocationRepository;
+import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
-    private final LocationRepository locationRepository;
-    private final OrganizationRepository organizationRepository;
-    private final LanguageRepository languageRepository;
-    private final AddressRepository addressRepository;
-    private final PhoneRepository phoneRepository;
-    private final ContactRepository contactRepository;
-    private final AccessibilityRepository accessibilityRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final AttributeService attributeService;
-    private final MetadataService metadataService;
 
-    @Autowired
-    public LocationServiceImpl(LocationRepository locationRepository,
-                               OrganizationRepository organizationRepository,
-                               LanguageRepository languageRepository,
-                               AddressRepository addressRepository,
-                               PhoneRepository phoneRepository,
-                               ContactRepository contactRepository,
-                               AccessibilityRepository accessibilityRepository,
-                               ScheduleRepository scheduleRepository,
-                               AttributeService attributeService,
-                               MetadataService metadataService) {
-        this.locationRepository = locationRepository;
-        this.organizationRepository = organizationRepository;
-        this.languageRepository = languageRepository;
-        this.addressRepository = addressRepository;
-        this.phoneRepository = phoneRepository;
-        this.contactRepository = contactRepository;
-        this.accessibilityRepository = accessibilityRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.attributeService = attributeService;
-        this.metadataService = metadataService;
+  private final LocationMapper locationMapper;
+  private final LocationRepository locationRepository;
+  private final LanguageService languageService;
+  private final AddressService addressService;
+  private final ContactService contactService;
+  private final AccessibilityService accessibilityService;
+  private final PhoneService phoneService;
+  private final ScheduleService scheduleService;
+  private final MetadataService metadataService;
+
+  @Override
+  @Transactional
+  public Response createLocation(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
+    }
+    Location location = locationMapper.toEntity(dto);
+    Location savedLocation = locationRepository.save(location);
+    MetadataUtils.createMetadataEntry(
+        metadataService,
+        savedLocation.getId(),
+        LOCATION_RESOURCE_TYPE,
+        CREATE.name(),
+        "location",
+        EMPTY_PREVIOUS_VALUE,
+        dto.getName(),
+        "SYSTEM"
+    );
+
+    List<LanguageDTO.Response> savedLanguages = new ArrayList<>();
+    if (dto.getLanguages() != null) {
+      for (LanguageDTO.Request languageDTO : dto.getLanguages()) {
+        languageDTO.setLocationId(savedLocation.getId());
+        LanguageDTO.Response savedLanguage = languageService.createLanguage(languageDTO);
+        savedLanguages.add(savedLanguage);
+      }
     }
 
-    @Override
-    public List<LocationDTO> getAllLocations() {
-        List<LocationDTO> locationDTOs = this.locationRepository.findAll()
-                .stream().map(Location::toDTO).toList();
-        locationDTOs.forEach(this::addRelatedData);
-        return locationDTOs;
+    List<AddressDTO.Response> savedAddresses = new ArrayList<>();
+    if (dto.getAddresses() != null) {
+      for (AddressDTO.Request addressDTO : dto.getAddresses()) {
+        addressDTO.setLocationId(savedLocation.getId());
+        AddressDTO.Response savedAddress = addressService.createAddress(addressDTO);
+        savedAddresses.add(savedAddress);
+      }
     }
 
-    @Override
-    public LocationDTO getLocationById(String locationId) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        LocationDTO locationDTO = location.toDTO();
-        this.addRelatedData(locationDTO);
-        return locationDTO;
+    List<ContactDTO.Response> savedContacts = new ArrayList<>();
+    if (dto.getContacts() != null) {
+      for (ContactDTO.Request contactDTO : dto.getContacts()) {
+        contactDTO.setLocationId(savedLocation.getId());
+        ContactDTO.Response savedContact = contactService.createContact(contactDTO);
+        savedContacts.add(savedContact);
+      }
     }
 
-    @Override
-    public LocationDTO createLocation(UpsertLocationDTO upsertLocationDTO) {
-        Location createdLocation = upsertLocationDTO.create();
-
-        if (upsertLocationDTO.getOrganizationId() != null) {
-            Organization organization = this.organizationRepository.findById(upsertLocationDTO.getOrganizationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Organization not found."));
-            organization.getLocations().add(createdLocation);
-            this.organizationRepository.save(organization);
-            createdLocation.setOrganization(organization);
-        }
-
-        createdLocation.setLanguages(new ArrayList<>());
-        for (String id : upsertLocationDTO.getLanguages()) {
-            Language language = this.languageRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Language not found."));
-            language.setLocation(createdLocation);
-            this.languageRepository.save(language);
-            createdLocation.getLanguages().add(language);
-        }
-
-        createdLocation.setAddresses(new ArrayList<>());
-        for (String id : upsertLocationDTO.getAddresses()) {
-            Address address = this.addressRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
-            address.setLocation(createdLocation);
-            this.addressRepository.save(address);
-            createdLocation.getAddresses().add(address);
-        }
-
-        createdLocation.setPhones(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getPhones()) {
-            Phone phone = this.phoneRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Phone not found."));
-            phone.setLocation(createdLocation);
-            this.phoneRepository.save(phone);
-            createdLocation.getPhones().add(phone);
-        }
-
-        createdLocation.setContacts(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getContacts()) {
-            Contact contact = this.contactRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Contact not found."));
-            contact.setLocation(createdLocation);
-            this.contactRepository.save(contact);
-            createdLocation.getContacts().add(contact);
-        }
-
-        createdLocation.setAccessibility(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getAccessibility()) {
-            Accessibility accessibility = this.accessibilityRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Accessibility not found."));
-            accessibility.setLocation(createdLocation);
-            this.accessibilityRepository.save(accessibility);
-            createdLocation.getAccessibility().add(accessibility);
-        }
-
-        createdLocation.setSchedules(new ArrayList<>());
-        for (String id  : upsertLocationDTO.getSchedules()) {
-            Schedule schedule = this.scheduleRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Schedule not found."));
-            schedule.setLocation(createdLocation);
-            this.scheduleRepository.save(schedule);
-            createdLocation.getSchedules().add(schedule);
-        }
-
-        this.locationRepository.save(createdLocation);
-        return this.getLocationById(createdLocation.getId());
+    List<AccessibilityDTO.Response> savedAccessibilities = new ArrayList<>();
+    if (dto.getAccessibility() != null) {
+      for (AccessibilityDTO.Request accessibilityDTO : dto.getAccessibility()) {
+        accessibilityDTO.setLocationId(savedLocation.getId());
+        AccessibilityDTO.Response savedAccessibility = accessibilityService.createAccessibility(accessibilityDTO);
+        savedAccessibilities.add(savedAccessibility);
+      }
     }
 
-    @Override
-    public LocationDTO updateLocation(String locationId, LocationDTO locationDTO) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-
-        location.setLocationType(locationDTO.getLocationType());
-        location.setUrl(locationDTO.getUrl());
-        location.setName(locationDTO.getName());
-        location.setAlternateName(locationDTO.getAlternateName());
-        location.setDescription(locationDTO.getDescription());
-        location.setTransportation(locationDTO.getTransportation());
-        location.setLatitude(locationDTO.getLatitude());
-        location.setLongitude(locationDTO.getLongitude());
-        location.setExternalIdentifier(locationDTO.getExternalIdentifier());
-        location.setExternalIdentifierType(locationDTO.getExternalIdentifierType());
-
-        Location updatedLocation = this.locationRepository.save(location);
-        return this.getLocationById(updatedLocation.getId());
+    List<PhoneDTO.Response> savedPhones = new ArrayList<>();
+    if (dto.getPhones() != null) {
+      for (PhoneDTO.Request phoneDTO : dto.getPhones()) {
+        phoneDTO.setLocationId(savedLocation.getId());
+        PhoneDTO.Response savedPhone = phoneService.createPhone(phoneDTO);
+        savedPhones.add(savedPhone);
+      }
     }
 
-    @Override
-    public void deleteLocation(String locationId) {
-        Location location = this.locationRepository.findById(locationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found."));
-        this.attributeService.deleteRelatedAttributes(location.getId());
-        this.metadataService.deleteRelatedMetadata(location.getId());
-        this.locationRepository.delete(location);
+    List<ScheduleDTO.Response> savedSchedules = new ArrayList<>();
+    if (dto.getSchedules()!= null) {
+      for (ScheduleDTO.Request scheduleDTO : dto.getSchedules()) {
+        scheduleDTO.setLocationId(savedLocation.getId());
+        ScheduleDTO.Response savedSchedule = scheduleService.createSchedule(scheduleDTO);
+        savedSchedules.add(savedSchedule);
+      }
     }
 
-    private void addRelatedData(LocationDTO locationDTO) {
-        locationDTO.getAttributes().addAll(this.attributeService.getRelatedAttributes(locationDTO.getId()));
-        locationDTO.getMetadata().addAll(this.metadataService.getRelatedMetadata(locationDTO.getId()));
-    }
+    List<MetadataDTO.Response> metadata =
+        metadataService.getMetadataByResourceIdAndResourceType(savedLocation.getId(), LOCATION_RESOURCE_TYPE);
+    Response response = locationMapper.toResponseDTO(savedLocation);
+    response.setLanguages(savedLanguages);
+    response.setAddresses(savedAddresses);
+    response.setContacts(savedContacts);
+    response.setAccessibility(savedAccessibilities);
+    response.setPhones(savedPhones);
+    response.setSchedules(savedSchedules);
+    return response;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getLocationByOrganizationId(String organizationId) {
+    List<Location> locations = locationRepository.findByOrganizationId(organizationId);
+    List<LocationDTO.Response> locationDtos = locations.stream().map(locationMapper::toResponseDTO).toList();
+    locationDtos = locationDtos.stream().peek(location -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          location.getId(), LOCATION_RESOURCE_TYPE
+      );
+      location.setLanguages(languageService.getLanguagesByLocationId(location.getId()));
+      location.setAddresses(addressService.getAddressesByLocationId(location.getId()));
+      location.setContacts(contactService.getContactsByLocationId(location.getId()));
+      location.setAccessibility(accessibilityService.getAccessibilityByLocationId(location.getId()));
+      location.setPhones(phoneService.getPhonesByLocationId(location.getId()));
+      location.setSchedules(scheduleService.getSchedulesByLocationId(location.getId()));
+      location.setMetadata(metadata);
+    }).toList();
+    return locationDtos;
+  }
 }

@@ -2,63 +2,63 @@ package com.sarapis.orservice.controller;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
-import com.sarapis.orservice.dto.upsert.UpsertServiceDTO;
-import com.sarapis.orservice.exception.InvalidInputException;
 import com.sarapis.orservice.service.ServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/services")
+@RequestMapping("/services")
+@RequiredArgsConstructor
+@Slf4j
 public class ServiceController {
-    private final ServiceService serviceService;
-
-    @Autowired
-    public ServiceController(ServiceService service) {
-        this.serviceService = service;
-    }
+  private final ServiceService service;
 
   @GetMapping
-  public ResponseEntity<PaginationDTO<ServiceDTO>> getAllServices(@RequestParam(name = "page", defaultValue = "1") int page,
-                                                                  @RequestParam(name = "perPage", defaultValue = "10") int perPage) {
-    List<ServiceDTO> services = serviceService.getAllServices();
-
-    if(page <= 0) throw new InvalidInputException("Invalid input provided for 'page'.");
-    if(perPage <= 0) throw new InvalidInputException("Invalid input provided for 'perPage'.");
-
-    PaginationDTO<ServiceDTO> paginationDTO = PaginationDTO.of(
-        services,
+  public ResponseEntity<PaginationDTO<ServiceDTO.Response>> getAllServices(
+      @RequestParam(name = "search", defaultValue = "") String search,
+      @RequestParam(name = "page", defaultValue = "0") Integer page,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
+      @RequestParam(name = "format", defaultValue = "json") String format,
+      @RequestParam(name = "taxonomy_term_id", defaultValue = "") String taxonomyTermId,
+      @RequestParam(name = "taxonomy_id", defaultValue = "") String taxonomyId,
+      @RequestParam(name = "organization_id", defaultValue = "") String organizationId,
+      @RequestParam(name = "modified_after", defaultValue = "") String modifiedAfter,
+      @RequestParam(name = "minimal", defaultValue = "false") Boolean minimal,
+      @RequestParam(name = "full", defaultValue = "false") Boolean full
+  ) {
+    return ResponseEntity.ok(service.getAllServices(
+        search,
         page,
-        perPage
-    );
-    return ResponseEntity.ok(paginationDTO);
+        perPage,
+        format,
+        taxonomyTermId,
+        taxonomyId,
+        organizationId,
+        modifiedAfter,
+        minimal,
+        full
+    ));
   }
 
-    @GetMapping("/{serviceId}")
-    public ResponseEntity<ServiceDTO> getServiceById(@PathVariable String serviceId) {
-        ServiceDTO service = this.serviceService.getServiceById(serviceId);
-        return ResponseEntity.ok(service);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<ServiceDTO.Response> getServiceById(@PathVariable String id) {
+    return ResponseEntity.ok(service.getServiceById(id));
+  }
 
-    @PostMapping
-    public ResponseEntity<ServiceDTO> createService(@RequestBody UpsertServiceDTO upsertServiceDTO) {
-        ServiceDTO createdService = this.serviceService.createService(upsertServiceDTO);
-        return ResponseEntity.ok(createdService);
-    }
-
-    @PutMapping("/{serviceId}")
-    public ResponseEntity<ServiceDTO> updateService(@PathVariable String serviceId,
-                                                    @RequestBody ServiceDTO serviceDTO) {
-        ServiceDTO updatedService = this.serviceService.updateService(serviceId, serviceDTO);
-        return ResponseEntity.ok(updatedService);
-    }
-
-    @DeleteMapping("/{serviceId}")
-    public ResponseEntity<Void> deleteService(@PathVariable String serviceId) {
-        this.serviceService.deleteService(serviceId);
-        return ResponseEntity.noContent().build();
-    }
+  @PostMapping
+  public ResponseEntity<ServiceDTO.Response> createService(
+      @Valid @RequestBody ServiceDTO.Request servicedDto
+  ) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(service.createService(servicedDto));
+  }
 }

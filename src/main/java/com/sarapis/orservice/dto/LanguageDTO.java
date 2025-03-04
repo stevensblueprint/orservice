@@ -1,43 +1,50 @@
 package com.sarapis.orservice.dto;
 
-import com.sarapis.orservice.entity.Language;
-import com.sarapis.orservice.entity.Phone;
-import com.sarapis.orservice.entity.core.Location;
-import com.sarapis.orservice.entity.core.Service;
-import lombok.*;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class LanguageDTO {
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Request {
     private String id;
-
     private String serviceId;
     private String locationId;
     private String phoneId;
-
     private String name;
     private String code;
     private String note;
+  }
 
-    private List<AttributeDTO> attributes = new ArrayList<>();
-    private List<MetadataDTO> metadata = new ArrayList<>();
-
-    public Language toEntity(Service service, Location location, Phone phone) {
-        return Language.builder()
-                .id(this.id == null ? UUID.randomUUID().toString() : this.id)
-                .service(service)
-                .location(location)
-                .phone(phone)
-                .name(this.name)
-                .code(this.code)
-                .note(this.note)
-                .build();
-    }
+  @Setter
+  @Getter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Response {
+    private String id;
+    @JsonIgnore
+    private String serviceId;
+    @JsonIgnore
+    private String locationId;
+    @JsonIgnore
+    private String phoneId;
+    private String name;
+    private String code;
+    private String note;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
+  }
 }
