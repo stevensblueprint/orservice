@@ -62,24 +62,16 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     Page<OrganizationDTO.Response> dtoPage = organizationPage.map(organization -> {
       OrganizationDTO.Response response = organizationMapper.toResponseDTO(organization);
-      List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
-      List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
-      List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
-      List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
-      List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
-      List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
-          organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
-      List<LocationDTO.Response> locations = locationService.getLocationByOrganizationId(organization.getId());
-      List<MetadataDTO.Response> metadata =
-          metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
-      response.setAdditionalWebsites(urls);
-      response.setFunding(fundingList);
-      response.setContacts(contacts);
-      response.setPhones(phones);
-      response.setPrograms(programs);
-      response.setOrganizationIdentifiers(organizationIdentifiers);
-      response.setLocations(locations);
-      response.setMetadata(metadata);
+      response.setAdditionalWebsites(urlService.getUrlsByOrganizationId(organization.getId()));
+      response.setFunding(fundingService.getFundingByOrganizationId(organization.getId()));
+      response.setContacts(contactService.getContactsByOrganizationId(organization.getId()));
+      response.setPhones(phoneService.getPhonesByOrganizationId(organization.getId()));
+      response.setPrograms(programService.getProgramsByOrganizationId(organization.getId()));
+      response.setOrganizationIdentifiers(
+          organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId()));
+      response.setLocations(locationService.getLocationByOrganizationId(organization.getId()));
+      response.setMetadata(
+          metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE));
       return response;
     });
 
@@ -92,24 +84,16 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Response getOrganizationById(String id) {
     Organization organization = organizationRepository.findById(id).orElseThrow();
     Response response = organizationMapper.toResponseDTO(organization);
-    List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
-    List<FundingDTO.Response> fundingList = fundingService.getFundingByOrganizationId(organization.getId());
-    List<ContactDTO.Response> contacts = contactService.getContactsByOrganizationId(organization.getId());
-    List<PhoneDTO.Response> phones = phoneService.getPhonesByOrganizationId(organization.getId());
-    List<ProgramDTO.Response> programs = programService.getProgramsByOrganizationId(organization.getId());
-    List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
-        organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
-    List<LocationDTO.Response> locations = locationService.getLocationByOrganizationId(organization.getId());
-    List<MetadataDTO.Response> metadata =
-        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
-    response.setAdditionalWebsites(urls);
-    response.setFunding(fundingList);
-    response.setContacts(contacts);
-    response.setPhones(phones);
-    response.setPrograms(programs);
-    response.setOrganizationIdentifiers(organizationIdentifiers);
-    response.setLocations(locations);
-    response.setMetadata(metadata);
+    response.setAdditionalWebsites(urlService.getUrlsByOrganizationId(organization.getId()));
+    response.setFunding(fundingService.getFundingByOrganizationId(organization.getId()));
+    response.setContacts(contactService.getContactsByOrganizationId(organization.getId()));
+    response.setPhones(phoneService.getPhonesByOrganizationId(organization.getId()));
+    response.setPrograms(programService.getProgramsByOrganizationId(organization.getId()));
+    response.setOrganizationIdentifiers(
+        organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId()));
+    response.setLocations(locationService.getLocationByOrganizationId(organization.getId()));
+    response.setMetadata(
+        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE));
     return response;
   }
 

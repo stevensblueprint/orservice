@@ -22,6 +22,7 @@ public class MetadataUtils {
   public static final String COST_OPTION_RESOURCE_TYPE = "COST_OPTION";
   public static final String SERVICE_RESOURCE_TYPE = "SERVICE";
   public static final String REQUIRED_DOCUMENT_RESOURCE_TYPE = "REQUIRED_DOCUMENT";
+  public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
   public static final String EMPTY_PREVIOUS_VALUE = "";
   public static void createMetadataEntry(
       MetadataService metadataService,
