@@ -11,7 +11,6 @@ import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.mapper.LanguageMapper;
 import com.sarapis.orservice.model.Language;
 import com.sarapis.orservice.repository.LanguageRepository;
-import com.sarapis.orservice.utils.Metadata;
 import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
@@ -71,6 +70,20 @@ public class LanguageServiceImpl implements LanguageService {
   @Transactional(readOnly = true)
   public List<Response> getLanguagesByLocationId(String locationId) {
     List<Language> languages = languageRepository.findByLocationId(locationId);
+    List<LanguageDTO.Response> languageDtos = languages.stream().map(languageMapper::toResponseDTO).toList();
+    languageDtos = languageDtos.stream().peek(language -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          language.getId(), LANGUAGE_RESOURCE_TYPE
+      );
+      language.setMetadata(metadata);
+    }).toList();
+    return languageDtos;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getLanguagesByServiceId(String serviceId) {
+    List<Language> languages = languageRepository.findByServiceId(serviceId);
     List<LanguageDTO.Response> languageDtos = languages.stream().map(languageMapper::toResponseDTO).toList();
     languageDtos = languageDtos.stream().peek(language -> {
       List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

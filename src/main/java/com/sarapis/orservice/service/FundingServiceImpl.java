@@ -14,7 +14,6 @@ import com.sarapis.orservice.repository.FundingRepository;
 import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +55,19 @@ public class FundingServiceImpl implements FundingService{
   @Transactional(readOnly = true)
   public List<Response> getFundingByOrganizationId(String organizationId) {
     List<Funding> fundingList = fundingRepository.findByOrganizationId(organizationId);
+    List<FundingDTO.Response> fundingDtos =  fundingList.stream().map(fundingMapper::toResponseDTO).toList();
+    fundingDtos  = fundingDtos.stream().peek(funding -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          funding.getId(), FUNDING_RESOURCE_TYPE
+      );
+      funding.setMetadata(metadata);
+    }).toList();
+    return fundingDtos;
+  }
+
+  @Override
+  public List<Response> getFundingByServiceId(String serviceId) {
+    List<Funding> fundingList = fundingRepository.findByServiceId(serviceId);
     List<FundingDTO.Response> fundingDtos =  fundingList.stream().map(fundingMapper::toResponseDTO).toList();
     fundingDtos  = fundingDtos.stream().peek(funding -> {
       List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

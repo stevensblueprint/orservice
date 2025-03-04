@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface LanguageRepository extends JpaRepository<Language, String> {
   List<Language> findByPhoneId(String phoneId);
   List<Language> findByLocationId(String locationId);
+  List<Language> findByServiceId(String serviceId);
 }

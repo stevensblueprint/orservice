@@ -7,4 +7,5 @@ public interface LanguageService {
   LanguageDTO.Response createLanguage(LanguageDTO.Request request);
   List<LanguageDTO.Response> getLanguagesByPhoneId(String phoneId);
   List<LanguageDTO.Response> getLanguagesByLocationId(String locationId);
+  List<LanguageDTO.Response> getLanguagesByServiceId(String serviceId);
 }

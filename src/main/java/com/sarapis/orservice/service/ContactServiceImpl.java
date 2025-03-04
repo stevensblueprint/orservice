@@ -96,4 +96,19 @@ public class ContactServiceImpl implements ContactService {
     }).toList();
     return contactDtos;
   }
+
+  @Override
+  public List<Response> getContactsByServiceId(String serviceId) {
+    List<Contact> contacts = contactRepository.findByServiceId(serviceId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
 }

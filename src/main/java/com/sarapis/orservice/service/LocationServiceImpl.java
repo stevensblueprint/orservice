@@ -8,6 +8,7 @@ import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.dto.AddressDTO;
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.LanguageDTO;
+import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.LocationDTO.Request;
 import com.sarapis.orservice.dto.LocationDTO.Response;
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -123,6 +124,20 @@ public class LocationServiceImpl implements LocationService {
 
   @Override
   public List<Response> getLocationByOrganizationId(String organizationId) {
-    return List.of();
+    List<Location> locations = locationRepository.findByOrganizationId(organizationId);
+    List<LocationDTO.Response> locationDtos = locations.stream().map(locationMapper::toResponseDTO).toList();
+    locationDtos = locationDtos.stream().peek(location -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          location.getId(), LOCATION_RESOURCE_TYPE
+      );
+      location.setLanguages(languageService.getLanguagesByLocationId(location.getId()));
+      location.setAddresses(addressService.getAddressesByLocationId(location.getId()));
+      location.setContacts(contactService.getContactsByLocationId(location.getId()));
+      location.setAccessibility(accessibilityService.getAccessibilityByLocationId(location.getId()));
+      location.setPhones(phoneService.getPhonesByLocationId(location.getId()));
+      location.setSchedules(scheduleService.getSchedulesByLocationId(location.getId()));
+      location.setMetadata(metadata);
+    }).toList();
+    return locationDtos;
   }
 }

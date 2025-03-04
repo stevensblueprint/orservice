@@ -102,5 +102,7 @@ public class ServiceDTO {
     private ProgramDTO.Response program;
     private List<RequiredDocumentDTO.Response> requiredDocuments;
     private List<ContactDTO.Response> contacts;
+    private List<AttributeDTO.Response> attributes;
+    private List<MetadataDTO.Response> metadata;
   }
 }
