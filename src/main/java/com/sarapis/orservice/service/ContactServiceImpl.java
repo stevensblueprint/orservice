@@ -42,7 +42,7 @@ public class ContactServiceImpl implements ContactService {
         savedContact.getId(),
         CONTACT_RESOURCE_TYPE,
         CREATE.name(),
-        "first_name",
+        "contact",
         EMPTY_PREVIOUS_VALUE,
         contactDto.getName(),
         "SYSTEM"
@@ -66,8 +66,25 @@ public class ContactServiceImpl implements ContactService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getContactsByOrganizationId(String organizationId) {
     List<Contact> contacts = contactRepository.findByOrganizationId(organizationId);
+    List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
+    contactDtos = contactDtos.stream().peek(contact -> {
+      List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          contact.getId(), CONTACT_RESOURCE_TYPE
+      );
+      contact.setPhones(phoneDtos);
+      contact.setMetadata(metadata);
+    }).toList();
+    return contactDtos;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getContactsByLocationId(String locationId) {
+    List<Contact> contacts = contactRepository.findByLocationId(locationId);
     List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();
     contactDtos = contactDtos.stream().peek(contact -> {
       List<PhoneDTO.Response> phoneDtos = phoneService.getPhonesByContactId(contact.getId());

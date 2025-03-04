@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface PhoneRepository extends JpaRepository<Phone, String> {
   List<Phone> findByOrganizationId(String organizationId);
   List<Phone> findByContactId(String contactId);
+  List<Phone> findByLocationId(String locationId);
 }

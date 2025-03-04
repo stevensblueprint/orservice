@@ -14,6 +14,10 @@ public class MetadataUtils {
   public static final String FUNDING_RESOURCE_TYPE = "FUNDING_RESOURCE";
   public static final String CONTACT_RESOURCE_TYPE = "CONTACT";
   public static final String LANGUAGE_RESOURCE_TYPE = "LANGUAGE";
+  public static final String ACCESSIBILITY_RESOURCE_TYPE = "ACCESSIBILITY";
+  public static final String ADDRESS_RESOURCE_TYPE = "ADDRESS";
+  public static final String SCHEDULE_RESOURCE_TYPE = "SCHEDULE";
+  public static final String LOCATION_RESOURCE_TYPE = "LOCATION";
   public static final String EMPTY_PREVIOUS_VALUE = "";
   public static void createMetadataEntry(
       MetadataService metadataService,

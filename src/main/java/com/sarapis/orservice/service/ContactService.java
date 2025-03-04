@@ -6,4 +6,5 @@ import java.util.List;
 public interface ContactService {
   ContactDTO.Response createContact(ContactDTO.Request contact);
   List<ContactDTO.Response> getContactsByOrganizationId(String organizationId);
+  List<ContactDTO.Response> getContactsByLocationId(String locationId);
 }

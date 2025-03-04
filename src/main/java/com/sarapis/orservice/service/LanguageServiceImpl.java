@@ -66,4 +66,18 @@ public class LanguageServiceImpl implements LanguageService {
     }).toList();
     return languageDtos;
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getLanguagesByLocationId(String locationId) {
+    List<Language> languages = languageRepository.findByLocationId(locationId);
+    List<LanguageDTO.Response> languageDtos = languages.stream().map(languageMapper::toResponseDTO).toList();
+    languageDtos = languageDtos.stream().peek(language -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          language.getId(), LANGUAGE_RESOURCE_TYPE
+      );
+      language.setMetadata(metadata);
+    }).toList();
+    return languageDtos;
+  }
 }
