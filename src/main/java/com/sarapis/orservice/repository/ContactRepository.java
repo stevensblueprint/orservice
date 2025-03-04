@@ -10,4 +10,5 @@ public interface ContactRepository extends JpaRepository<Contact, String> {
   List<Contact> findByOrganizationId(String organizationId);
   List<Contact> findByLocationId(String locationId);
   List<Contact> findByServiceId(String serviceId);
+  List<Contact> findByServiceAtLocationId(String serviceAtLocationId);
 }

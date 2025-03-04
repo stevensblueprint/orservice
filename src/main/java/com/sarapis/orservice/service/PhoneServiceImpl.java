@@ -124,4 +124,19 @@ public class PhoneServiceImpl implements PhoneService {
     }).toList();
     return phoneDtos;
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getPhonesByServiceAtLocationId(String serviceAtLocationId) {
+    List<Phone> phones = phoneRepository.findByServiceAtLocationId(serviceAtLocationId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setLanguages(languageService.getLanguagesByPhoneId(phone.getId()));
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 }

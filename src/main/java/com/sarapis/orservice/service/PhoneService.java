@@ -9,4 +9,5 @@ public interface PhoneService {
   List<PhoneDTO.Response> getPhonesByContactId(String contactId);
   List<PhoneDTO.Response> getPhonesByLocationId(String locationId);
   List<PhoneDTO.Response> getPhonesByServiceId(String serviceId);
+  List<PhoneDTO.Response> getPhonesByServiceAtLocationId(String serviceAtLocationId);
 }

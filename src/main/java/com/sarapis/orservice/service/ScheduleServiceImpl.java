@@ -65,4 +65,18 @@ public class ScheduleServiceImpl implements ScheduleService {
     }).toList();
     return sceduleDtos;
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Response> getSchedulesByServiceAtLocationId(String serviceAtLocationId) {
+    List<Schedule> schedules = scheduleRepository.findByServiceAtLocationId(serviceAtLocationId);
+    List<ScheduleDTO.Response> sceduleDtos = schedules.stream().map(scheduleMapper::toResponseDTO).toList();
+    sceduleDtos = sceduleDtos.stream().peek(schedule -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          schedule.getId(), SCHEDULE_RESOURCE_TYPE
+      );
+      schedule.setMetadata(metadata);
+    }).toList();
+    return sceduleDtos;
+  }
 }
