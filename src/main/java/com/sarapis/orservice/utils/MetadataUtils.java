@@ -6,8 +6,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public class MetadataUtils {
+  public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
+  public static final String URL_RESOURCE_TYPE = "URL";
   public static final String EMPTY_PREVIOUS_VALUE = "";
-  public static MetadataDTO.Response createMetadataEntry(
+  public static void createMetadataEntry(
       MetadataService metadataService,
       String resourceId,
       String resourceType,
@@ -28,6 +30,6 @@ public class MetadataUtils {
     metadataRequest.setReplacementValue(replacementValue);
     metadataRequest.setUpdatedBy(updatedBy);
 
-    return metadataService.createMetadata(metadataRequest);
+    metadataService.createMetadata(metadataRequest);
   }
 }

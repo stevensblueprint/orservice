@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.FundingDTO;
@@ -42,7 +43,6 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final ProgramService programService;
   private final OrganizationIdentifierService organizationIdentifierService;
   private final MetadataService metadataService;
-  private static final String RESOURCE_TYPE = "ORGANIZATION";
 
   @Override
   @Transactional(readOnly = true)
@@ -68,7 +68,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
           organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
       List<MetadataDTO.Response> metadata =
-          metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), RESOURCE_TYPE);
+          metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
       response.setAdditionalWebsites(urls);
       response.setFunding(fundingList);
       response.setContacts(contacts);
@@ -96,7 +96,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<OrganizationIdentifierDTO.Response> organizationIdentifiers =
         organizationIdentifierService.getOrganizationIdentifiersByOrganizationId(organization.getId());
     List<MetadataDTO.Response> metadata =
-        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), RESOURCE_TYPE);
+        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
     response.setAdditionalWebsites(urls);
     response.setFunding(fundingList);
     response.setContacts(contacts);
@@ -113,14 +113,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     if (requestDto.getId() == null || requestDto.getId().trim().isEmpty()) {
       requestDto.setId(UUID.randomUUID().toString());
     }
-    log.info("OrganizationId: " + requestDto.getId());
     Organization organization = organizationMapper.toEntity(requestDto);
     Organization savedOrganization = organizationRepository.save(organization);
 
     MetadataUtils.createMetadataEntry(
         metadataService,
         savedOrganization.getId(),
-        RESOURCE_TYPE,
+        ORGANIZATION_RESOURCE_TYPE,
         CREATE.name(),
         "organization",
         MetadataUtils.EMPTY_PREVIOUS_VALUE,
@@ -184,7 +183,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<MetadataDTO.Response> metadata =
-        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), RESOURCE_TYPE);
+        metadataService.getMetadataByResourceIdAndResourceType(organization.getId(), ORGANIZATION_RESOURCE_TYPE);
     Response response = organizationMapper.toResponseDTO(savedOrganization);
     response.setAdditionalWebsites(savedUrls);
     response.setFunding(savedFunding);
