@@ -1,36 +1,43 @@
 package com.sarapis.orservice.service;
 
-import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
-import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
-
-import com.sarapis.orservice.dto.ContactDTO;
-import com.sarapis.orservice.dto.FundingDTO;
-import com.sarapis.orservice.dto.LocationDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.dto.OrganizationDTO;
+import com.amazonaws.util.IOUtils;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.*;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
-import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
-import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.PhoneDTO;
-import com.sarapis.orservice.dto.ProgramDTO;
-import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.mapper.OrganizationMapper;
 import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
 import com.sarapis.orservice.utils.MetadataUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
 
 @Service
 @RequiredArgsConstructor
@@ -99,11 +106,11 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   @Transactional
-  public Response createOrganization(Request requestDto) {
-    if (requestDto.getId() == null || requestDto.getId().trim().isEmpty()) {
-      requestDto.setId(UUID.randomUUID().toString());
+  public Response createOrganization(Request dto) {
+    if (dto.getId() == null || dto.getId().trim().isEmpty()) {
+      dto.setId(UUID.randomUUID().toString());
     }
-    Organization organization = organizationMapper.toEntity(requestDto);
+    Organization organization = organizationMapper.toEntity(dto);
     Organization savedOrganization = organizationRepository.save(organization);
 
     MetadataUtils.createMetadataEntry(
@@ -118,8 +125,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     );
 
     List<UrlDTO.Response> savedUrls = new ArrayList<>();
-    if (requestDto.getAdditionalWebsites() != null) {
-      for (UrlDTO.Request urlDTO : requestDto.getAdditionalWebsites()) {
+    if (dto.getAdditionalWebsites() != null) {
+      for (UrlDTO.Request urlDTO : dto.getAdditionalWebsites()) {
         urlDTO.setOrganizationId(savedOrganization.getId());
         UrlDTO.Response savedUrl = urlService.createUrl(urlDTO);
         savedUrls.add(savedUrl);
@@ -127,8 +134,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<FundingDTO.Response> savedFunding = new ArrayList<>();
-    if (requestDto.getFunding() != null) {
-      for (FundingDTO.Request fundingDTO : requestDto.getFunding()) {
+    if (dto.getFunding() != null) {
+      for (FundingDTO.Request fundingDTO : dto.getFunding()) {
         fundingDTO.setOrganizationId(savedOrganization.getId());
         FundingDTO.Response savedFundingItem = fundingService.createFunding(fundingDTO);
         savedFunding.add(savedFundingItem);
@@ -136,8 +143,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<ContactDTO.Response> savedContacts = new ArrayList<>();
-    if (requestDto.getContacts() != null) {
-      for (ContactDTO.Request contactDTO : requestDto.getContacts()) {
+    if (dto.getContacts() != null) {
+      for (ContactDTO.Request contactDTO : dto.getContacts()) {
         contactDTO.setOrganizationId(savedOrganization.getId());
         ContactDTO.Response savedContact = contactService.createContact(contactDTO);
         savedContacts.add(savedContact);
@@ -145,8 +152,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<PhoneDTO.Response> savedPhones = new ArrayList<>();
-    if (requestDto.getPhones()!= null) {
-      for (PhoneDTO.Request phoneDTO : requestDto.getPhones()) {
+    if (dto.getPhones()!= null) {
+      for (PhoneDTO.Request phoneDTO : dto.getPhones()) {
         phoneDTO.setOrganizationId(savedOrganization.getId());
         PhoneDTO.Response savedPhone = phoneService.createPhone(phoneDTO);
         savedPhones.add(savedPhone);
@@ -154,8 +161,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<ProgramDTO.Response> savedPrograms = new ArrayList<>();
-    if (requestDto.getPrograms() != null) {
-      for (ProgramDTO.Request programDTO : requestDto.getPrograms()) {
+    if (dto.getPrograms() != null) {
+      for (ProgramDTO.Request programDTO : dto.getPrograms()) {
         programDTO.setOrganizationId(savedOrganization.getId());
         ProgramDTO.Response savedProgram = programService.createProgram(programDTO);
         savedPrograms.add(savedProgram);
@@ -163,8 +170,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<OrganizationIdentifierDTO.Response> savedOrganizationIdentifiers = new ArrayList<>();
-    if (requestDto.getOrganizationIdentifiers() != null) {
-      for (OrganizationIdentifierDTO.Request organizationIdentifierDTO : requestDto.getOrganizationIdentifiers()) {
+    if (dto.getOrganizationIdentifiers() != null) {
+      for (OrganizationIdentifierDTO.Request organizationIdentifierDTO : dto.getOrganizationIdentifiers()) {
         organizationIdentifierDTO.setOrganizationId(savedOrganization.getId());
         OrganizationIdentifierDTO.Response savedOrganizationIdentifier =
             organizationIdentifierService.createOrganizationIdentifier(organizationIdentifierDTO);
@@ -173,8 +180,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<LocationDTO.Response> savedLocations = new ArrayList<>();
-    if (requestDto.getLocations() != null) {
-      for (LocationDTO.Request locationDTO : requestDto.getLocations()) {
+    if (dto.getLocations() != null) {
+      for (LocationDTO.Request locationDTO : dto.getLocations()) {
         locationDTO.setOrganizationId(savedOrganization.getId());
         LocationDTO.Response savedLocation = locationService.createLocation(locationDTO);
         savedLocations.add(savedLocation);
@@ -194,4 +201,55 @@ public class OrganizationServiceImpl implements OrganizationService {
     response.setMetadata(metadata);
     return response;
   }
+
+  @Override
+  public void writeCsv(ZipOutputStream zipOutputStream) {
+    try {
+      // Sets CSV printer
+      final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+      // Sets CSV header
+      csvPrinter.printRecord(OrganizationDTO.EXPORT_HEADER);
+      // Sets CSV entries
+      for (Organization organization : organizationRepository.findAll()) {
+        csvPrinter.printRecord(OrganizationDTO.toExport(organization));
+      }
+      // Flushes to zip entry
+      csvPrinter.flush();
+      zipOutputStream.putNextEntry(new ZipEntry("organizations.csv"));
+      IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
+      zipOutputStream.closeEntry();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to export data to CSV file: " + e.getMessage());
+    }
+  }
+
+    @Override
+    public void writePdf(ZipOutputStream zipOutputStream) {
+      try {
+        // Sets PDF document to write directly to zip entry stream
+        zipOutputStream.putNextEntry(new ZipEntry("organizations.pdf"));
+        com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
+        PdfWriter.getInstance(document, zipOutputStream);
+        document.open();
+        // Sets table
+        PdfPTable table = new PdfPTable(10);
+        PdfPCell cell = new PdfPCell();
+        // Sets table header
+        OrganizationDTO.EXPORT_HEADER.forEach(column -> {
+            cell.setPhrase(new Phrase(column));
+            table.addCell(cell);
+        });
+        // Sets table entries
+        for (Organization organization : organizationRepository.findAll()) {
+            OrganizationDTO.toExport(organization).forEach(table::addCell);
+        }
+        document.add(table);
+        document.close();
+        zipOutputStream.closeEntry();
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to export data to PDF file: " + e.getMessage());
+      }
+    }
 }
