@@ -49,4 +49,8 @@ public class Phone {
 
   @Column(name = "description")
   private String description;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "phone_id", referencedColumnName = "id")
+  private List<Language> languages;
 }

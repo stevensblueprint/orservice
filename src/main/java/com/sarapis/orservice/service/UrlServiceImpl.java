@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
 import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -39,7 +40,7 @@ public class UrlServiceImpl implements UrlService {
         URL_RESOURCE_TYPE,
         CREATE.name(),
     "url",
-        MetadataUtils.EMPTY_PREVIOUS_VALUE,
+        EMPTY_PREVIOUS_VALUE,
         urlMapper.toResponseDTO(savedUrl).toString(),
         "SYSTEM"
     );
