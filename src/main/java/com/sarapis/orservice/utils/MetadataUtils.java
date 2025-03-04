@@ -9,6 +9,9 @@ public class MetadataUtils {
   public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
   public static final String URL_RESOURCE_TYPE = "URL";
   public static final String PROGRAM_RESOURCE_TYPE = "PROGRAM";
+  public static final String PHONE_RESOURCE_TYPE = "PHONE";
+  public static final String ORGANIZATION_IDENTIFIER_RESOURCE_TYPE = "ORGANIZATION_IDENTIFIER";
+  public static final String FUNDING_RESOURCE_TYPE = "FUNDING_RESOURCE";
   public static final String EMPTY_PREVIOUS_VALUE = "";
   public static void createMetadataEntry(
       MetadataService metadataService,
