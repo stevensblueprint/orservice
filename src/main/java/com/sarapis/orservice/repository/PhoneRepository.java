@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PhoneRepository extends JpaRepository<Phone, String> {
   List<Phone> findByOrganizationId(String organizationId);
+  List<Phone> findByContactId(String contactId);
 }

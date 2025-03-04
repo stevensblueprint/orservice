@@ -64,4 +64,17 @@ public class PhoneServiceImpl implements PhoneService {
     }).toList();
     return phoneDtos;
   }
+
+  @Override
+  public List<Response> getPhonesByContactId(String contactId) {
+    List<Phone> phones = phoneRepository.findByContactId(contactId);
+    List<PhoneDTO.Response> phoneDtos = phones.stream().map(phoneMapper::toResponseDTO).toList();
+    phoneDtos = phoneDtos.stream().peek(phone -> {
+      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+          phone.getId(), PHONE_RESOURCE_TYPE
+      );
+      phone.setMetadata(metadata);
+    }).toList();
+    return phoneDtos;
+  }
 }

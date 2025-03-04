@@ -12,6 +12,7 @@ public class MetadataUtils {
   public static final String PHONE_RESOURCE_TYPE = "PHONE";
   public static final String ORGANIZATION_IDENTIFIER_RESOURCE_TYPE = "ORGANIZATION_IDENTIFIER";
   public static final String FUNDING_RESOURCE_TYPE = "FUNDING_RESOURCE";
+  public static final String CONTACT_RESOURCE_TYPE = "CONTACT";
   public static final String EMPTY_PREVIOUS_VALUE = "";
   public static void createMetadataEntry(
       MetadataService metadataService,

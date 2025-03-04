@@ -6,4 +6,5 @@ import java.util.List;
 public interface PhoneService {
   PhoneDTO.Response createPhone(PhoneDTO.Request dto);
   List<PhoneDTO.Response> getPhonesByOrganizationId(String organizationId);
+  List<PhoneDTO.Response> getPhonesByContactId(String contactId);
 }

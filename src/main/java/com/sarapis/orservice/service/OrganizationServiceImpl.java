@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
 import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.ContactDTO;
@@ -57,7 +58,6 @@ public class OrganizationServiceImpl implements OrganizationService {
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
 
-    // Map each Organization entity to a DTO and populate fields
     Page<OrganizationDTO.Response> dtoPage = organizationPage.map(organization -> {
       OrganizationDTO.Response response = organizationMapper.toResponseDTO(organization);
       List<UrlDTO.Response> urls = urlService.getUrlsByOrganizationId(organization.getId());
@@ -122,7 +122,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         ORGANIZATION_RESOURCE_TYPE,
         CREATE.name(),
         "organization",
-        MetadataUtils.EMPTY_PREVIOUS_VALUE,
+        EMPTY_PREVIOUS_VALUE,
         organizationMapper.toResponseDTO(savedOrganization).toString(),
         "SYSTEM"
     );
