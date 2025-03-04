@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class CostOptionServiceImpl implements CostOptionService{
   private final CostOptionMapper costOptionMapper;
   private final MetadataService metadataService;
   @Override
+  @Transactional
   public Response createCostOption(Request request) {
     if (request.getId() == null || request.getId().trim().isEmpty()) {
       request.setId(UUID.randomUUID().toString());
@@ -49,6 +51,7 @@ public class CostOptionServiceImpl implements CostOptionService{
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getCostOptionsByServiceId(String serviceId) {
     List<CostOption> costOptions = costOptionRepository.findByServiceId(serviceId);
     List<CostOptionDTO.Response> costOptionDtos = costOptions.stream().map(costOptionMapper::toResponseDTO).toList();

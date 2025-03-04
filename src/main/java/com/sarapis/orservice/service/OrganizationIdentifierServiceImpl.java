@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class OrganizationIdentifierServiceImpl implements OrganizationIdentifier
   private final MetadataService metadataService;
 
   @Override
+  @Transactional
   public Response createOrganizationIdentifier(Request request) {
     if (request.getId() == null || request.getId().trim().isEmpty()) {
       request.setId(UUID.randomUUID().toString());
@@ -51,6 +53,7 @@ public class OrganizationIdentifierServiceImpl implements OrganizationIdentifier
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getOrganizationIdentifiersByOrganizationId(String organizationId) {
     List<OrganizationIdentifier> organizationIdentifiers = organizationIdentifiersRepository.findByOrganizationId(organizationId);
     List<OrganizationIdentifierDTO.Response> responses =  organizationIdentifiers.stream().map(organizationIdentifierMapper::toResponseDTO).toList();

@@ -52,6 +52,7 @@ public class RequiredDocumentServiceImpl implements RequiredDocumentService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getRequiredDocumentByServiceId(String serviceId) {
     List<RequiredDocument> documents = repository.findRequiredDocumentByServiceId(serviceId);
     List<RequiredDocumentDTO.Response> documentDtos = documents.stream().map(mapper::toResponseDTO).toList();

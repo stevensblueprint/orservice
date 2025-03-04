@@ -98,6 +98,7 @@ public class ContactServiceImpl implements ContactService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getContactsByServiceId(String serviceId) {
     List<Contact> contacts = contactRepository.findByServiceId(serviceId);
     List<ContactDTO.Response> contactDtos = contacts.stream().map(contactMapper::toResponseDTO).toList();

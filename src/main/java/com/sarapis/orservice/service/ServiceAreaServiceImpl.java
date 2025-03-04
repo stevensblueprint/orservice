@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,9 @@ public class ServiceAreaServiceImpl implements ServiceAreaService{
   private final ServiceAreaRepository serviceAreaRepository;
   private final ServiceAreaMapper serviceAreaMapper;
   private final MetadataService metadataService;
+
   @Override
+  @Transactional
   public Response createServiceArea(Request dto) {
     if (dto.getId() == null || dto.getId().trim().isEmpty()) {
       dto.setId(UUID.randomUUID().toString());
@@ -49,6 +52,7 @@ public class ServiceAreaServiceImpl implements ServiceAreaService{
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getServiceAreasByServiceId(String serviceId) {
     List<ServiceArea> areas = serviceAreaRepository.findServiceAreaByServiceId(serviceId);
     List<ServiceAreaDTO.Response> response = areas.stream().map(serviceAreaMapper::toResponseDTO).toList();

@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class ProgramServiceImpl implements ProgramService{
   private final MetadataService metadataService;
 
   @Override
+  @Transactional
   public Response createProgram(Request dto) {
     if (dto.getId() == null || dto.getId().trim().isEmpty()) {
       dto.setId(UUID.randomUUID().toString());
@@ -52,6 +54,7 @@ public class ProgramServiceImpl implements ProgramService{
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getProgramsByOrganizationId(String organizationId) {
     List<Program> programs = programRepository.findByOrganizationId(organizationId);
     List<ProgramDTO.Response> programDtos = programs.stream().map(programMapper::toResponseDTO).collect(Collectors.toList());

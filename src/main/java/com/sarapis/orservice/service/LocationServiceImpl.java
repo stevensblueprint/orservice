@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class LocationServiceImpl implements LocationService {
   private final MetadataService metadataService;
 
   @Override
+  @Transactional
   public Response createLocation(Request dto) {
     if (dto.getId() == null || dto.getId().trim().isEmpty()) {
       dto.setId(UUID.randomUUID().toString());
@@ -123,6 +125,7 @@ public class LocationServiceImpl implements LocationService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getLocationByOrganizationId(String organizationId) {
     List<Location> locations = locationRepository.findByOrganizationId(organizationId);
     List<LocationDTO.Response> locationDtos = locations.stream().map(locationMapper::toResponseDTO).toList();

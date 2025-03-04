@@ -66,6 +66,7 @@ public class FundingServiceImpl implements FundingService{
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Response> getFundingByServiceId(String serviceId) {
     List<Funding> fundingList = fundingRepository.findByServiceId(serviceId);
     List<FundingDTO.Response> fundingDtos =  fundingList.stream().map(fundingMapper::toResponseDTO).toList();

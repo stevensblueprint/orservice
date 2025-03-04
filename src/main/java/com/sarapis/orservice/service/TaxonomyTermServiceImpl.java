@@ -29,6 +29,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
 
   @Override
+  @Transactional(readOnly = true)
   public PaginationDTO<TaxonomyTermDTO.Response> getAllTaxonomyTerms(String search, Integer page,
       Integer perPage, String format, String taxonomyId, Boolean topOnly, String parentId) {
       Specification<TaxonomyTerm> spec = Specification.where(null);
@@ -43,12 +44,14 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Response getTaxonomyTermById(String id) {
     TaxonomyTerm taxonomyTerm = taxonomyTermRepository.findById(id).orElseThrow();
     return taxonomyTermMapper.toResponseDTO(taxonomyTerm);
   }
 
   @Override
+  @Transactional
   public Response createTaxonomyTerm(Request requestDto) {
     return null;
   }
