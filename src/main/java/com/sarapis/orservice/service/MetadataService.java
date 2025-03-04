@@ -1,7 +1,10 @@
 package com.sarapis.orservice.service;
 
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.MetadataDTO.Response;
+import java.util.List;
+
 public interface MetadataService {
-  void createInitialMetadata(String resourceId, String resourceType, String fieldName, String value, String updatedBy);
-  void createMetadata(String resourceId, String resourceType, String fieldName, String previousValue,
-      String replacementValue, String updatedBy);
+  List<Response> getMetadataByResourceIdAndResourceType(String resourceId, String resourceType);
+  MetadataDTO.Response createMetadata(MetadataDTO.Request requestDto);
 }

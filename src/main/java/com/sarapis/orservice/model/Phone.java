@@ -49,16 +49,4 @@ public class Phone {
 
   @Column(name = "description")
   private String description;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "phone_id")
-  private List<Phone> phones;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "link_id", referencedColumnName = "id")
-  private List<Attribute> attributes;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "resource_id", referencedColumnName = "id")
-  private List<Metadata> metadata;
 }

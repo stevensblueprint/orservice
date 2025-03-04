@@ -1,0 +1,33 @@
+package com.sarapis.orservice.utils;
+
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.service.MetadataService;
+import java.time.LocalDate;
+import java.util.UUID;
+
+public class MetadataUtils {
+  public static final String EMPTY_PREVIOUS_VALUE = "";
+  public static MetadataDTO.Response createMetadataEntry(
+      MetadataService metadataService,
+      String resourceId,
+      String resourceType,
+      String actionType,
+      String fieldName,
+      String previousValue,
+      String replacementValue,
+      String updatedBy) {
+
+    MetadataDTO.Request metadataRequest = new MetadataDTO.Request();
+    metadataRequest.setId(UUID.randomUUID().toString());
+    metadataRequest.setResourceId(resourceId);
+    metadataRequest.setResourceType(resourceType);
+    metadataRequest.setLastActionDate(LocalDate.now());
+    metadataRequest.setLastActionType(actionType);
+    metadataRequest.setFieldName(fieldName);
+    metadataRequest.setPreviousValue(previousValue);
+    metadataRequest.setReplacementValue(replacementValue);
+    metadataRequest.setUpdatedBy(updatedBy);
+
+    return metadataService.createMetadata(metadataRequest);
+  }
+}

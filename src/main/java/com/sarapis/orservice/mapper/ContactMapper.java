@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface ContactMapper {
   Contact toEntity(ContactDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   ContactDTO.Response toResponseDTO(Contact entity);
 }

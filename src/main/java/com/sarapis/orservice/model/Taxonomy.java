@@ -37,8 +37,4 @@ public class Taxonomy {
 
   @Column(name = "version")
   private String version;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "resource_id", referencedColumnName = "id")
-  private List<Metadata> metadata;
 }

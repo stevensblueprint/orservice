@@ -12,6 +12,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "organization")
@@ -80,12 +81,4 @@ public class Organization {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<OrganizationIdentifier> organizationIdentifiers;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "link_id", referencedColumnName = "id")
-  private List<Attribute> attributes;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "resource_id", referencedColumnName = "id")
-  private List<Metadata> metadata;
 }

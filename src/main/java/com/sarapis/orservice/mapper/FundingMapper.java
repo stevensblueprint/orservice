@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface FundingMapper {
   Funding toEntity(FundingDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   FundingDTO.Response toResponseDTO(Funding entity);
 }

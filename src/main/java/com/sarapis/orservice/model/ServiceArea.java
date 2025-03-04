@@ -38,12 +38,4 @@ public class ServiceArea {
 
   @Column(name = "uri")
   private String uri;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "link_id", referencedColumnName = "id")
-  private List<Attribute> attributes;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "resource_id", referencedColumnName = "id")
-  private List<Metadata> metadata;
 }

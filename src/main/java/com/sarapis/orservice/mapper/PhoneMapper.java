@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface PhoneMapper {
   Phone toEntity(PhoneDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   PhoneDTO.Response toResponseDTO(Phone entity);
 }

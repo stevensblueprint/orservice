@@ -12,7 +12,5 @@ public interface ServiceAtLocationMapper {
   @Mapping(target = "contacts", source = "contacts")
   @Mapping(target = "phones", source = "phones")
   @Mapping(target = "schedules", source = "schedules")
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   ServiceAtLocationDTO.Response toResponseDTO(ServiceAtLocation entity);
 }

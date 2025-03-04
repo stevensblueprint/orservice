@@ -28,10 +28,4 @@ public class MetaTableDescription {
 
   @Column(name = "character_set")
   private String characterSet;
-
-  @OneToMany(mappedBy = "linkId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Attribute> attributes;
-
-  @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Metadata> metadata;
 }

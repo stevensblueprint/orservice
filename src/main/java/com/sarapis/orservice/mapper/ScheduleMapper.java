@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface ScheduleMapper {
   Schedule toEntity(ScheduleDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   ScheduleDTO.Response toResponseDTO(Schedule entity);
 }

@@ -34,7 +34,4 @@ public class Attribute {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "taxonomy_term_id", insertable = false, updatable = false)
   private TaxonomyTerm taxonomyTerm;
-
-  @OneToMany(mappedBy = "resourceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Metadata> metadata;
 }

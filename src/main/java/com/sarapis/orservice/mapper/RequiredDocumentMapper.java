@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface RequiredDocumentMapper {
   RequiredDocument toEntity(RequiredDocumentDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   RequiredDocumentDTO.Response toResponseDTO(RequiredDocument entity);
 }

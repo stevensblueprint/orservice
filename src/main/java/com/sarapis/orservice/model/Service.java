@@ -121,12 +121,4 @@ public class Service {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Contact> contacts;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "link_id", referencedColumnName = "id")
-  private List<Attribute> attributes;
-
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "resource_id", referencedColumnName = "id")
-  private List<Metadata> metadata;
 }

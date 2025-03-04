@@ -34,7 +34,7 @@ public class OrganizationController {
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format
   ) {
-    return ResponseEntity.ok(organizationService.getAllOrganizations(
+    PaginationDTO<OrganizationDTO. Response> pagination = organizationService.getAllOrganizations(
         search,
         fullService,
         full,
@@ -43,7 +43,9 @@ public class OrganizationController {
         page,
         perPage,
         format
-    ));
+    );
+
+    return ResponseEntity.ok(pagination);
   }
 
   @GetMapping("/{id}")

@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface MetadataMapper {
   Metadata toEntity(MetadataDTO.Request dto);
-  MetadataDTO.Response toDto(Metadata entity);
+  MetadataDTO.Response toResponseDTO(Metadata entity);
 }

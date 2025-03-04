@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface CostOptionMapper {
   CostOption toEntity(CostOptionDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   CostOptionDTO.Response toResponseDTO(CostOption entity);
 }

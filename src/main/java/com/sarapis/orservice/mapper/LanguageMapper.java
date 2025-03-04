@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface LanguageMapper {
   Language toEntity(LanguageDTO.Request dto);
 
-  @Mapping(target = "attributes", source = "attributes")
-  @Mapping(target = "metadata", source = "metadata")
   LanguageDTO.Response toResponseDTO(Language entity);
 }
