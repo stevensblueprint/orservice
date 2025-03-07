@@ -6,16 +6,20 @@ import javax.validation.ConstraintValidatorContext;
 
 public class YearValidator implements ConstraintValidator<ValidYear, Integer> {
 
+  /*
+   * The minimum year allowed for validation.
+   */
   private int min;
 
   @Override
-  public void initialize(ValidYear constraintAnnotation) {
+  public void initialize(final ValidYear constraintAnnotation) {
     ConstraintValidator.super.initialize(constraintAnnotation);
     this.min = constraintAnnotation.min();
   }
 
   @Override
-  public boolean isValid(Integer value, ConstraintValidatorContext context) {
+  public boolean isValid(
+      final Integer value, final ConstraintValidatorContext context) {
     if (value == null) {
       return true;
     }

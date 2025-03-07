@@ -12,6 +12,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JacksonConfiguration {
 
+  /**
+   * Configures and creates a custom ObjectMapper
+   * bean for JSON serialization and deserialization.
+   * This method sets up an ObjectMapper with the following configurations:
+   * - Treats null values for String and Collection types as empty.
+   * - Registers JavaTimeModule for proper handling of Java 8 date/time types.
+   * - Disables writing dates as timestamps,
+   * using ISO-8601 compliant date/time format instead.
+   *
+   * @return A configured ObjectMapper instance.
+   */
   @Bean
   public ObjectMapper objectMapper() {
     ObjectMapper mapper = new ObjectMapper();
@@ -25,4 +36,3 @@ public class JacksonConfiguration {
     return mapper;
   }
 }
-
