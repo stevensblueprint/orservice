@@ -1,4 +1,4 @@
-name: build and publish dockerfile
+name: Build and Publish Dockerfile
 on:
   push:
     branches: ["main"]
@@ -16,16 +16,16 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      - name: Cache Gradle packages
+      - name: Cache Maven packages
         uses: actions/cache@v3
         with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            gradle-
+            maven-
 
-      - name: Build with Gradle
-        run: ./gradlew clean bootJar
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
