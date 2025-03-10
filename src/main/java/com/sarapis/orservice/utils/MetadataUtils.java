@@ -1,7 +1,13 @@
 package com.sarapis.orservice.utils;
 
 import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.model.Metadata;
+import com.sarapis.orservice.repository.*;
 import com.sarapis.orservice.service.MetadataService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.repository.support.Repositories;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -46,5 +52,28 @@ public class MetadataUtils {
     metadataRequest.setUpdatedBy(updatedBy);
 
     metadataService.createMetadata(metadataRequest);
+  }
+
+  public Class<?> getRepositoryClass(String resourceType) {
+      return switch (resourceType) {
+        case ORGANIZATION_RESOURCE_TYPE -> OrganizationRepository.class;
+        case URL_RESOURCE_TYPE -> UrlRepository.class;
+        case PROGRAM_RESOURCE_TYPE -> ProgramRepository.class;
+        case PHONE_RESOURCE_TYPE -> PhoneRepository.class;
+        case ORGANIZATION_IDENTIFIER_RESOURCE_TYPE -> OrganizationIdentifiersRepository.class;
+        case FUNDING_RESOURCE_TYPE -> FundingRepository.class;
+        case CONTACT_RESOURCE_TYPE -> ContactRepository.class;
+        case LANGUAGE_RESOURCE_TYPE -> LanguageRepository.class;
+        case ACCESSIBILITY_RESOURCE_TYPE -> AccessibilityRepository.class;
+        case ADDRESS_RESOURCE_TYPE -> AddressRepository.class;
+        case SCHEDULE_RESOURCE_TYPE -> ScheduleRepository.class;
+        case LOCATION_RESOURCE_TYPE -> LocationRepository.class;
+        case SERVICE_AREA_RESOURCE_TYPE -> ServiceAreaRepository.class;
+        case COST_OPTION_RESOURCE_TYPE -> CostOptionRepository.class;
+        case SERVICE_RESOURCE_TYPE -> ServiceRepository.class;
+        case REQUIRED_DOCUMENT_RESOURCE_TYPE -> RequiredDocumentRepository.class;
+        case SERVICE_AT_LOCATION_RESOURCE_TYPE -> ServiceAtLocationRepository.class;
+        default -> throw new RuntimeException("");
+      };
   }
 }
