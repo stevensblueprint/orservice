@@ -1,7 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_IDENTIFIER_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -11,10 +11,8 @@ import com.sarapis.orservice.dto.OrganizationIdentifierDTO.Response;
 import com.sarapis.orservice.mapper.OrganizationIdentifierMapper;
 import com.sarapis.orservice.model.OrganizationIdentifier;
 import com.sarapis.orservice.repository.OrganizationIdentifiersRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +32,12 @@ public class OrganizationIdentifierServiceImpl implements OrganizationIdentifier
     }
     OrganizationIdentifier organizationIdentifier = organizationIdentifierMapper.toEntity(request);
     OrganizationIdentifier savedOrganizationIdentifier = organizationIdentifiersRepository.save(organizationIdentifier);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        request.getId(),
+    metadataService.createMetadata(
+        null,
+        savedOrganizationIdentifier,
         ORGANIZATION_IDENTIFIER_RESOURCE_TYPE,
-        CREATE.name(),
-        "organization_identifier",
-        EMPTY_PREVIOUS_VALUE,
-        request.getOrganizationId(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     OrganizationIdentifierDTO.Response response =  organizationIdentifierMapper.toResponseDTO(savedOrganizationIdentifier);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
@@ -64,5 +59,11 @@ public class OrganizationIdentifierServiceImpl implements OrganizationIdentifier
       organizationIdentifier.setMetadata(metadata);
     }).toList();
     return responses;
+  }
+
+  @Override
+  @Transactional
+  public Response updateOrganizationIdentifier(String id, Request organizationIdentifierDto) {
+    return null;
   }
 }

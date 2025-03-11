@@ -1,10 +1,5 @@
 package com.sarapis.orservice.utils;
 
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.service.MetadataService;
-import java.time.LocalDate;
-import java.util.UUID;
-
 public class MetadataUtils {
   public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
   public static final String URL_RESOURCE_TYPE = "URL";
@@ -23,28 +18,5 @@ public class MetadataUtils {
   public static final String SERVICE_RESOURCE_TYPE = "SERVICE";
   public static final String REQUIRED_DOCUMENT_RESOURCE_TYPE = "REQUIRED_DOCUMENT";
   public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
-  public static final String EMPTY_PREVIOUS_VALUE = "";
-  public static void createMetadataEntry(
-      MetadataService metadataService,
-      String resourceId,
-      String resourceType,
-      String actionType,
-      String fieldName,
-      String previousValue,
-      String replacementValue,
-      String updatedBy) {
-
-    MetadataDTO.Request metadataRequest = new MetadataDTO.Request();
-    metadataRequest.setId(UUID.randomUUID().toString());
-    metadataRequest.setResourceId(resourceId);
-    metadataRequest.setResourceType(resourceType);
-    metadataRequest.setLastActionDate(LocalDate.now());
-    metadataRequest.setLastActionType(actionType);
-    metadataRequest.setFieldName(fieldName);
-    metadataRequest.setPreviousValue(previousValue);
-    metadataRequest.setReplacementValue(replacementValue);
-    metadataRequest.setUpdatedBy(updatedBy);
-
-    metadataService.createMetadata(metadataRequest);
-  }
+  public static final String DEFAULT_CREATED_BY = "SYSTEM";
 }

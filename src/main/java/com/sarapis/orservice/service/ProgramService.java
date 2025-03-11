@@ -6,4 +6,5 @@ import java.util.List;
 public interface ProgramService {
   ProgramDTO.Response createProgram(ProgramDTO.Request dto);
   List<ProgramDTO.Response> getProgramsByOrganizationId(String organizationId);
+  ProgramDTO.Response updateProgram(String id, ProgramDTO.Request dto);
 }

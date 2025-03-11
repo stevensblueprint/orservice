@@ -1,8 +1,12 @@
 package com.sarapis.orservice.model;
 
+import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
+
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 
 @Entity
@@ -12,6 +16,7 @@ import lombok.Setter;
 public class Url {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "id", updatable = false, nullable = false)
   private String id;
 
@@ -21,9 +26,11 @@ public class Url {
   @Column(name = "url", nullable = false)
   private String url;
 
-  @Column(name = "organization_id")
-  private String organizationId;
+  @ManyToOne
+  @JoinColumn(name = "organization_id")
+  private Organization organization;
 
-  @Column(name = "service_id")
-  private String serviceId;
+  @ManyToOne
+  @JoinColumn(name = "service_id")
+  private Service service;
 }

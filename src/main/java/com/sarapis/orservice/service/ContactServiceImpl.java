@@ -2,7 +2,7 @@ package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
 import static com.sarapis.orservice.utils.MetadataUtils.CONTACT_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.ContactDTO.Request;
@@ -12,7 +12,6 @@ import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.mapper.ContactMapper;
 import com.sarapis.orservice.model.Contact;
 import com.sarapis.orservice.repository.ContactRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,15 +36,12 @@ public class ContactServiceImpl implements ContactService {
     }
     Contact contact = contactMapper.toEntity(contactDto);
     Contact savedContact = contactRepository.save(contact);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedContact.getId(),
+    metadataService.createMetadata(
+        null,
+        savedContact,
         CONTACT_RESOURCE_TYPE,
-        CREATE.name(),
-        "contact",
-        EMPTY_PREVIOUS_VALUE,
-        contactDto.getName(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
 
     List<PhoneDTO.Response> savedPhones = new ArrayList<>();

@@ -1,7 +1,6 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
 import static com.sarapis.orservice.utils.MetadataUtils.REQUIRED_DOCUMENT_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -33,15 +32,12 @@ public class RequiredDocumentServiceImpl implements RequiredDocumentService {
     }
     RequiredDocument document = mapper.toEntity(dto);
     RequiredDocument savedDocument = repository.save(document);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedDocument.getId(),
+    metadataService.createMetadata(
+        null,
+        savedDocument,
         REQUIRED_DOCUMENT_RESOURCE_TYPE,
-        CREATE.name(),
-        "required_document",
-        EMPTY_PREVIOUS_VALUE,
-        mapper.toResponseDTO(savedDocument).toString(),
-        "SYSTEM"
+        CREATE,
+        MetadataUtils.DEFAULT_CREATED_BY
     );
     RequiredDocumentDTO.Response response = mapper.toResponseDTO(savedDocument);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

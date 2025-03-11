@@ -1,7 +1,8 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.Metadata.UPDATE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -11,7 +12,6 @@ import com.sarapis.orservice.dto.UrlDTO.Response;
 import com.sarapis.orservice.mapper.UrlMapper;
 import com.sarapis.orservice.model.Url;
 import com.sarapis.orservice.repository.UrlRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +34,12 @@ public class UrlServiceImpl implements UrlService {
     }
     Url url = urlMapper.toEntity(urlDto);
     Url savedUrl = urlRepository.save(url);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedUrl.getId(),
+    metadataService.createMetadata(
+        null,
+        savedUrl,
         URL_RESOURCE_TYPE,
-        CREATE.name(),
-    "url",
-        EMPTY_PREVIOUS_VALUE,
-        urlMapper.toResponseDTO(savedUrl).toString(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     UrlDTO.Response response = urlMapper.toResponseDTO(savedUrl);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
@@ -55,14 +52,31 @@ public class UrlServiceImpl implements UrlService {
   @Override
   @Transactional(readOnly = true)
   public List<Response> getUrlsByOrganizationId(String organizationId) {
-    List<Url> urls = urlRepository.findByOrganizationId(organizationId);
-    List<UrlDTO.Response> urlDtos = urls.stream().map(urlMapper::toResponseDTO).toList();
-    urlDtos = urlDtos.stream().peek(url -> {
-      List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
-          url.getId(), URL_RESOURCE_TYPE
-      );
-      url.setMetadata(metadata);
-    }).toList();
-    return urlDtos;
+    return null;
+  }
+
+  @Override
+  @Transactional
+  public Response updateUrl(String id, Request urlDto) {
+    Url url = urlRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("URL with ID " + id + " not found"));
+
+    UrlDTO.Response previousState = urlMapper.toResponseDTO(url);
+    Url updatedUrl = urlRepository.save(url);
+    UrlDTO.Response updatedState = urlMapper.toResponseDTO(updatedUrl);
+
+    metadataService.createMetadata(
+        previousState,
+        updatedUrl,
+        URL_RESOURCE_TYPE,
+        UPDATE,
+        DEFAULT_CREATED_BY
+    );
+
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        updatedUrl.getId(), URL_RESOURCE_TYPE
+    );
+    updatedState.setMetadata(metadata);
+    return updatedState;
   }
 }

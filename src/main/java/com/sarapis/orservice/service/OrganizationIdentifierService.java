@@ -6,4 +6,5 @@ import java.util.List;
 public interface OrganizationIdentifierService {
   OrganizationIdentifierDTO.Response createOrganizationIdentifier(OrganizationIdentifierDTO.Request request);
   List<OrganizationIdentifierDTO.Response> getOrganizationIdentifiersByOrganizationId(String organizationId);
+  OrganizationIdentifierDTO.Response updateOrganizationIdentifier(String id, OrganizationIdentifierDTO.Request organizationIdentifierDto);
 }

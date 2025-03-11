@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.LanguageDTO;
@@ -11,7 +12,6 @@ import com.sarapis.orservice.dto.PhoneDTO.Response;
 import com.sarapis.orservice.mapper.PhoneMapper;
 import com.sarapis.orservice.model.Phone;
 import com.sarapis.orservice.repository.PhoneRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,15 +36,12 @@ public class PhoneServiceImpl implements PhoneService {
     }
     Phone phone = phoneMapper.toEntity(dto);
     Phone savedPhone = phoneRepository.save(phone);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedPhone.getId(),
+    metadataService.createMetadata(
+        null,
+        savedPhone,
         PHONE_RESOURCE_TYPE,
-        "CREATE",
-        "phone_number",
-        EMPTY_PREVIOUS_VALUE,
-        dto.getNumber(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     PhoneDTO.Response response = phoneMapper.toResponseDTO(savedPhone);
 
