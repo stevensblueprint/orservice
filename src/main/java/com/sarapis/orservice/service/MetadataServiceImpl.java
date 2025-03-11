@@ -7,7 +7,9 @@ import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,10 +82,12 @@ public class MetadataServiceImpl implements MetadataService {
 
     try {
       Class<?> genericEntity = (Class<?>) entity;
-      Field targetField = genericEntity.getField(fieldName);
-      String currValue = targetField.get(entity).toString();
+      String methodFieldName = this.convertFieldName(fieldName);
+      Method fieldGetter = genericEntity.getMethod("get" + methodFieldName);
+      Method fieldSetter = genericEntity.getMethod("set" + methodFieldName, Object.class);
 
-      targetField.set(entity, prevValue);
+      String currValue = fieldGetter.invoke(entity).toString();
+      fieldSetter.invoke(entity, prevValue);
       repo.save(entity);
 
       MetadataUtils.createMetadataEntry(this,
@@ -121,5 +125,13 @@ public class MetadataServiceImpl implements MetadataService {
       case MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE -> this.serviceAtLocationRepository;
       default -> throw new RuntimeException("");
     };
+  }
+
+  private String convertFieldName(String fieldName) {
+    // TODO: Utilize StringBuffer or StringBuilder
+    String[] parts = fieldName.split("_");
+    return Arrays.stream(parts)
+            .map((s) -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
+            .reduce("", String::concat);
   }
 }
