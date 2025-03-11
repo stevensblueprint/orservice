@@ -2,7 +2,7 @@ package com.sarapis.orservice.service;
 
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.SCHEDULE_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -12,7 +12,6 @@ import com.sarapis.orservice.dto.ScheduleDTO.Response;
 import com.sarapis.orservice.mapper.ScheduleMapper;
 import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.repository.ScheduleRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +33,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
     Schedule schedule = scheduleMapper.toEntity(dto);
     Schedule savedSchedule = scheduleRepository.save(schedule);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedSchedule.getId(),
+    metadataService.createMetadata(
+        null,
+        savedSchedule,
         SCHEDULE_RESOURCE_TYPE,
-        CREATE.name(),
-        "schedule",
-        EMPTY_PREVIOUS_VALUE,
-        scheduleMapper.toResponseDTO(savedSchedule).toString(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     ScheduleDTO.Response response = scheduleMapper.toResponseDTO(savedSchedule);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

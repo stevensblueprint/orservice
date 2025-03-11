@@ -1,8 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
-import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AREA_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.ContactDTO;
@@ -21,7 +20,6 @@ import com.sarapis.orservice.mapper.ServiceMapper;
 import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,15 +102,12 @@ public class ServiceServiceImpl implements ServiceService {
     Service service = serviceMapper.toEntity(requestDto);
     Service savedService = serviceRepository.save(service);
 
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedService.getId(),
-        SERVICE_AREA_RESOURCE_TYPE,
-        CREATE.name(),
-        "service",
-        EMPTY_PREVIOUS_VALUE,
-        service.getName(),
-        "SYSTEM"
+    metadataService.createMetadata(
+        service,
+        requestDto,
+        SERVICE_RESOURCE_TYPE,
+        CREATE,
+        DEFAULT_CREATED_BY
     );
 
     List<ContactDTO.Response> savedContacts = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.ContactDTO;
@@ -15,7 +15,6 @@ import com.sarapis.orservice.mapper.ServiceAtLocationMapper;
 import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -67,16 +66,12 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     }
     ServiceAtLocation serviceAtLocation = serviceAtLocationMapper.toEntity(dto);
     ServiceAtLocation savedServiceAtLocation = serviceAtLocationRepository.save(serviceAtLocation);
-
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedServiceAtLocation.getId(),
+    metadataService.createMetadata(
+        savedServiceAtLocation,
+        dto,
         SERVICE_AT_LOCATION_RESOURCE_TYPE,
-        CREATE.name(),
-        "service_at_location",
-        EMPTY_PREVIOUS_VALUE,
-        dto.getDescription(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     List<ContactDTO.Response> savedContacts = new ArrayList<>();
     if (dto.getContacts() != null) {

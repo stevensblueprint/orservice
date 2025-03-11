@@ -2,7 +2,7 @@ package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
 import static com.sarapis.orservice.utils.MetadataUtils.ACCESSIBILITY_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.dto.AccessibilityDTO.Request;
@@ -11,7 +11,6 @@ import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.mapper.AccessibilityMapper;
 import com.sarapis.orservice.model.Accessibility;
 import com.sarapis.orservice.repository.AccessibilityRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +33,12 @@ public class AccessibilityServiceImpl implements AccessibilityService {
     }
     Accessibility accessibility = accessibilityMapper.toEntity(dto);
     Accessibility savedAccessibility = accessibilityRepository.save(accessibility);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedAccessibility.getId(),
+    metadataService.createMetadata(
+        null,
+        savedAccessibility,
         ACCESSIBILITY_RESOURCE_TYPE,
-        CREATE.name(),
-        "accessibility",
-        EMPTY_PREVIOUS_VALUE,
-        accessibilityMapper.toResponseDTO(savedAccessibility).toString(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     AccessibilityDTO.Response response = accessibilityMapper.toResponseDTO(savedAccessibility);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

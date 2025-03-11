@@ -1,7 +1,8 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.Metadata.UPDATE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.FUNDING_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.FundingDTO;
@@ -11,7 +12,6 @@ import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.mapper.FundingMapper;
 import com.sarapis.orservice.model.Funding;
 import com.sarapis.orservice.repository.FundingRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +33,12 @@ public class FundingServiceImpl implements FundingService{
     }
     Funding funding = fundingMapper.toEntity(fundingDto);
     Funding savedFunding = fundingRepository.save(funding);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedFunding.getId(),
+    metadataService.createMetadata(
+        null,
+        savedFunding,
         FUNDING_RESOURCE_TYPE,
-        CREATE.name(),
-        "funding",
-        EMPTY_PREVIOUS_VALUE,
-        fundingDto.getId(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     FundingDTO.Response response = fundingMapper.toResponseDTO(savedFunding);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
@@ -77,5 +74,26 @@ public class FundingServiceImpl implements FundingService{
       funding.setMetadata(metadata);
     }).toList();
     return fundingDtos;
+  }
+
+  @Override
+  @Transactional
+  public Response updateFunding(String id, Request fundingDto) {
+    Funding funding = fundingRepository.findById(id).orElseThrow();
+    FundingDTO.Response previousState = fundingMapper.toResponseDTO(funding);
+    Funding updatedFunding = fundingRepository.save(funding);
+    FundingDTO.Response updatedState = fundingMapper.toResponseDTO(updatedFunding);
+    metadataService.createMetadata(
+        previousState,
+        updatedFunding,
+        FUNDING_RESOURCE_TYPE,
+        UPDATE,
+        DEFAULT_CREATED_BY
+    );
+    List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
+        updatedFunding.getId(), FUNDING_RESOURCE_TYPE
+    );
+    updatedState.setMetadata(metadata);
+    return updatedState;
   }
 }

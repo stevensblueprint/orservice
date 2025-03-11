@@ -2,7 +2,7 @@ package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
 import static com.sarapis.orservice.utils.MetadataUtils.ADDRESS_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 
 import com.sarapis.orservice.dto.AddressDTO;
 import com.sarapis.orservice.dto.AddressDTO.Request;
@@ -11,7 +11,6 @@ import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.mapper.AddressMapper;
 import com.sarapis.orservice.model.Address;
 import com.sarapis.orservice.repository.AddressRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,15 +31,12 @@ public class AddressServiceImpl implements AddressService {
     }
     Address address = addressMapper.toEntity(request);
     Address savedAddress = addressRepository.save(address);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedAddress.getAddress1(),
+    metadataService.createMetadata(
+        null,
+        savedAddress,
         ADDRESS_RESOURCE_TYPE,
-        CREATE.name(),
-        "address",
-        EMPTY_PREVIOUS_VALUE,
-        addressMapper.toResponseDTO(savedAddress).toString(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     AddressDTO.Response response = addressMapper.toResponseDTO(savedAddress);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(

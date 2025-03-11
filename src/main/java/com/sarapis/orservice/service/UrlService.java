@@ -7,4 +7,5 @@ import java.util.List;
 public interface UrlService {
   UrlDTO.Response createUrl(UrlDTO.Request url);
   List<UrlDTO.Response> getUrlsByOrganizationId(String organizationId);
+  UrlDTO.Response updateUrl(String id, UrlDTO.Request urlDto);
 }

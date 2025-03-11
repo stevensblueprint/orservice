@@ -1,7 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.LOCATION_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
@@ -17,7 +17,6 @@ import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.mapper.LocationMapper;
 import com.sarapis.orservice.model.Location;
 import com.sarapis.orservice.repository.LocationRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -47,15 +46,12 @@ public class LocationServiceImpl implements LocationService {
     }
     Location location = locationMapper.toEntity(dto);
     Location savedLocation = locationRepository.save(location);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedLocation.getId(),
+    metadataService.createMetadata(
+        null,
+        savedLocation,
         LOCATION_RESOURCE_TYPE,
-        CREATE.name(),
-        "location",
-        EMPTY_PREVIOUS_VALUE,
-        dto.getName(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
 
     List<LanguageDTO.Response> savedLanguages = new ArrayList<>();

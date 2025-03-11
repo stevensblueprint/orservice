@@ -1,7 +1,7 @@
 package com.sarapis.orservice.service;
 
 import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
+import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AREA_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.MetadataDTO;
@@ -11,7 +11,6 @@ import com.sarapis.orservice.dto.ServiceAreaDTO.Response;
 import com.sarapis.orservice.mapper.ServiceAreaMapper;
 import com.sarapis.orservice.model.ServiceArea;
 import com.sarapis.orservice.repository.ServiceAreaRepository;
-import com.sarapis.orservice.utils.MetadataUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +32,12 @@ public class ServiceAreaServiceImpl implements ServiceAreaService{
     }
     ServiceArea area = serviceAreaMapper.toEntity(dto);
     ServiceArea savedArea = serviceAreaRepository.save(area);
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedArea.getId(),
+    metadataService.createMetadata(
+        null,
+        savedArea,
         SERVICE_AREA_RESOURCE_TYPE,
-        CREATE.name(),
-        "service_area",
-        EMPTY_PREVIOUS_VALUE,
-        dto.getName(),
-        "SYSTEM"
+        CREATE,
+        DEFAULT_CREATED_BY
     );
     ServiceAreaDTO.Response response = serviceAreaMapper.toResponseDTO(savedArea);
     List<MetadataDTO.Response> metadata = metadataService.getMetadataByResourceIdAndResourceType(
