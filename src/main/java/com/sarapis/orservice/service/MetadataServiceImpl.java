@@ -6,6 +6,7 @@ import com.sarapis.orservice.mapper.MetadataMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.*;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +56,48 @@ public class MetadataServiceImpl implements MetadataService {
     Metadata metadata = metadataMapper.toEntity(requestDto);
     Metadata savedMetadata = metadataRepository.save(metadata);
     return metadataMapper.toResponseDTO(savedMetadata);
+  }
+
+  @Override
+  @Transactional
+  public void undoMetadata(String metadataId) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow();
+
+    String resourceType = metadata.getResourceType();
+    JpaRepository<?, String> targetRepo = this.getRepository(resourceType);
+    this.applyUndo(metadata, targetRepo);
+  }
+
+  // Split undo logic to solve typing issues when saving
+  private <T> void applyUndo(Metadata metadata, JpaRepository<T, String> repo) {
+    String resourceId = metadata.getResourceId();
+    T entity = repo.findById(resourceId)
+            .orElseThrow();
+
+    String fieldName = metadata.getFieldName();
+    String prevValue = metadata.getPreviousValue();
+
+    try {
+      Class<?> genericEntity = (Class<?>) entity;
+      Field targetField = genericEntity.getField(fieldName);
+      String currValue = targetField.get(entity).toString();
+
+      targetField.set(entity, prevValue);
+      repo.save(entity);
+
+      MetadataUtils.createMetadataEntry(this,
+              resourceId,
+              metadata.getResourceType(),
+              "",
+              fieldName,
+              currValue,
+              prevValue,
+              ""
+      );
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private JpaRepository<?, String> getRepository(String resourceType) {
