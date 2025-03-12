@@ -68,11 +68,29 @@ public class MetadataServiceImpl implements MetadataService {
 
     String resourceType = metadata.getResourceType();
     JpaRepository<?, String> targetRepo = this.getRepository(resourceType);
-    this.applyUndo(metadata, targetRepo);
+
+    String actionType = metadata.getLastActionType();
+    switch(actionType) {
+      case "create":
+        this.undoCreateMetadata(metadata, targetRepo);
+      case "update":
+        this.undoUpdateMetadata(metadata, targetRepo);
+      case "delete":
+        this.undoDeleteMetadata(metadata, targetRepo);
+      default:
+        throw new RuntimeException("");
+    }
   }
 
-  // Split undo logic to solve typing issues when saving
-  private <T> void applyUndo(Metadata metadata, JpaRepository<T, String> repo) {
+  private <T> void undoCreateMetadata(Metadata metadata, JpaRepository<T, String> repo) {
+
+  }
+
+  private <T> void undoDeleteMetadata(Metadata metadata, JpaRepository<T, String> repo) {
+
+  }
+
+  private <T> void undoUpdateMetadata(Metadata metadata, JpaRepository<T, String> repo) {
     String resourceId = metadata.getResourceId();
     T entity = repo.findById(resourceId)
             .orElseThrow();
