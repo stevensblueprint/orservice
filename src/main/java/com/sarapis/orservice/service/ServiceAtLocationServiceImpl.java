@@ -4,6 +4,7 @@ import static com.sarapis.orservice.utils.Metadata.CREATE;
 import static com.sarapis.orservice.utils.MetadataUtils.DEFAULT_CREATED_BY;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE;
 
+import com.google.maps.model.LatLng;
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
@@ -18,9 +19,12 @@ import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.sarapis.orservice.utils.GoogleMapsUtilities;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +45,33 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
       String taxonomyId, String organizationId, String modifiedAfter, Boolean full, Integer page,
       Integer perPage, String format, String postcode, String proximity) {
     Specification<ServiceAtLocation> spec = Specification.where(null);
+    Sort sort = Sort.unsorted();
+
     if (search != null && !search.isEmpty()) {
       spec = spec.and(ServiceAtLocationSpecifications.hasSearchTerm(search));
     }
 
-    PageRequest pageable = PageRequest.of(page, perPage);
+    // todo only return results where the postcode exists within the service_area, if available
+    if (postcode != null && !postcode.isEmpty()) {
+      if (proximity != null && !proximity.isEmpty()) {
+        // match within a radius of the postal code
+
+        // calculate Haversine distance in meters from the specified postal code (as latlng)
+        LatLng latlng = GoogleMapsUtilities.addressToLatLng(postcode);
+
+        // todo modify the spec here
+        // spec = spec.and();
+
+        // sort the results by proximity
+        // todo how to avoid calculating the distance twice - once in the spec and once here
+        // sort = Sort.by();
+      } else {
+        // match the postal code exactly
+        spec = spec.and(ServiceAtLocationSpecifications.hasPostalCode(postcode));
+      }
+    }
+
+    PageRequest pageable = PageRequest.of(page, perPage, sort);
     Page<ServiceAtLocation> serviceAtLocationPage = serviceAtLocationRepository.findAll(spec, pageable);
     Page<ServiceAtLocationDTO.Response> dtoPage = serviceAtLocationPage.map(service -> {
       ServiceAtLocationDTO.Response response = serviceAtLocationMapper.toResponseDTO(service);

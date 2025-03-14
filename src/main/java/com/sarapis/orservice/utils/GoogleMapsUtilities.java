@@ -31,7 +31,7 @@ public class GoogleMapsUtilities {
             return results[0].geometry.location;
 
         } catch (Exception e) {
-            // todo how should this be error handled?
+            // todo how should this be error handled? I want to just let it throw but Java won't let me (-Max)
             // could be ApiException, InterruptedException, or IOException
             throw new RuntimeException(e);
         }
