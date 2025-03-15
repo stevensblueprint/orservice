@@ -1,14 +1,5 @@
 package com.sarapis.orservice.model;
 
-import static com.sarapis.orservice.utils.MetadataUtils.CONTACT_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.FUNDING_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.LOCATION_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_IDENTIFIER_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.PROGRAM_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -21,14 +12,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "organization")
@@ -101,5 +90,5 @@ public class Organization {
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
-  private List<Location> locations;
+  private List<Location> locations;;
 }

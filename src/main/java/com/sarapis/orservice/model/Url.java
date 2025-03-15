@@ -3,9 +3,11 @@ package com.sarapis.orservice.model;
 import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 
 

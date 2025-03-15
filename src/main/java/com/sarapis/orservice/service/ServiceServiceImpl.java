@@ -50,7 +50,6 @@ public class ServiceServiceImpl implements ServiceService {
       String format, String taxonomyTermId, String taxonomyId, String organizationId,
       String modifiedAfter, Boolean minimal, Boolean full) {
     Specification<Service> spec = Specification.where(null);
-
     if (search != null && !search.isEmpty()) {
       spec = spec.and(ServiceSpecifications.hasSearchTerm(search));
     }
