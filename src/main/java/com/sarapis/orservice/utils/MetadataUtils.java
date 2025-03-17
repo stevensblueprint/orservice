@@ -1,8 +1,14 @@
 package com.sarapis.orservice.utils;
 
+import static com.sarapis.orservice.utils.Metadata.CREATE;
+import static com.sarapis.orservice.utils.Metadata.DELETE;
+import static com.sarapis.orservice.utils.Metadata.UPDATE;
+
 import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.service.MetadataService;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 
 public class MetadataUtils {
@@ -24,6 +30,13 @@ public class MetadataUtils {
   public static final String REQUIRED_DOCUMENT_RESOURCE_TYPE = "REQUIRED_DOCUMENT";
   public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
   public static final String EMPTY_PREVIOUS_VALUE = "";
+
+  public static final Map<String, String> ACTION_COMPLEMENT_MAP = Map.of(
+          CREATE.toString(), DELETE.toString(),
+          DELETE.toString(), CREATE.toString(),
+          UPDATE.toString(), UPDATE.toString()
+  );
+
   public static void createMetadataEntry(
       MetadataService metadataService,
       String resourceId,
@@ -46,5 +59,9 @@ public class MetadataUtils {
     metadataRequest.setUpdatedBy(updatedBy);
 
     metadataService.createMetadata(metadataRequest);
+  }
+
+  public static String getComplementAction(String actionType) {
+      return ACTION_COMPLEMENT_MAP.get(actionType);
   }
 }
