@@ -61,6 +61,11 @@ public class MetadataUtils {
     metadataService.createMetadata(metadataRequest);
   }
 
+  // TODO: Return true if the metadata creates/deletes an entity
+  public static boolean targetsEntity(Metadata metadata) {
+    return false;
+  }
+
   public static String getComplementAction(String actionType) {
       return ACTION_COMPLEMENT_MAP.get(actionType);
   }
