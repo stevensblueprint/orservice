@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class Metadata {
-
   @Id
   @Column(name = "id", updatable = false, nullable = false)
   private String id;
@@ -39,4 +38,7 @@ public class Metadata {
 
   @Column(name = "updated_by", nullable = false)
   private String updatedBy;
+
+  @Column(name = "file_import_id")
+  private String fileImportId;
 }
