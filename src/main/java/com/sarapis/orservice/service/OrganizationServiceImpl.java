@@ -152,7 +152,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     List<PhoneDTO.Response> savedPhones = new ArrayList<>();
-    if (dto.getPhones()!= null) {
+    if (dto.getPhones() != null) {
       for (PhoneDTO.Request phoneDTO : dto.getPhones()) {
         phoneDTO.setOrganizationId(savedOrganization.getId());
         PhoneDTO.Response savedPhone = phoneService.createPhone(phoneDTO);
@@ -203,53 +203,49 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public void writeCsv(ZipOutputStream zipOutputStream) {
-    try {
-      // Sets CSV printer
-      final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-      // Sets CSV header
-      csvPrinter.printRecord(OrganizationDTO.EXPORT_HEADER);
-      // Sets CSV entries
-      for (Organization organization : organizationRepository.findAll()) {
-        csvPrinter.printRecord(OrganizationDTO.toExport(organization));
-      }
-      // Flushes to zip entry
-      csvPrinter.flush();
-      zipOutputStream.putNextEntry(new ZipEntry("organizations.csv"));
-      IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
-      zipOutputStream.closeEntry();
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to export data to CSV file: " + e.getMessage());
+  public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets CSV printer
+    final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+    // Sets CSV header
+    csvPrinter.printRecord(OrganizationDTO.EXPORT_HEADER);
+    // Sets CSV entries
+    for (Organization organization : organizationRepository.findAll()) {
+      csvPrinter.printRecord(OrganizationDTO.toExport(organization));
     }
+    // Flushes to zip entry
+    csvPrinter.flush();
+    ZipEntry entry = new ZipEntry("organizations.csv");
+    zipOutputStream.putNextEntry(entry);
+    IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
+    zipOutputStream.closeEntry();
+    return entry.getSize();
   }
 
-    @Override
-    public void writePdf(ZipOutputStream zipOutputStream) {
-      try {
-        // Sets PDF document to write directly to zip entry stream
-        zipOutputStream.putNextEntry(new ZipEntry("organizations.pdf"));
-        com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
-        PdfWriter.getInstance(document, zipOutputStream);
-        document.open();
-        // Sets table
-        PdfPTable table = new PdfPTable(10);
-        PdfPCell cell = new PdfPCell();
-        // Sets table header
-        OrganizationDTO.EXPORT_HEADER.forEach(column -> {
-            cell.setPhrase(new Phrase(column));
-            table.addCell(cell);
-        });
-        // Sets table entries
-        for (Organization organization : organizationRepository.findAll()) {
-            OrganizationDTO.toExport(organization).forEach(table::addCell);
-        }
-        document.add(table);
-        document.close();
-        zipOutputStream.closeEntry();
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to export data to PDF file: " + e.getMessage());
-      }
+  @Override
+  public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets PDF document to write directly to zip entry stream
+    ZipEntry entry = new ZipEntry("organizations.pdf");
+    zipOutputStream.putNextEntry(entry);
+    com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
+    PdfWriter.getInstance(document, zipOutputStream);
+    document.open();
+    // Sets table
+    PdfPTable table = new PdfPTable(10);
+    PdfPCell cell = new PdfPCell();
+    // Sets table header
+    OrganizationDTO.EXPORT_HEADER.forEach(column -> {
+      cell.setPhrase(new Phrase(column));
+      table.addCell(cell);
+    });
+    // Sets table entries
+    for (Organization organization : organizationRepository.findAll()) {
+      OrganizationDTO.toExport(organization).forEach(table::addCell);
     }
+    document.add(table);
+    document.close();
+    zipOutputStream.closeEntry();
+    return entry.getSize();
+  }
 }

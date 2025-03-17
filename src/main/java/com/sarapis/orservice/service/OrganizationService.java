@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.zip.ZipOutputStream;
 
 public interface OrganizationService {
@@ -20,6 +21,6 @@ public interface OrganizationService {
 
   OrganizationDTO.Response getOrganizationById(String id);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto);
-  void writeCsv(ZipOutputStream zipOutputStream);
-  void writePdf(ZipOutputStream zipOutputStream);
+  long writeCsv(ZipOutputStream zipOutputStream) throws IOException;
+  long writePdf(ZipOutputStream zipOutputStream) throws IOException;
 }

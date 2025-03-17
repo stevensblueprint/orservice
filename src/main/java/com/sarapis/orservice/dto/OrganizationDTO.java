@@ -118,30 +118,27 @@ public class OrganizationDTO {
     );
   }
 
-  public static List<OrganizationDTO.Request> csvToOrganizations(InputStream inputStream) {
-    try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-         CSVParser csvParser = new CSVParser(fileReader,
-                 CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim().withNullString(""))) {
-      List<OrganizationDTO.Request> organizations = new ArrayList<>();
-      Iterable<CSVRecord> csvRecords = csvParser.getRecords();
-      for (CSVRecord csvRecord : csvRecords) {
-        OrganizationDTO.Request organization = Request.builder()
-          .id(csvRecord.get("id"))
-          .name(csvRecord.get("name"))
-          .description(csvRecord.get("description"))
-          .email(csvRecord.get("email"))
-          .uri(csvRecord.get("uri"))
-          .taxStatus(csvRecord.get("tax_status"))
-          .taxId(csvRecord.get("tax_id"))
-          .yearIncorporated(IntegerUtils.parseIntOrNull(csvRecord.get("year_incorporated")))
-          .legalStatus(csvRecord.get("legal_status"))
-          .build();
-        organizations.add(organization);
-      }
-
-      return organizations;
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to parse CSV file: " + e.getMessage());
+  public static List<OrganizationDTO.Request> csvToOrganizations(InputStream inputStream) throws IOException {
+    BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    CSVParser csvParser = new CSVParser(fileReader,
+            CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim().withNullString(""));
+    List<OrganizationDTO.Request> organizations = new ArrayList<>();
+    Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+    for (CSVRecord csvRecord : csvRecords) {
+      OrganizationDTO.Request organization = Request.builder()
+              .id(csvRecord.get("id"))
+              .name(csvRecord.get("name"))
+              .description(csvRecord.get("description"))
+              .email(csvRecord.get("email"))
+              .uri(csvRecord.get("uri"))
+              .taxStatus(csvRecord.get("tax_status"))
+              .taxId(csvRecord.get("tax_id"))
+              .yearIncorporated(IntegerUtils.parseIntOrNull(csvRecord.get("year_incorporated")))
+              .legalStatus(csvRecord.get("legal_status"))
+              .build();
+      organizations.add(organization);
     }
+
+    return organizations;
   }
 }
