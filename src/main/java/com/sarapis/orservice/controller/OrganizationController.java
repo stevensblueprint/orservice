@@ -51,8 +51,7 @@ public class OrganizationController {
       case (JSON) ->
           handleJsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page, perPage);
       case (NDJSON) ->
-          handleNdjsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page,
-              perPage);
+          handleNdjsonResponse(search, fullService, full, taxonomyTermId, taxonomyId);
       default -> throw new IllegalArgumentException("Invalid format: " + format);
     };
   }
@@ -96,14 +95,13 @@ public class OrganizationController {
     return ResponseEntity.ok(pagination);
   }
 
-  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
-      Integer page, Integer perPage) {
+  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId) {
     StreamingResponseBody responseBody = outputStream -> {
       try (Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         organizationService.streamAllOrganizations(
-            search, fullService, full, taxonomyTermId, taxonomyId, page, perPage,
+            search, fullService, full, taxonomyTermId, taxonomyId,
             organization -> {
               try {
                 writer.write(objectMapper.writeValueAsString(organization));

@@ -17,8 +17,7 @@ public interface OrganizationService {
   );
 
   void streamAllOrganizations(String search, Boolean fullService, Boolean full,
-      String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
-      Consumer<Response> consumer);
+      String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer);
 
   OrganizationDTO.Response getOrganizationById(String id, Boolean fullService);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);

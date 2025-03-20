@@ -30,6 +30,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final MetadataRepository metadataRepository;
 
   private static final boolean RETURN_FULL_SERVICE = true;
+  private static final int RECORDS_PER_STREAM = 100;
 
 
   @Override
@@ -46,27 +47,34 @@ public class OrganizationServiceImpl implements OrganizationService {
     return PaginationDTO.fromPage(dtoPage);
   }
 
+  // In OrganizationServiceImpl.java
   @Override
   @Transactional(readOnly = true)
   public void streamAllOrganizations(String search, Boolean fullService, Boolean full,
-      String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
-      Consumer<Response> consumer) {
-    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
-    int currentPage = page;
-    while (true) {
-      PageRequest pageRequest = PageRequest.of(currentPage, perPage);
-      Page<Organization> organizationPage = organizationRepository.findAll(spec, pageRequest);
-      List<Organization> organizations = organizationPage.getContent();
-      if (organizations.isEmpty()) {
-        break;
-      }
-      organizations.forEach(organization ->
-          consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService)));
+      String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
 
-      if (currentPage >= organizationPage.getTotalPages() - 1) {
-        break;
+    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
+    int currentPage = 0;
+    boolean hasMoreData = true;
+
+    while (hasMoreData) {
+      PageRequest pageable = PageRequest.of(currentPage, RECORDS_PER_STREAM);
+      Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
+
+      List<Organization> organizations = organizationPage.getContent();
+
+      if (organizations.isEmpty()) {
+        hasMoreData = false;
+      } else {
+        organizations.forEach(organization ->
+            consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
+        );
+        if (currentPage >= organizationPage.getTotalPages() - 1) {
+          hasMoreData = false;
+        } else {
+          currentPage++;
+        }
       }
-      currentPage++;
     }
   }
 
