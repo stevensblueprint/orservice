@@ -31,7 +31,7 @@ public abstract class ContactMapper {
   public abstract  ContactDTO.Response toResponseDTO(Contact entity);
 
   @AfterMapping
-  protected void toEntity(ContactDTO.Request dto, @MappingTarget() Contact entity) {
+  protected void toEntity(ContactDTO.Request dto, @MappingTarget Contact entity) {
     if (dto.getOrganizationId() != null) {
       entity.setOrganization(null);
     }

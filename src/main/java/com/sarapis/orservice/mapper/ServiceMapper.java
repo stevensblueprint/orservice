@@ -19,6 +19,7 @@ import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,6 +54,9 @@ public abstract class ServiceMapper {
 
   @Autowired
   private UrlMapper urlMapper;
+
+  @Autowired
+  private OrganizationRepository organizationRepository;
 
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract  Response toResponseDTO(Service entity);
@@ -110,8 +114,8 @@ public abstract class ServiceMapper {
     }
   }
 
-  public Service toEntity(ServiceDTO.Request dto, OrganizationRepository organizationRepository) {
-    Service service = toEntity(dto);
+  @AfterMapping
+  public Service toEntity(@MappingTarget Service service) {
     if (service.getOrganization().getId() != null) {
       service.setOrganization(organizationRepository.findById(service.getOrganization().getId()).orElseThrow(
           () -> new IllegalArgumentException("Organization not found for service with ID: " + service.getOrganization().getId())

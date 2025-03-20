@@ -67,4 +67,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationMapper.toResponseDTO(savedOrganization, metadataService);
   }
 
+  @Override
+  @Transactional
+  public void deleteOrganization(String id) {
+    organizationRepository.deleteById(id);
+    log.info("Deleted organization with id: {}", id);
+  }
+
 }

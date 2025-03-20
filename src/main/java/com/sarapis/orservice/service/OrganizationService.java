@@ -17,4 +17,5 @@ public interface OrganizationService {
 
   OrganizationDTO.Response getOrganizationById(String id);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);
+  void deleteOrganization(String id);
 }

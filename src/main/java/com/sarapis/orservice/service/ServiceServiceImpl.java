@@ -63,7 +63,7 @@ public class ServiceServiceImpl implements ServiceService {
     if (requestDto.getId() == null || StringUtils.isBlank(requestDto.getId())) {
       requestDto.setId(UUID.randomUUID().toString());
     }
-    Service service = serviceMapper.toEntity(requestDto, organizationRepository);
+    Service service = serviceMapper.toEntity(requestDto);
     service.setMetadata(metadataRepository, updatedBy);
     Service savedService = serviceRepository.save(service);
     return serviceMapper.toResponseDTO(savedService, metadataService);
