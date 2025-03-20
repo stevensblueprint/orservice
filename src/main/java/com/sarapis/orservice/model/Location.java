@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -67,27 +68,27 @@ public class Location {
   @Column(name = "external_identifier_type")
   private String externalIdentifierType;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Language> languages;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Address> addresses;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Contact> contacts;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Accessibility> accessibility;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Phone> phones;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private List<Schedule> schedules;
 
@@ -110,5 +111,12 @@ public class Location {
     this.getAccessibility().forEach(access -> access.setMetadata(metadataRepository, updatedBy));
     this.getPhones().forEach(phone -> phone.setMetadata(metadataRepository, updatedBy));
     this.getSchedules().forEach(schedule -> schedule.setMetadata(metadataRepository, updatedBy));
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }

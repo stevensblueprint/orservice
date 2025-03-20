@@ -1,8 +1,5 @@
 package com.sarapis.orservice.service;
 
-import static com.sarapis.orservice.utils.MetadataType.CREATE;
-import static com.sarapis.orservice.utils.MetadataUtils.EMPTY_PREVIOUS_VALUE;
-import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;

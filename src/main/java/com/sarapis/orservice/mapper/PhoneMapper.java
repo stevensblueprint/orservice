@@ -4,7 +4,9 @@ import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
+import com.sarapis.orservice.model.Language;
 import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -17,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class PhoneMapper {
   @Autowired
   private LanguageMapper languageMapper;
+  @Autowired
+  private LanguageRepository languageRepository;
+
 
   @Mapping(target = "organization.id", source = "organizationId")
   @Mapping(target = "service.id", source = "serviceId")
@@ -50,9 +55,16 @@ public abstract class PhoneMapper {
       entity.setContact(null);
     }
     if (entity.getLanguages() != null) {
-      entity.getLanguages().forEach(language ->
-          language.setPhone(entity)
-      );
+      List<Language> managedLanguages = entity.getLanguages().stream()
+         .map(language -> {
+            if (language.getId() != null) {
+              return languageRepository.findById(language.getId())
+                 .orElse(language);
+            }
+            return language;
+          })
+         .peek(language -> language.setPhone(entity)).toList();
+      entity.setLanguages(managedLanguages);
     }
   }
 

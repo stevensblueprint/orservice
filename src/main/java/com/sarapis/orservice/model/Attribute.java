@@ -3,6 +3,7 @@ package com.sarapis.orservice.model;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,4 +35,11 @@ public class Attribute {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "taxonomy_term_id", insertable = false, updatable = false)
   private TaxonomyTerm taxonomyTerm;
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+  }
 }

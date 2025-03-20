@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -32,19 +33,27 @@ public class ServiceAtLocation {
   @JoinColumn(name = "service_id")
   private Service service;
 
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "location_id")
+  private Location location;
+
   private String description;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_at_location_id", referencedColumnName = "id")
   private List<Contact> contacts;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_at_location_id", referencedColumnName = "id")
   private List<Phone> phones;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_at_location_id", referencedColumnName = "id")
   private List<Schedule> schedules;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "service_at_location_id", referencedColumnName = "id")
+  private List<ServiceArea> serviceAreas;
 
   public void setMetadata(MetadataRepository metadataRepository, String updatedBy) {
     if (this.getId() == null) {
@@ -63,5 +72,13 @@ public class ServiceAtLocation {
     this.getContacts().forEach(contact -> contact.setMetadata(metadataRepository, updatedBy));
     this.getPhones().forEach(phone -> phone.setMetadata(metadataRepository, updatedBy));
     this.getSchedules().forEach(schedule -> schedule.setMetadata(metadataRepository, updatedBy));
+    this.getServiceAreas().forEach(serviceArea -> serviceArea.setMetadata(metadataRepository, updatedBy));
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }

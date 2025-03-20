@@ -5,27 +5,21 @@ import static com.sarapis.orservice.utils.MetadataUtils.LANGUAGE_RESOURCE_TYPE;
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.model.Language;
 import com.sarapis.orservice.service.MetadataService;
+import java.util.UUID;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {AttributeMapper.class, MetadataMapper.class})
+@Mapper(componentModel = "spring")
 public interface LanguageMapper {
-  @Mapping(target = "service.id", source = "serviceId")
-  @Mapping(target = "location.id", source = "locationId")
-  @Mapping(target = "phone.id", source = "phoneId")
   Language toEntity(LanguageDTO.Request dto);
-
-  @Mapping(target = "serviceId", source = "service.id")
-  @Mapping(target = "locationId", source = "location.id")
-  @Mapping(target = "phoneId", source = "phone.id")
   LanguageDTO.Response toResponseDTO(Language entity);
 
   @AfterMapping
   default void toEntity(LanguageDTO.Request dto, @MappingTarget() Language entity) {
-    if (dto.getServiceId() == null) {
-      entity.setService(null);
+    if (entity.getId() == null) {
+      entity.setId(UUID.randomUUID().toString());
     }
     if (dto.getLocationId() == null) {
       entity.setLocation(null);

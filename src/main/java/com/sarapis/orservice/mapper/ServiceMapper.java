@@ -5,8 +5,28 @@ import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
 import com.sarapis.orservice.dto.ServiceDTO.Summary;
+import com.sarapis.orservice.model.Contact;
+import com.sarapis.orservice.model.CostOption;
+import com.sarapis.orservice.model.Funding;
+import com.sarapis.orservice.model.Language;
+import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.model.RequiredDocument;
+import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.model.Service;
+import com.sarapis.orservice.model.ServiceArea;
+import com.sarapis.orservice.model.ServiceAtLocation;
+import com.sarapis.orservice.model.Url;
+import com.sarapis.orservice.repository.ContactRepository;
+import com.sarapis.orservice.repository.CostOptionRepository;
+import com.sarapis.orservice.repository.FundingRepository;
+import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
+import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.RequiredDocumentRepository;
+import com.sarapis.orservice.repository.ScheduleRepository;
+import com.sarapis.orservice.repository.ServiceAreaRepository;
+import com.sarapis.orservice.repository.ServiceAtLocationRepository;
+import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -23,33 +43,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class ServiceMapper {
   @Autowired
   private PhoneMapper phoneMapper;
+  @Autowired
+  private PhoneRepository phoneRepository;
 
   @Autowired
   private ScheduleMapper scheduleMapper;
+  @Autowired
+  private ScheduleRepository scheduleRepository;
 
   @Autowired
   private ServiceAreaMapper serviceAreaMapper;
+  @Autowired
+  private ServiceAreaRepository serviceAreaRepository;
 
   @Autowired
   private ServiceAtLocationMapper serviceAtLocationMapper;
+  @Autowired
+  private ServiceAtLocationRepository serviceAtLocationRepository;
 
   @Autowired
   private LanguageMapper languageMapper;
+  @Autowired
+  private LanguageRepository languageRepository;
 
   @Autowired
   private CostOptionMapper costOptionMapper;
+  @Autowired
+  private CostOptionRepository costOptionRepository;
 
   @Autowired
   private RequiredDocumentMapper requiredDocumentMapper;
+  @Autowired
+  private RequiredDocumentRepository requiredDocumentRepository;
 
   @Autowired
   private ContactMapper contactMapper;
+  @Autowired
+  private ContactRepository contactRepository;
 
   @Autowired
   private FundingMapper fundingMapper;
+  @Autowired
+  private FundingRepository fundingRepository;
 
   @Autowired
   private UrlMapper urlMapper;
+  @Autowired
+  private UrlRepository urlRepository;
 
   @Autowired
   private OrganizationRepository organizationRepository;
@@ -76,34 +116,132 @@ public abstract class ServiceMapper {
   @AfterMapping
   protected void setRelations(@MappingTarget Service service) {
     if (service.getPhones() != null) {
-      service.getPhones().forEach(phone -> phone.setService(service));
+      List<Phone> managedPhones = service.getPhones().stream()
+          .map(phone -> {
+            if (phone.getId() != null) {
+              return phoneRepository.findById(phone.getId())
+                 .orElse(phone);
+            }
+            return phone;
+          })
+          .peek(phone -> phone.setService(service)).toList();
+      service.setPhones(managedPhones);
     }
+
     if (service.getSchedules() != null) {
-      service.getSchedules().forEach(schedule -> schedule.setService(service));
+      List<Schedule> managedSchedules = service.getSchedules().stream()
+          .map(schedule -> {
+            if (schedule.getId() != null) {
+              return scheduleRepository.findById(schedule.getId())
+                 .orElse(schedule);
+            }
+            return schedule;
+          })
+          .peek(schedule -> schedule.setService(service)).toList();
+      service.setSchedules(managedSchedules);
     }
+
     if (service.getServiceAreas() != null) {
-      service.getServiceAreas().forEach(serviceArea -> serviceArea.setService(service));
+      List<ServiceArea> managedServiceAreas = service.getServiceAreas().stream()
+          .map(serviceArea -> {
+            if (serviceArea.getId() != null) {
+              return serviceAreaRepository.findById(serviceArea.getId())
+                 .orElse(serviceArea);
+            }
+            return serviceArea;
+          })
+          .peek(serviceArea -> serviceArea.setService(service)).toList();
+      service.setServiceAreas(managedServiceAreas);
     }
+
     if (service.getServiceAtLocations() != null) {
-      service.getServiceAtLocations().forEach(serviceAtLocation -> serviceAtLocation.setService(service));
+      List<ServiceAtLocation> managedServiceAtLocations = service.getServiceAtLocations().stream()
+          .map(serviceAtLocation -> {
+            if (serviceAtLocation.getId()!= null) {
+              return serviceAtLocationRepository.findById(serviceAtLocation.getId())
+                 .orElse(serviceAtLocation);
+            }
+            return serviceAtLocation;
+          })
+          .peek(serviceAtLocation -> serviceAtLocation.setService(service)).toList();
+      service.setServiceAtLocations(managedServiceAtLocations);
     }
+
     if (service.getLanguages() != null) {
-      service.getLanguages().forEach(language -> language.setService(service));
+      List<Language> managedLanguages = service.getLanguages().stream()
+          .map(language -> {
+            if (language.getId()!= null) {
+              return languageRepository.findById(language.getId())
+                 .orElse(language);
+            }
+            return language;
+          })
+          .peek(language -> language.setService(service)).toList();
+      service.setLanguages(managedLanguages);
     }
+
     if (service.getCostOptions() != null) {
-      service.getCostOptions().forEach(costOption -> costOption.setService(service));
+      List<CostOption> managedCostOptions = service.getCostOptions().stream()
+          .map(costOption -> {
+            if (costOption.getId()!= null) {
+              return costOptionRepository.findById(costOption.getId())
+                 .orElse(costOption);
+            }
+            return costOption;
+          })
+          .peek(costOption -> costOption.setService(service)).toList();
+      service.setCostOptions(managedCostOptions);
     }
     if (service.getRequiredDocuments() != null) {
-      service.getRequiredDocuments().forEach(requiredDocument -> requiredDocument.setService(service));
+      List<RequiredDocument> managedDocuments = service.getRequiredDocuments().stream()
+          .map(requiredDocument -> {
+            if (requiredDocument.getId()!= null) {
+              return requiredDocumentRepository.findById(requiredDocument.getId())
+                 .orElse(requiredDocument);
+            }
+            return requiredDocument;
+          })
+          .peek(requiredDocument -> requiredDocument.setService(service)).toList();
+      service.setRequiredDocuments(managedDocuments);
     }
+
     if (service.getContacts() != null) {
-      service.getContacts().forEach(contact -> contact.setService(service));
+      List<Contact> managedContacts = service.getContacts().stream()
+          .map(contact -> {
+            if (contact.getId()!= null) {
+              return contactRepository.findById(contact.getId())
+                 .orElse(contact);
+            }
+            return contact;
+          })
+          .peek(contact -> contact.setService(service)).toList();
+      service.setContacts(managedContacts);
     }
+
     if (service.getFunding() != null) {
-      service.getFunding().forEach(funding -> funding.setService(service));
+      List<Funding> managedFunding = service.getFunding().stream()
+          .map(funding -> {
+            if (funding.getId()!= null) {
+              return fundingRepository.findById(funding.getId())
+                 .orElse(funding);
+            }
+            return funding;
+          })
+          .peek(funding -> funding.setService(service)).toList();
+      service.setFunding(managedFunding);
     }
+
     if (service.getAdditionalUrls() != null) {
-      service.getAdditionalUrls().forEach(url -> url.setService(service));
+      List<Url> managedUrls = service.getAdditionalUrls().stream()
+          .map(url -> {
+            if (url.getId()!= null) {
+              return urlRepository.findById(url.getId())
+                 .orElse(url);
+            }
+            return url;
+          })
+          .peek(url -> url.setService(service)).toList();
+      service.setAdditionalUrls(managedUrls);
     }
   }
 

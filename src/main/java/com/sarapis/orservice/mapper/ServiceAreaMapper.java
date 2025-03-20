@@ -15,16 +15,15 @@ public interface ServiceAreaMapper {
   @Mapping(target = "service.id", source = "serviceId")
   ServiceArea toEntity(ServiceAreaDTO.Request dto);
 
-  @Mapping(target = "serviceId", source = "service.id")
   ServiceAreaDTO.Response toResponseDTO(ServiceArea entity);
 
   @AfterMapping
-  default void toEntity(ServiceAreaDTO.Response dto, @MappingTarget() ServiceArea entity) {
+  default void toEntity(ServiceAreaDTO.Request dto, @MappingTarget ServiceArea entity) {
     if (dto.getServiceId() == null) {
       entity.setService(null);
     }
-    if (dto.getServiceId() == null) {
-      entity.setService(null);
+    if (dto.getServiceAtLocationId() == null) {
+      entity.setServiceAtLocation(null);
     }
   }
 

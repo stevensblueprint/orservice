@@ -8,6 +8,7 @@ import com.sarapis.orservice.utils.MetadataUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -55,5 +56,12 @@ public class Taxonomy {
         updatedBy
     );
     metadataRepository.saveAll(metadata);
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }

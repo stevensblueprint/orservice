@@ -59,35 +59,35 @@ public class Organization extends BaseResource {
   @Column(name = "uri")
   private String uri;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Service> services = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Url> additionalWebsites = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Funding> funding = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Contact> contacts = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Phone> phones = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Program> programs = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<OrganizationIdentifier> organizationIdentifiers = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Location> locations = new ArrayList<>();
 
@@ -113,5 +113,4 @@ public class Organization extends BaseResource {
     this.getPrograms().forEach(program -> program.setMetadata(metadataRepository, updatedBy));
     this.getFunding().forEach(funding -> funding.setMetadata(metadataRepository, updatedBy));
   }
-
 }
