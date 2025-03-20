@@ -31,11 +31,12 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Slf4j
 public class OrganizationController {
   private final OrganizationService organizationService;
+  private static final String NDJSON_APPLICATION_TYPE = "application/x-ndjson";
   private static final String JSON = "json";
   private static final String NDJSON = "ndjson";
 
 
-  @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-ndjson"})
+  @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
   public ResponseEntity<?> getAllOrganizations(
       @RequestParam(name = "search", defaultValue = "") String search,
       @RequestParam(name = "full_service", defaultValue = "false") Boolean fullService,
@@ -55,6 +56,28 @@ public class OrganizationController {
       default -> throw new IllegalArgumentException("Invalid format: " + format);
     };
   }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<OrganizationDTO.Response> getServiceById(
+      @PathVariable String id,
+      @RequestParam(name = "full_service", defaultValue = "true") Boolean fullService) {
+    return ResponseEntity.ok(organizationService.getOrganizationById(id, fullService));
+  }
+
+  @PostMapping
+  public ResponseEntity<OrganizationDTO.Response> createOrganization(
+      @Valid @RequestBody OrganizationDTO.Request request,
+      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
+  ) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request, updatedBy));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
+    organizationService.deleteOrganization(id);
+    return ResponseEntity.noContent().build();
+  }
+
 
   private ResponseEntity<PaginationDTO<OrganizationDTO.Response>> handleJsonResponse(
       String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
@@ -99,26 +122,5 @@ public class OrganizationController {
     return ResponseEntity.ok()
         .contentType(MediaType.valueOf("application/x-ndjson"))
         .body(responseBody);
-  }
-
-  @GetMapping("/{id}")
-  public ResponseEntity<OrganizationDTO.Response> getServiceById(
-      @PathVariable String id,
-      @RequestParam(name = "full_service", defaultValue = "true") Boolean fullService) {
-    return ResponseEntity.ok(organizationService.getOrganizationById(id, fullService));
-  }
-
-  @PostMapping
-  public ResponseEntity<OrganizationDTO.Response> createOrganization(
-      @Valid @RequestBody OrganizationDTO.Request request,
-      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
-  ) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request, updatedBy));
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
-    organizationService.deleteOrganization(id);
-    return ResponseEntity.noContent().build();
   }
 }
