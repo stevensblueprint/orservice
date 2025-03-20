@@ -1,7 +1,5 @@
 package com.sarapis.orservice.service;
 
-import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
-
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
@@ -59,12 +57,12 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   @Transactional
-  public Response createOrganization(Request requestDto) {
+  public Response createOrganization(Request requestDto, String updatedBy) {
     if (requestDto.getId() == null || requestDto.getId().trim().isEmpty()) {
       requestDto.setId(UUID.randomUUID().toString());
     }
     Organization organization = organizationMapper.toEntity(requestDto);
-    organization.setMetadata(metadataRepository, "SYSTEM");
+    organization.setMetadata(metadataRepository, updatedBy);
     Organization savedOrganization = organizationRepository.save(organization);
     return organizationMapper.toResponseDTO(savedOrganization, metadataService);
   }
