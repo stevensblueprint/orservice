@@ -48,8 +48,6 @@ public abstract class OrganizationMapper {
   @Autowired
   private ServiceMapper serviceMapper;
 
-  private static final Boolean shouldNotIncludeOrganization = false;
-
   public abstract Organization toEntity(OrganizationDTO.Request dto);
   public abstract OrganizationDTO.Response toResponseDTO(Organization entity);
 

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/taxonomyTerms")
+@RequestMapping("/taxonomy_terms")
 @RequiredArgsConstructor
 @Slf4j
 public class TaxonomyTermController {
@@ -35,9 +35,9 @@ public class TaxonomyTermController {
       @RequestParam(name = "page", defaultValue = "0") Integer page,
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format,
-      @RequestParam(name = "taxonomy_id") String taxonomyId,
+      @RequestParam(name = "taxonomy_id", defaultValue = "") String taxonomyId,
       @RequestParam(name = "top_only", defaultValue = "false") boolean topOnly,
-      @RequestParam(name = "parent_id") String parentId
+      @RequestParam(name = "parent_id", defaultValue = "") String parentId
   ) {
     return ResponseEntity.ok(taxonomyTermService.getAllTaxonomyTerms(
         search,

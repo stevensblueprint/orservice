@@ -56,10 +56,10 @@ public class Location {
   private String transportation;
 
   @Column(name = "latitude")
-  private String latitude;
+  private int latitude;
 
   @Column(name = "longitude")
-  private String longitude;
+  private int longitude;
 
   @Column(name = "external_identifier")
   private String externalIdentifier;
