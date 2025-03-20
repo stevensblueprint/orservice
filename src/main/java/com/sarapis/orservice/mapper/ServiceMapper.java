@@ -13,6 +13,7 @@ import com.sarapis.orservice.dto.ServiceAreaDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
+import com.sarapis.orservice.dto.ServiceDTO.Summary;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.repository.OrganizationRepository;
@@ -20,6 +21,7 @@ import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,6 +62,7 @@ public abstract class ServiceMapper {
 
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract  Response toResponseDTO(Service entity);
+  public abstract Summary toSummaryDTO(Service entity);
 
   @AfterMapping
   protected void setRelations(@MappingTarget Service service) {

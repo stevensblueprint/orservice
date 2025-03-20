@@ -51,8 +51,10 @@ public class OrganizationController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<OrganizationDTO.Response> getServiceById(@PathVariable String id) {
-    return ResponseEntity.ok(organizationService.getOrganizationById(id));
+  public ResponseEntity<OrganizationDTO.Response> getServiceById(
+      @PathVariable String id,
+      @RequestParam(name = "full_service", defaultValue = "true") Boolean fullService) {
+    return ResponseEntity.ok(organizationService.getOrganizationById(id, fullService));
   }
 
   @PostMapping

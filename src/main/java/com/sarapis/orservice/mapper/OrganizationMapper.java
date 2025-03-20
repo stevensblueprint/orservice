@@ -9,6 +9,7 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationIdentifierDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
+import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.service.MetadataService;
@@ -43,6 +44,11 @@ public abstract class OrganizationMapper {
 
   @Autowired
   private LocationMapper locationMapper;
+
+  @Autowired
+  private ServiceMapper serviceMapper;
+
+  private static final Boolean shouldNotIncludeOrganization = false;
 
   public abstract Organization toEntity(OrganizationDTO.Request dto);
   public abstract OrganizationDTO.Response toResponseDTO(Organization entity);
@@ -142,6 +148,14 @@ public abstract class OrganizationMapper {
              .map(phone -> phoneMapper.toResponseDTO(phone, metadataService))
              .collect(Collectors.toList());
       response.setPhones(enrichedPhones);
+    }
+
+    if (entity.getServices() != null) {
+      List<ServiceDTO.Summary> enrichedServices =
+          entity.getServices().stream()
+             .map(service -> serviceMapper.toSummaryDTO(service))
+             .collect(Collectors.toList());
+      response.setServices(enrichedServices);
     }
 
     return response;

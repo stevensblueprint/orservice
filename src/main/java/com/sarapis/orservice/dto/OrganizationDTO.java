@@ -74,6 +74,9 @@ public class OrganizationDTO {
     private List<ProgramDTO.Request> programs = new ArrayList<>();
 
     @Builder.Default
+    private List<ServiceDTO.Request> services = new ArrayList<>();
+
+    @Builder.Default
     private List<OrganizationIdentifierDTO.Request> organizationIdentifiers = new ArrayList<>();
   }
 
@@ -118,6 +121,9 @@ public class OrganizationDTO {
 
     @Builder.Default
     private List<OrganizationIdentifierDTO.Response> organizationIdentifiers = new ArrayList<>();
+
+    @Builder.Default
+    private List<ServiceDTO.Summary> services = new ArrayList<>();
 
     @Builder.Default
     private List<AttributeDTO.Response> attributes = new ArrayList<>();

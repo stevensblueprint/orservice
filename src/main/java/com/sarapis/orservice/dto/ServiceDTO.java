@@ -166,4 +166,34 @@ public class ServiceDTO {
     @Builder.Default
     private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
+
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Builder
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  public static class Summary {
+    private String id;
+    private String name;
+    private String alternateName;
+    private String description;
+    private String url;
+    private String email;
+    private String status;
+    private String interpretationServices;
+    private String applicationProcess;
+    private String feesDescription;
+    private String waitTime;
+    private String fees;
+    private String accreditations;
+    private String eligibilityDescription;
+    private Integer minimumAge;
+    private Integer maximumAge;
+    private String assuredDate;
+    private String assurerEmail;
+    private String licenses;
+    private String alert;
+    private LocalDate lastModified;
+  }
 }

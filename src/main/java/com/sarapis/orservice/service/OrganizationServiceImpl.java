@@ -50,7 +50,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   @Transactional(readOnly = true)
-  public Response getOrganizationById(String id) {
+  public Response getOrganizationById(String id, Boolean fullService) {
     Organization organization = organizationRepository.findById(id).orElseThrow();
     return organizationMapper.toResponseDTO(organization, metadataService);
   }
