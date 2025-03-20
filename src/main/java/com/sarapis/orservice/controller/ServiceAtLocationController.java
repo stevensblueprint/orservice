@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,8 +62,9 @@ public class ServiceAtLocationController {
 
   @PostMapping
   public ResponseEntity<ServiceAtLocationDTO.Response> createServiceAtLocation(
-      @Valid @RequestBody ServiceAtLocationDTO.Request request
+      @Valid @RequestBody ServiceAtLocationDTO.Request request,
+      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
   ) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(serviceAtLocationService.createServiceAtLocation(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(serviceAtLocationService.createServiceAtLocation(request, updatedBy));
   }
 }

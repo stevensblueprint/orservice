@@ -25,7 +25,6 @@ public class ServiceServiceImpl implements ServiceService {
   private final ServiceRepository serviceRepository;
   private final ServiceMapper serviceMapper;
   private final MetadataRepository metadataRepository;
-  private final OrganizationRepository organizationRepository;
   private final MetadataService metadataService;
 
   @Override
