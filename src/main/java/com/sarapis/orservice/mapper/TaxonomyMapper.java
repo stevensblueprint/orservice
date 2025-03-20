@@ -5,7 +5,6 @@ import static com.sarapis.orservice.utils.MetadataUtils.TAXONOMY_RESOURCE_TYPE;
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.model.Taxonomy;
 import com.sarapis.orservice.service.MetadataService;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
