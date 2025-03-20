@@ -69,6 +69,7 @@ public class ServiceDTO {
     private List<CostOptionDTO.Request> costOptions;
     private ProgramDTO.Request program;
     private List<RequiredDocumentDTO.Request> requiredDocuments;
+    private List<ServiceAtLocationDTO.Request> serviceAtLocations;
     private List<ContactDTO.Request> contacts;
     private List<UrlDTO.Request> additionalUrls;
   }
@@ -109,6 +110,7 @@ public class ServiceDTO {
     private List<CostOptionDTO.Response> costOptions;
     private ProgramDTO.Response program;
     private List<RequiredDocumentDTO.Response> requiredDocuments;
+    private List<ServiceAtLocationDTO.Response> serviceAtLocations;
     private List<ContactDTO.Response> contacts;
     private List<UrlDTO.Response> additionalUrls;
     private List<AttributeDTO.Response> attributes;
