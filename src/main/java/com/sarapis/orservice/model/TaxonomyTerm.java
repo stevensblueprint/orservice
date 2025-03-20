@@ -1,5 +1,10 @@
 package com.sarapis.orservice.model;
 
+import static com.sarapis.orservice.utils.MetadataUtils.TAXONOMY_TERM_RESOURCE_TYPE;
+
+import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.utils.MetadataType;
+import com.sarapis.orservice.utils.MetadataUtils;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.List;
+import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -50,4 +57,19 @@ public class TaxonomyTerm {
 
   @Column
   private String termUri;
+
+  public void setMetadata(MetadataRepository metadataRepository, String updatedBy) {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+    List<Metadata> metadataList = MetadataUtils.createMetadata(
+        this,
+        this,
+        this.getId(),
+        TAXONOMY_TERM_RESOURCE_TYPE,
+        MetadataType.CREATE,
+        updatedBy
+    );
+    metadataRepository.saveAll(metadataList);
+  }
 }

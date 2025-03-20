@@ -27,6 +27,8 @@ public class MetadataUtils {
   public static final String SERVICE_RESOURCE_TYPE = "SERVICE";
   public static final String REQUIRED_DOCUMENT_RESOURCE_TYPE = "REQUIRED_DOCUMENT";
   public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
+  public static final String TAXONOMY_TERM_RESOURCE_TYPE = "TAXONOMY_TERM";
+  public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
   public static final String EMPTY_PREVIOUS_VALUE = "";
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
