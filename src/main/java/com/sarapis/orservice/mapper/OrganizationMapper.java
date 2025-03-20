@@ -153,7 +153,7 @@ public abstract class OrganizationMapper {
     if (entity.getServices() != null) {
       List<ServiceDTO.Summary> enrichedServices =
           entity.getServices().stream()
-             .map(service -> serviceMapper.toSummaryDTO(service))
+             .map(service -> serviceMapper.toSummaryDTO(service, metadataService))
              .collect(Collectors.toList());
       response.setServices(enrichedServices);
     }

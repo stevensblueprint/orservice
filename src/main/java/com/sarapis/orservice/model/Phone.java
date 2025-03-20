@@ -54,7 +54,7 @@ public class Phone {
   private String number;
 
   @Column(name = "extension")
-  private String extension;
+  private int extension;
 
   @Column(name = "type")
   private String type;
