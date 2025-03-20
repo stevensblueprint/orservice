@@ -1,5 +1,6 @@
 package com.sarapis.orservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.sarapis.orservice.validator.ValidEmail;
@@ -23,6 +24,7 @@ public class ServiceDTO {
   @AllArgsConstructor
   @Builder
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Request {
     private String id;
 
@@ -105,6 +107,7 @@ public class ServiceDTO {
   @AllArgsConstructor
   @Builder
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Response {
     private String id;
     private String name;
@@ -173,6 +176,7 @@ public class ServiceDTO {
   @NoArgsConstructor
   @Builder
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Summary {
     private String id;
     private String name;
@@ -195,39 +199,17 @@ public class ServiceDTO {
     private String licenses;
     private String alert;
     private LocalDate lastModified;
-
-    @Builder.Default
     private List<FundingDTO.Response> funding = new ArrayList<>();
-
-    @Builder.Default
     private List<CostOptionDTO.Response> costOptions = new ArrayList<>();
     private ProgramDTO.Response program;
-
-    @Builder.Default
     private List<RequiredDocumentDTO.Response> requiredDocuments = new ArrayList<>();
-
-    @Builder.Default
     private List<ServiceAtLocationDTO.Response> serviceAtLocations = new ArrayList<>();
-
-    @Builder.Default
     private List<ContactDTO.Response> contacts = new ArrayList<>();
-
-    @Builder.Default
     private List<UrlDTO.Response> additionalUrls = new ArrayList<>();
-
-    @Builder.Default
     private List<PhoneDTO.Response> phones = new ArrayList<>();
-
-    @Builder.Default
     private List<ScheduleDTO.Response> schedules = new ArrayList<>();
-
-    @Builder.Default
     private List<ServiceAreaDTO.Response> serviceAreas = new ArrayList<>();
-
-    @Builder.Default
     private List<LanguageDTO.Response> languages = new ArrayList<>();
-
-    @Builder.Default
     private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
 }

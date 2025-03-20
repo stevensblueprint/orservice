@@ -27,6 +27,8 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final MetadataService metadataService;
   private final MetadataRepository metadataRepository;
 
+  private static final boolean RETURN_FULL_SERVICE = true;
+
 
   @Override
   @Transactional(readOnly = true)
@@ -42,7 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
 
     Page<OrganizationDTO.Response> dtoPage = organizationPage
-        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService));
+        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
 
     return PaginationDTO.fromPage(dtoPage);
   }
@@ -52,7 +54,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Transactional(readOnly = true)
   public Response getOrganizationById(String id, Boolean fullService) {
     Organization organization = organizationRepository.findById(id).orElseThrow();
-    return organizationMapper.toResponseDTO(organization, metadataService);
+    return organizationMapper.toResponseDTO(organization, metadataService, fullService);
   }
 
   @Override
@@ -64,7 +66,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     Organization organization = organizationMapper.toEntity(requestDto);
     organization.setMetadata(metadataRepository, updatedBy);
     Organization savedOrganization = organizationRepository.save(organization);
-    return organizationMapper.toResponseDTO(savedOrganization, metadataService);
+    return organizationMapper.toResponseDTO(savedOrganization, metadataService, RETURN_FULL_SERVICE);
   }
 
   @Override

@@ -91,7 +91,7 @@ public abstract class OrganizationMapper {
     }
   }
 
-  public OrganizationDTO.Response toResponseDTO(Organization entity, MetadataService metadataService) {
+  public OrganizationDTO.Response toResponseDTO(Organization entity, MetadataService metadataService, Boolean fullService) {
     OrganizationDTO.Response response = toResponseDTO(entity);
     enrichMetadata(entity, response, metadataService);
     if (entity.getOrganizationIdentifiers() != null) {
@@ -153,7 +153,7 @@ public abstract class OrganizationMapper {
     if (entity.getServices() != null) {
       List<ServiceDTO.Summary> enrichedServices =
           entity.getServices().stream()
-             .map(service -> serviceMapper.toSummaryDTO(service, metadataService))
+             .map(service -> fullService ? serviceMapper.toSummaryDTO(service, metadataService) : serviceMapper.toSummaryDTOShort(service))
              .collect(Collectors.toList());
       response.setServices(enrichedServices);
     }

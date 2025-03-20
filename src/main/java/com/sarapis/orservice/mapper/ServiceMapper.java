@@ -14,7 +14,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
@@ -55,6 +57,21 @@ public abstract class ServiceMapper {
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract Response toResponseDTO(Service entity);
   public abstract Summary toSummaryDTO(Service entity);
+
+  @Named("toSummaryDTOShort")
+  @Mapping(target = "funding", ignore = true)
+  @Mapping(target = "costOptions", ignore = true)
+  @Mapping(target = "additionalUrls", ignore = true)
+  @Mapping(target = "program", ignore = true)
+  @Mapping(target = "requiredDocuments", ignore = true)
+  @Mapping(target = "serviceAtLocations", ignore = true)
+  @Mapping(target = "contacts", ignore = true)
+  @Mapping(target = "phones", ignore = true)
+  @Mapping(target = "schedules", ignore = true)
+  @Mapping(target = "serviceAreas", ignore = true)
+  @Mapping(target = "languages", ignore = true)
+  @Mapping(target = "metadata", ignore = true)
+  public abstract Summary toSummaryDTOShort(Service entity);
 
   @AfterMapping
   protected void setRelations(@MappingTarget Service service) {
