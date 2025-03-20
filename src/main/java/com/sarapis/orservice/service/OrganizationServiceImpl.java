@@ -44,7 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
 
     Page<OrganizationDTO.Response> dtoPage = organizationPage
-        .map(organizationMapper::toResponseDTO);
+        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService));
 
     return PaginationDTO.fromPage(dtoPage);
   }
