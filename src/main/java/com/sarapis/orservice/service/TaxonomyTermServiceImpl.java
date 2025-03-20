@@ -38,7 +38,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
       PageRequest pageable = PageRequest.of(page, perPage);
       Page<TaxonomyTerm> taxonomyTermPage = taxonomyTermRepository.findAll(spec, pageable);
-      Page<TaxonomyTermDTO.Response> dtoPage = taxonomyTermPage.map(taxonomyTermMapper::toResponseDTO);
+      Page<TaxonomyTermDTO.Response> dtoPage = taxonomyTermPage.map(taxonomyTerm -> taxonomyTermMapper.toResponseDTO(taxonomyTerm, metadataService));
       return PaginationDTO.fromPage(dtoPage);
   }
 
