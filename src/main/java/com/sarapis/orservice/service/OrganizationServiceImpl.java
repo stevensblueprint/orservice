@@ -9,7 +9,9 @@ import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,20 +35,39 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllOrganizations(String search, Boolean full_service,
-      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
-      String format) {
-    Specification<Organization> spec = Specification.where(null);
-    if (search != null && !search.isEmpty()) {
-      spec = spec.and(OrganizationSpecifications.hasSearchTerm(search));
-    }
+      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
+    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
-
     Page<OrganizationDTO.Response> dtoPage = organizationPage
         .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
 
     return PaginationDTO.fromPage(dtoPage);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public void streamAllOrganizations(String search, Boolean fullService, Boolean full,
+      String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
+      Consumer<Response> consumer) {
+    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
+    int currentPage = page;
+    while (true) {
+      PageRequest pageRequest = PageRequest.of(currentPage, perPage);
+      Page<Organization> organizationPage = organizationRepository.findAll(spec, pageRequest);
+      List<Organization> organizations = organizationPage.getContent();
+      if (organizations.isEmpty()) {
+        break;
+      }
+      organizations.forEach(organization ->
+          consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService)));
+
+      if (currentPage >= organizationPage.getTotalPages() - 1) {
+        break;
+      }
+      currentPage++;
+    }
   }
 
 
@@ -74,6 +95,14 @@ public class OrganizationServiceImpl implements OrganizationService {
   public void deleteOrganization(String id) {
     organizationRepository.deleteById(id);
     log.info("Deleted organization with id: {}", id);
+  }
+
+  private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
+    Specification<Organization> spec = Specification.where(null);
+    if (search != null && !search.isEmpty()) {
+      spec = spec.and(OrganizationSpecifications.hasSearchTerm(search));
+    }
+    return spec;
   }
 
 }

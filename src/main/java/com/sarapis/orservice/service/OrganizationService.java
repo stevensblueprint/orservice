@@ -1,7 +1,9 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
+import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
+import java.util.function.Consumer;
 
 public interface OrganizationService {
   PaginationDTO<OrganizationDTO.Response> getAllOrganizations(
@@ -11,9 +13,12 @@ public interface OrganizationService {
       String taxonomyTerm,
       String taxonomyId,
       Integer page,
-      Integer perPage,
-      String format
+      Integer perPage
   );
+
+  void streamAllOrganizations(String search, Boolean fullService, Boolean full,
+      String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
+      Consumer<Response> consumer);
 
   OrganizationDTO.Response getOrganizationById(String id, Boolean fullService);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);

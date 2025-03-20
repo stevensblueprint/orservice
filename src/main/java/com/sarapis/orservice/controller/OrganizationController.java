@@ -1,12 +1,18 @@
 package com.sarapis.orservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.OrganizationService;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/organizations")
@@ -24,9 +31,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OrganizationController {
   private final OrganizationService organizationService;
+  private static final String JSON = "json";
+  private static final String NDJSON = "ndjson";
 
-  @GetMapping
-  public ResponseEntity<PaginationDTO<OrganizationDTO.Response>> getAllOrganizations(
+
+  @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-ndjson"})
+  public ResponseEntity<?> getAllOrganizations(
       @RequestParam(name = "search", defaultValue = "") String search,
       @RequestParam(name = "full_service", defaultValue = "false") Boolean fullService,
       @RequestParam(name = "full", defaultValue = "true") Boolean full,
@@ -36,18 +46,59 @@ public class OrganizationController {
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format
   ) {
-    PaginationDTO<OrganizationDTO. Response> pagination = organizationService.getAllOrganizations(
+    return switch (format) {
+      case (JSON) ->
+          handleJsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page, perPage);
+      case (NDJSON) ->
+          handleNdjsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page,
+              perPage);
+      default -> throw new IllegalArgumentException("Invalid format: " + format);
+    };
+  }
+
+  private ResponseEntity<PaginationDTO<OrganizationDTO.Response>> handleJsonResponse(
+      String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
+      Integer page, Integer perPage
+  ) {
+    PaginationDTO<OrganizationDTO.Response> pagination = organizationService.getAllOrganizations(
         search,
         fullService,
         full,
         taxonomyTermId,
         taxonomyId,
         page,
-        perPage,
-        format
+        perPage
     );
 
     return ResponseEntity.ok(pagination);
+  }
+
+  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
+      Integer page, Integer perPage) {
+    StreamingResponseBody responseBody = outputStream -> {
+      try (Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        organizationService.streamAllOrganizations(
+            search, fullService, full, taxonomyTermId, taxonomyId, page, perPage,
+            organization -> {
+              try {
+                writer.write(objectMapper.writeValueAsString(organization));
+                writer.write("\n");
+                writer.flush();
+              } catch (IOException e) {
+                log.error("Error writing organization to stream", e);
+              }
+            }
+        );
+      } catch (IOException e) {
+        log.error("Error streaming organizations", e);
+      }
+    };
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.valueOf("application/x-ndjson"))
+        .body(responseBody);
   }
 
   @GetMapping("/{id}")
