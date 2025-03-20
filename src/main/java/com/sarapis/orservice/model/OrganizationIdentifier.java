@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class OrganizationIdentifier extends BaseResource {
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id")
   private Organization organization;
 

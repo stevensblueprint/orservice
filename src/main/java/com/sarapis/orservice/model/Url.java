@@ -22,11 +22,11 @@ public class Url extends BaseResource {
   @Column(name = "url", nullable = false)
   private String url;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id")
   private Service service;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id")
   private Organization organization;
 

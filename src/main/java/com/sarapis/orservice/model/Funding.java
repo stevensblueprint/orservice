@@ -25,11 +25,11 @@ public class Funding {
   @Column(name = "id", updatable = false, nullable = false)
   private String id;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id")
   private Organization organization;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id")
   private Service service;
 

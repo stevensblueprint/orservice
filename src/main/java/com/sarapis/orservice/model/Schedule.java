@@ -31,15 +31,15 @@ public class Schedule {
   @Column(name = "id", nullable = false, updatable = false)
   private String id;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id")
   private Service service;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "location_id")
   private Location location;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_at_location_id")
   private ServiceAtLocation serviceAtLocation;
 

@@ -39,7 +39,7 @@ public class Location {
   @Column(name = "url")
   private String url;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id")
   private Organization organization;
 
