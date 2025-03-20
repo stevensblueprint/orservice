@@ -1,8 +1,14 @@
 package com.sarapis.orservice.utils;
 
+import static com.sarapis.orservice.utils.MetadataType.CREATE;
+
 import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.service.MetadataService;
+import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MetadataUtils {
@@ -44,7 +50,70 @@ public class MetadataUtils {
     metadataRequest.setPreviousValue(previousValue);
     metadataRequest.setReplacementValue(replacementValue);
     metadataRequest.setUpdatedBy(updatedBy);
+  }
 
-    metadataService.createMetadata(metadataRequest);
+  public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
+    if (actionType == MetadataType.UPDATE && (original == null || updated == null)) {
+      throw new IllegalArgumentException("Both original and updated entities must be provided for UPDATE action");
+    }
+    if (actionType == MetadataType.CREATE && updated == null) {
+      throw new IllegalArgumentException("Updated entity must be provided for CREATE action");
+    }
+    if (actionType == MetadataType.DELETE && original == null) {
+      throw new IllegalArgumentException("Original entity must be provided for DELETE action");
+    }
+    return switch (actionType) {
+      case CREATE -> handleCreate(original, resourceId, resourceType, updatedBy);
+      default -> throw new IllegalArgumentException("");
+    };
+  }
+
+  public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {
+    List<Metadata> metadataEntries = new ArrayList<>();
+    if (resourceId == null) {
+      throw new IllegalArgumentException("Entity must have an ID field");
+    }
+
+    try {
+      Field[] fields = created.getClass().getDeclaredFields();
+      for (Field field : fields) {
+        field.setAccessible(true);
+
+        // Skip collections and null fields
+        if (field.getType().isAssignableFrom(List.class)) {
+          continue;
+        }
+        Object value = field.get(created);
+
+        // Only track non-null values for creation
+        if (value != null) {
+          Metadata metadata = new Metadata();
+          metadata.setId(UUID.randomUUID().toString());
+          metadata.setResourceId(resourceId);
+          metadata.setResourceType(resourceType);
+          metadata.setLastActionDate(LocalDate.now());
+          metadata.setLastActionType(CREATE.name());
+          metadata.setFieldName(field.getName());
+          metadata.setPreviousValue(EMPTY_PREVIOUS_VALUE);
+          metadata.setReplacementValue(value.toString());
+          metadata.setUpdatedBy(updatedBy);
+          metadataEntries.add(metadata);
+        }
+      }
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException("Error accessing entity fields", e);
+    }
+    return metadataEntries;
+  }
+
+  public static <T> String getEntityId(T entity) {
+    try {
+      Field idField = entity.getClass().getDeclaredField("id");
+      idField.setAccessible(true);
+      Object id = idField.get(entity);
+      return id != null ? id.toString() : null;
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      return null;
+    }
   }
 }

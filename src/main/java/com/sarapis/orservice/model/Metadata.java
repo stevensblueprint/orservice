@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import lombok.ToString;
 
 @Entity
 @Table(name = "metadata")
