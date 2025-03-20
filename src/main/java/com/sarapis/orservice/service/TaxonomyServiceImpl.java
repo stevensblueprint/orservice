@@ -37,7 +37,7 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Taxonomy> taxonomyPage = taxonomyRepository.findAll(spec, pageable);
-    Page<TaxonomyDTO.Response> dtoPage = taxonomyPage.map(taxonomyMapper::toResponseDTO);
+    Page<TaxonomyDTO.Response> dtoPage = taxonomyPage.map(taxonomy -> taxonomyMapper.toResponseDTO(taxonomy, metadataService));
     return PaginationDTO.fromPage(dtoPage);
   }
 
@@ -57,6 +57,6 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
     Taxonomy taxonomy = taxonomyMapper.toEntity(requestDto);
     taxonomy.setMetadata(metadataRepository, updatedBy);
     taxonomy = taxonomyRepository.save(taxonomy);
-    return taxonomyMapper.toResponseDTO(taxonomy);
+    return taxonomyMapper.toResponseDTO(taxonomy, metadataService);
   }
 }

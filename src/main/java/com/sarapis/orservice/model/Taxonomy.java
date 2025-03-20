@@ -39,6 +39,9 @@ public class Taxonomy {
   @Column(name = "version")
   private String version;
 
+  @Column(name = "uri")
+  private String uri;
+
   public void setMetadata(MetadataRepository metadataRepository, String updatedBy) {
     if (this.getId() == null) {
       this.setId(UUID.randomUUID().toString());
