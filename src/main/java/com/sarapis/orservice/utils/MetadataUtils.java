@@ -1,14 +1,8 @@
 package com.sarapis.orservice.utils;
 
-import static com.sarapis.orservice.utils.Metadata.CREATE;
-import static com.sarapis.orservice.utils.Metadata.DELETE;
-import static com.sarapis.orservice.utils.Metadata.UPDATE;
-
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.model.Metadata;
-import com.sarapis.orservice.service.MetadataService;
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
-
+import static com.sarapis.orservice.utils.MetadataType.DELETE;
+import static com.sarapis.orservice.utils.MetadataType.UPDATE;
 import com.sarapis.orservice.model.Metadata;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -38,6 +32,12 @@ public class MetadataUtils {
   public static final String TAXONOMY_TERM_RESOURCE_TYPE = "TAXONOMY_TERM";
   public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
   public static final String EMPTY_PREVIOUS_VALUE = "";
+
+  public static final Map<String, String> ACTION_COMPLEMENT_MAP = Map.of(
+          CREATE.toString(), DELETE.toString(),
+          DELETE.toString(), CREATE.toString(),
+          UPDATE.toString(), UPDATE.toString()
+  );
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
     if (actionType == MetadataType.UPDATE && (original == null || updated == null)) {
