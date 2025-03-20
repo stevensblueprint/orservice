@@ -1,5 +1,9 @@
 package com.sarapis.orservice.controller;
 
+import static com.sarapis.orservice.controller.Constants.JSON;
+import static com.sarapis.orservice.controller.Constants.NDJSON;
+import static com.sarapis.orservice.controller.Constants.NDJSON_APPLICATION_TYPE;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
@@ -31,9 +35,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Slf4j
 public class OrganizationController {
   private final OrganizationService organizationService;
-  private static final String NDJSON_APPLICATION_TYPE = "application/x-ndjson";
-  private static final String JSON = "json";
-  private static final String NDJSON = "ndjson";
 
 
   @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
@@ -52,7 +53,7 @@ public class OrganizationController {
           handleJsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page, perPage);
       case (NDJSON) ->
           handleNdjsonResponse(search, fullService, full, taxonomyTermId, taxonomyId);
-      default -> throw new IllegalArgumentException("Invalid format: " + format);
+      default -> ResponseEntity.badRequest().body(null);
     };
   }
 

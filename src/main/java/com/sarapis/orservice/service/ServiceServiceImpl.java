@@ -12,7 +12,9 @@ import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
 import io.micrometer.common.util.StringUtils;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,27 +29,48 @@ public class ServiceServiceImpl implements ServiceService {
   private final MetadataRepository metadataRepository;
   private final MetadataService metadataService;
 
+  private static final int RECORDS_PER_STREAM = 100;
+
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllServices(String search, Integer page, Integer perPage,
-      String format, String taxonomyTermId, String taxonomyId, String organizationId,
+      String taxonomyTermId, String taxonomyId, String organizationId,
       String modifiedAfter, Boolean minimal, Boolean full) {
-    Specification<Service> spec = Specification.where(null);
-
-    if (search != null && !search.isEmpty()) {
-      spec = spec.and(ServiceSpecifications.hasSearchTerm(search));
-    }
-
-    if (modifiedAfter != null && !modifiedAfter.isEmpty()) {
-      LocalDate modifiedDate = LocalDate.parse(modifiedAfter);
-      spec = spec.and(ServiceSpecifications.modifiedAfter(modifiedDate));
-    }
-
+    Specification<Service> spec = buildSpecification(search, modifiedAfter, taxonomyTermId, taxonomyId, organizationId);
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Service> servicePage = serviceRepository.findAll(spec, pageable);
     Page<ServiceDTO.Response> dtoPage = servicePage.map(service -> serviceMapper.toResponseDTO(service, metadataService));
     return PaginationDTO.fromPage(dtoPage);
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public void streamAllServices(String search, String taxonomyTermId, String taxonomyId,
+      String organizationId, String modifiedAfter, Boolean minimal, Boolean full,
+      Consumer<Response> consumer) {
+    Specification<Service> spec = buildSpecification(search, modifiedAfter, taxonomyTermId, taxonomyId, organizationId);
+    int currentPage = 0;
+    boolean hasMoreData = true;
+    while (hasMoreData) {
+      PageRequest pageable = PageRequest.of(currentPage, RECORDS_PER_STREAM);
+      Page<Service> servicePage = serviceRepository.findAll(spec, pageable);
+      List<Service> services = servicePage.getContent();
+
+      if (services.isEmpty()) {
+        hasMoreData = false;
+      } else {
+        services.forEach(service ->
+            consumer.accept(serviceMapper.toResponseDTO(service, metadataService))
+        );
+        if (currentPage >= servicePage.getTotalPages() - 1) {
+          hasMoreData = false;
+        } else {
+          currentPage++;
+        }
+      }
+    }
+  }
+
 
   @Override
   @Transactional(readOnly = true)
@@ -66,5 +89,21 @@ public class ServiceServiceImpl implements ServiceService {
     service.setMetadata(metadataRepository, updatedBy);
     Service savedService = serviceRepository.save(service);
     return serviceMapper.toResponseDTO(savedService, metadataService);
+  }
+
+  private Specification<Service> buildSpecification(String search, String modifiedAfter,
+      String taxonomyTermId, String taxonomyId, String organizationId) {
+    Specification<Service> spec = Specification.where(null);
+
+    if (search!= null &&!search.isEmpty()) {
+      spec = spec.and(ServiceSpecifications.hasSearchTerm(search));
+    }
+
+    if (modifiedAfter!= null &&!modifiedAfter.isEmpty()) {
+      LocalDate modifiedDate = LocalDate.parse(modifiedAfter);
+      spec = spec.and(ServiceSpecifications.modifiedAfter(modifiedDate));
+    }
+
+    return spec;
   }
 }
