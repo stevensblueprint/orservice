@@ -61,6 +61,10 @@ public class Organization extends BaseResource {
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "organization_id", referencedColumnName = "id")
+  private List<Service> services = new ArrayList<>();
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "organization_id", referencedColumnName = "id")
   private List<Url> additionalWebsites = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -100,7 +104,7 @@ public class Organization extends BaseResource {
         updatedBy
     );
     metadataRepository.saveAll(metadata);
-
+    this.getServices().forEach(service -> service.setMetadata(metadataRepository, updatedBy));
     this.getOrganizationIdentifiers().forEach(identifier -> identifier.setMetadata(metadataRepository, updatedBy));
     this.getAdditionalWebsites().forEach(website -> website.setMetadata(metadataRepository, updatedBy));
     this.getLocations().forEach(location -> location.setMetadata(metadataRepository, updatedBy));

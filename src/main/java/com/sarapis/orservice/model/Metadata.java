@@ -35,7 +35,7 @@ public class Metadata {
   @Column(name = "previous_value", nullable = false)
   private String previousValue;
 
-  @Column(name = "replacement_value", nullable = false)
+  @Column(name = "replacement_value", nullable = false, length = 1024)
   private String replacementValue;
 
   @Column(name = "updated_by", nullable = false)

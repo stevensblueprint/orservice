@@ -2,7 +2,6 @@ package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.sarapis.orservice.dto.PhoneDTO.Request;
 import com.sarapis.orservice.validator.ValidEmail;
 import com.sarapis.orservice.validator.ValidUrl;
 import java.time.LocalDate;
@@ -40,6 +39,8 @@ public class ServiceDTO {
     private String interpretationServices;
     private String applicationProcess;
     private String feesDescription;
+    private String waitTime;
+    private String fees;
     private String accreditations;
     private String eligibilityDescription;
 
@@ -56,6 +57,8 @@ public class ServiceDTO {
     @ValidEmail
     private String assurerEmail;
 
+    private String licenses;
+    private String alert;
     private LocalDate lastModified;
     private List<PhoneDTO.Request> phones;
     private List<ScheduleDTO.Request> schedules;
@@ -67,6 +70,7 @@ public class ServiceDTO {
     private ProgramDTO.Request program;
     private List<RequiredDocumentDTO.Request> requiredDocuments;
     private List<ContactDTO.Request> contacts;
+    private List<UrlDTO.Request> additionalUrls;
   }
 
   @Getter
@@ -85,12 +89,16 @@ public class ServiceDTO {
     private String interpretationServices;
     private String applicationProcess;
     private String feesDescription;
+    private String waitTime;
+    private String fees;
     private String accreditations;
     private String eligibilityDescription;
     private Integer minimumAge;
     private Integer maximumAge;
     private String assuredDate;
     private String assurerEmail;
+    private String licenses;
+    private String alert;
     private LocalDate lastModified;
     private List<PhoneDTO.Response> phones;
     private List<ScheduleDTO.Response> schedules;
@@ -102,6 +110,7 @@ public class ServiceDTO {
     private ProgramDTO.Response program;
     private List<RequiredDocumentDTO.Response> requiredDocuments;
     private List<ContactDTO.Response> contacts;
+    private List<UrlDTO.Response> additionalUrls;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }
