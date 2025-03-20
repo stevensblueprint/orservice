@@ -1,6 +1,6 @@
 package com.sarapis.orservice.mapper;
 
-import static com.sarapis.orservice.utils.MetadataUtils.COST_OPTION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.CostOptionDTO;
@@ -191,7 +191,7 @@ public abstract class ServiceMapper {
 
   private void enrichMetadata(Service entity, ServiceDTO.Response response, MetadataService metadataService) {
     response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
-        entity.getId(), COST_OPTION_RESOURCE_TYPE
+        entity.getId(), SERVICE_RESOURCE_TYPE
     ));
   }
 }

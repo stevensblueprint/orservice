@@ -2,9 +2,7 @@ package com.sarapis.orservice.utils;
 
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
 
-import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.model.Metadata;
-import com.sarapis.orservice.service.MetadataService;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,27 +28,6 @@ public class MetadataUtils {
   public static final String REQUIRED_DOCUMENT_RESOURCE_TYPE = "REQUIRED_DOCUMENT";
   public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
   public static final String EMPTY_PREVIOUS_VALUE = "";
-  public static void createMetadataEntry(
-      MetadataService metadataService,
-      String resourceId,
-      String resourceType,
-      String actionType,
-      String fieldName,
-      String previousValue,
-      String replacementValue,
-      String updatedBy) {
-
-    MetadataDTO.Request metadataRequest = new MetadataDTO.Request();
-    metadataRequest.setId(UUID.randomUUID().toString());
-    metadataRequest.setResourceId(resourceId);
-    metadataRequest.setResourceType(resourceType);
-    metadataRequest.setLastActionDate(LocalDate.now());
-    metadataRequest.setLastActionType(actionType);
-    metadataRequest.setFieldName(fieldName);
-    metadataRequest.setPreviousValue(previousValue);
-    metadataRequest.setReplacementValue(replacementValue);
-    metadataRequest.setUpdatedBy(updatedBy);
-  }
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
     if (actionType == MetadataType.UPDATE && (original == null || updated == null)) {
@@ -63,7 +40,7 @@ public class MetadataUtils {
       throw new IllegalArgumentException("Original entity must be provided for DELETE action");
     }
     return switch (actionType) {
-      case CREATE -> handleCreate(original, resourceId, resourceType, updatedBy);
+      case CREATE -> handleCreate(updated, resourceId, resourceType, updatedBy);
       default -> throw new IllegalArgumentException("");
     };
   }
@@ -104,16 +81,5 @@ public class MetadataUtils {
       throw new RuntimeException("Error accessing entity fields", e);
     }
     return metadataEntries;
-  }
-
-  public static <T> String getEntityId(T entity) {
-    try {
-      Field idField = entity.getClass().getDeclaredField("id");
-      idField.setAccessible(true);
-      Object id = idField.get(entity);
-      return id != null ? id.toString() : null;
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      return null;
-    }
   }
 }

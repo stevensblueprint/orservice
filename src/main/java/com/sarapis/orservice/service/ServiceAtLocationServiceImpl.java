@@ -57,17 +57,6 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     ServiceAtLocation serviceAtLocation = serviceAtLocationMapper.toEntity(dto);
     ServiceAtLocation savedServiceAtLocation = serviceAtLocationRepository.save(serviceAtLocation);
 
-    MetadataUtils.createMetadataEntry(
-        metadataService,
-        savedServiceAtLocation.getId(),
-        SERVICE_AT_LOCATION_RESOURCE_TYPE,
-        CREATE.name(),
-        "service_at_location",
-        EMPTY_PREVIOUS_VALUE,
-        dto.getDescription(),
-        "SYSTEM"
-    );
-
     ServiceAtLocationDTO.Response response = serviceAtLocationMapper.toResponseDTO(savedServiceAtLocation);
     response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
         savedServiceAtLocation.getId(),
