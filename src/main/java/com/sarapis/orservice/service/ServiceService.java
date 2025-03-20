@@ -17,5 +17,5 @@ public interface ServiceService {
       Boolean full
   );
   ServiceDTO.Response getServiceById(String id);
-  ServiceDTO.Response createService(ServiceDTO.Request requestDto);
+  ServiceDTO.Response createService(ServiceDTO.Request requestDto, String updatedBy);
 }

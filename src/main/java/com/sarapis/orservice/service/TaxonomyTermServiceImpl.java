@@ -1,31 +1,30 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Response;
-import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.TaxonomyTermMapper;
 import com.sarapis.orservice.model.TaxonomyTerm;
+import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.TaxonomyTermRepository;
 import com.sarapis.orservice.repository.TaxonomyTermSpecifications;
-import java.util.List;
+import io.micrometer.common.util.StringUtils;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UrlPathHelper;
 
 @Service
 @RequiredArgsConstructor
 public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   private final TaxonomyTermRepository taxonomyTermRepository;
   private final TaxonomyTermMapper taxonomyTermMapper;
+  private final MetadataService metadataService;
+  private final MetadataRepository metadataRepository;
 
 
   @Override
@@ -47,12 +46,18 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   @Transactional(readOnly = true)
   public Response getTaxonomyTermById(String id) {
     TaxonomyTerm taxonomyTerm = taxonomyTermRepository.findById(id).orElseThrow();
-    return taxonomyTermMapper.toResponseDTO(taxonomyTerm);
+    return taxonomyTermMapper.toResponseDTO(taxonomyTerm, metadataService);
   }
 
   @Override
   @Transactional
-  public Response createTaxonomyTerm(Request requestDto) {
-    return null;
+  public Response createTaxonomyTerm(Request requestDto, String updatedBy) {
+    if (requestDto.getId() == null || StringUtils.isBlank(requestDto.getId())) {
+      requestDto.setId(UUID.randomUUID().toString());
+    }
+    TaxonomyTerm taxonomyTerm = taxonomyTermMapper.toEntity(requestDto);
+    taxonomyTerm.setMetadata(metadataRepository, updatedBy);
+    TaxonomyTerm savedTaxonomyTerm = taxonomyTermRepository.save(taxonomyTerm);
+    return taxonomyTermMapper.toResponseDTO(savedTaxonomyTerm, metadataService);
   }
 }

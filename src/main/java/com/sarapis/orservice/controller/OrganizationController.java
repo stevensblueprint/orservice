@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,14 +51,23 @@ public class OrganizationController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<OrganizationDTO.Response> getServiceById(@PathVariable String id) {
-    return ResponseEntity.ok(organizationService.getOrganizationById(id));
+  public ResponseEntity<OrganizationDTO.Response> getServiceById(
+      @PathVariable String id,
+      @RequestParam(name = "full_service", defaultValue = "true") Boolean fullService) {
+    return ResponseEntity.ok(organizationService.getOrganizationById(id, fullService));
   }
 
   @PostMapping
-  public  ResponseEntity<OrganizationDTO.Response> createOrganization(
-      @Valid @RequestBody OrganizationDTO.Request request
+  public ResponseEntity<OrganizationDTO.Response> createOrganization(
+      @Valid @RequestBody OrganizationDTO.Request request,
+      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
   ) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request, updatedBy));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
+    organizationService.deleteOrganization(id);
+    return ResponseEntity.noContent().build();
   }
 }

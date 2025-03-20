@@ -18,7 +18,7 @@ public interface ServiceAtLocationService {
       String postcode,
       String proximity
   );
-  ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto);
+  ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto, String updatedBy);
   ServiceAtLocationDTO.Response getServiceAtLocationById(String id);
 
 }

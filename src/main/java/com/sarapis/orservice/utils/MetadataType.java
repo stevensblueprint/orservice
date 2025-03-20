@@ -1,13 +1,13 @@
 package com.sarapis.orservice.utils;
 
-public enum Metadata {
+public enum MetadataType {
   CREATE("create"),
   UPDATE("update"),
   DELETE("delete");
 
   private final String value;
 
-  Metadata(String value) {
+  MetadataType(String value) {
     this.value = value;
   }
   @Override

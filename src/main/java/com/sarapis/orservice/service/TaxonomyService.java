@@ -11,5 +11,5 @@ public interface TaxonomyService {
       String format
   );
   TaxonomyDTO.Response getTaxonomyById(String id);
-  TaxonomyDTO.Response createTaxonomy(TaxonomyDTO.Request requestDto);
+  TaxonomyDTO.Response createTaxonomy(TaxonomyDTO.Request requestDto, String updatedBy);
 }

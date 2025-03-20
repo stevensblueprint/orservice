@@ -16,5 +16,5 @@ public interface TaxonomyTermService {
   );
 
   TaxonomyTermDTO.Response getTaxonomyTermById(String id);
-  TaxonomyTermDTO.Response createTaxonomyTerm(TaxonomyTermDTO.Request requestDto);
+  TaxonomyTermDTO.Response createTaxonomyTerm(TaxonomyTermDTO.Request requestDto, String updatedBy);
 }

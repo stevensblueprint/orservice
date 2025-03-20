@@ -11,6 +11,7 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,9 +58,10 @@ public class TaxonomyTermController {
 
   @PostMapping
   public ResponseEntity<TaxonomyTermDTO.Response> createTaxonomyTerm(
-      @Valid @RequestBody TaxonomyTermDTO.Request taxonomyTerm
+      @Valid @RequestBody TaxonomyTermDTO.Request taxonomyTerm,
+      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
   ) {
-    return ResponseEntity.ok(taxonomyTermService.createTaxonomyTerm(taxonomyTerm));
+    return ResponseEntity.ok(taxonomyTermService.createTaxonomyTerm(taxonomyTerm, updatedBy));
   }
 
 }
