@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface MetadataService {
   List<Response> getMetadataByResourceIdAndResourceType(String resourceId, String resourceType);
+  void undoMetadata(String metadataId);
 }
