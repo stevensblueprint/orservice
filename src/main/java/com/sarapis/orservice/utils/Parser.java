@@ -1,21 +1,20 @@
 package com.sarapis.orservice.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class Parser {
-    public static Integer parseToInteger(String str) {
-        return Integer.parseInt(str);
+    public static <T> BiConsumer<T, String> parseIntegerAndSet(BiConsumer<T, Integer> setter) {
+        return (o, s) -> setter.accept(o, Integer.parseInt(s));
     }
 
-    // TODO: Implement
-    public static <T> List<T> parseToEntityList(String str, Class<T> entityType) {
-        throw new RuntimeException();
-    }
-
-    public static <T> T parseToEntity(String str, Class<T> entityType) {
+    public static <T, E> BiConsumer<T, String> parseObjectAndSet(BiConsumer<T, E> setter) {
+        TypeReference<E> entityType = new TypeReference<>() {};
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(str, entityType);
+        return (o, s) -> setter.accept(o, mapper.convertValue(s, entityType));
     }
 }
