@@ -3,13 +3,20 @@ package com.sarapis.orservice.utils;
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
 import static com.sarapis.orservice.utils.MetadataType.DELETE;
 import static com.sarapis.orservice.utils.MetadataType.UPDATE;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sarapis.orservice.model.Metadata;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class MetadataUtils {
   public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
@@ -33,10 +40,16 @@ public class MetadataUtils {
   public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
   public static final String EMPTY_PREVIOUS_VALUE = "";
 
-  public static final Map<String, String> ACTION_COMPLEMENT_MAP = Map.of(
-          CREATE.toString(), DELETE.toString(),
-          DELETE.toString(), CREATE.toString(),
-          UPDATE.toString(), UPDATE.toString()
+  public static final Map<MetadataType, String> ACTION_COMPLEMENT_MAP = Map.of(
+          CREATE, DELETE.toString(),
+          DELETE, CREATE.toString(),
+          UPDATE, UPDATE.toString()
+  );
+
+  public static final Map<String, MetadataType> ACTION_MAP = Map.of(
+          CREATE.toString(), CREATE,
+          DELETE.toString(), DELETE,
+          UPDATE.toString(), UPDATE
   );
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
@@ -53,6 +66,24 @@ public class MetadataUtils {
       case CREATE -> handleCreate(updated, resourceId, resourceType, updatedBy);
       default -> throw new IllegalArgumentException("");
     };
+  }
+
+  public static <T> void undoMetadata(Metadata metadata,
+                                      JpaRepository<T, String> repository,
+                                      Map<String, BiConsumer<T, String>> fieldMap) {
+    String resId = metadata.getResourceId();
+    T entity = repository.findById(resId)
+            .orElseThrow();
+
+    String fieldName = metadata.getFieldName();
+    BiConsumer<T, String> setter = fieldMap.get(fieldName);
+
+    String prevValue = metadata.getPreviousValue();
+    setter.accept(entity, prevValue);
+
+    // TODO: Save metadata to entity
+    Metadata newMeta = new Metadata();
+    repository.save(entity);
   }
 
   public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {
@@ -93,12 +124,8 @@ public class MetadataUtils {
     return metadataEntries;
   }
 
-  // TODO: Return true if the metadata creates/deletes an entity
-  public static boolean targetsEntity(Metadata metadata) {
-    return false;
-  }
-
   public static String getComplementAction(String actionType) {
-      return ACTION_COMPLEMENT_MAP.get(actionType);
+      MetadataType action = ACTION_MAP.get(actionType);
+      return ACTION_COMPLEMENT_MAP.get(action);
   }
 }
