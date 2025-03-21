@@ -104,7 +104,6 @@ public abstract class ServiceMapper {
   @Mapping(target = "additionalUrls", ignore = true)
   @Mapping(target = "program", ignore = true)
   @Mapping(target = "requiredDocuments", ignore = true)
-  @Mapping(target = "serviceAtLocations", ignore = true)
   @Mapping(target = "contacts", ignore = true)
   @Mapping(target = "phones", ignore = true)
   @Mapping(target = "schedules", ignore = true)
@@ -286,7 +285,6 @@ public abstract class ServiceMapper {
     enrichList(entity.getContacts(), summary::setContacts, (contact, meta) -> contactMapper.toResponseDTO(contact, meta), metadataService);
     enrichList(entity.getFunding(), summary::setFunding, (funding, meta) -> fundingMapper.toResponseDTO(funding, meta), metadataService);
     enrichList(entity.getAdditionalUrls(), summary::setAdditionalUrls, (url, meta) -> urlMapper.toResponseDTO(url, meta), metadataService);
-    enrichList(entity.getServiceAtLocations(), summary::setServiceAtLocations, (sal, meta) -> serviceAtLocationMapper.toResponseDTO(sal, meta), metadataService);
 
     return summary;
   }

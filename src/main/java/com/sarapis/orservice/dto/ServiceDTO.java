@@ -203,7 +203,6 @@ public class ServiceDTO {
     private List<CostOptionDTO.Response> costOptions = new ArrayList<>();
     private ProgramDTO.Response program;
     private List<RequiredDocumentDTO.Response> requiredDocuments = new ArrayList<>();
-    private List<ServiceAtLocationDTO.Response> serviceAtLocations = new ArrayList<>();
     private List<ContactDTO.Response> contacts = new ArrayList<>();
     private List<UrlDTO.Response> additionalUrls = new ArrayList<>();
     private List<PhoneDTO.Response> phones = new ArrayList<>();

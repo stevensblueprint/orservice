@@ -36,7 +36,6 @@ public class ServiceAtLocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
-    private String serviceId;
     private String description;
     private ServiceDTO.Response service;
     private LocationDTO.Response location;
