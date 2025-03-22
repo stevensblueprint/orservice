@@ -37,7 +37,7 @@ public class ServiceAtLocationDTO {
   public static class Response {
     private String id;
     private String description;
-    private ServiceDTO.Response service;
+    private ServiceDTO.Summary service;
     private LocationDTO.Response location;
     private List<ContactDTO.Response> contacts;
     private List<PhoneDTO.Response> phones;
