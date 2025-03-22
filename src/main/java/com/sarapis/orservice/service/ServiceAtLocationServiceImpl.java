@@ -43,7 +43,10 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<ServiceAtLocation> serviceAtLocationPage = serviceAtLocationRepository.findAll(spec, pageable);
     Page<ServiceAtLocationDTO.Response> dtoPage =
-        serviceAtLocationPage.map(serviceAtLocation -> serviceAtLocationMapper.toResponseDTO(serviceAtLocation, metadataService));
+        serviceAtLocationPage.map(serviceAtLocation -> {
+          serviceAtLocation.getService().setServiceAtLocations(null);
+          return serviceAtLocationMapper.toResponseDTO(serviceAtLocation, metadataService);
+        });
     return PaginationDTO.fromPage(dtoPage);
   }
 
