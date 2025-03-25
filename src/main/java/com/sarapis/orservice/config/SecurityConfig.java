@@ -21,7 +21,7 @@ public class SecurityConfig {
         return http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/").permitAll()
+                .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated())
             .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
                 .configurationSource(corsConfigurationSource()))
