@@ -32,7 +32,7 @@ public class ImportController {
     @PostMapping
     public ResponseEntity<Void> importFile(@RequestParam("format") ExchangeFormat format,
                                            @RequestParam("userId") String userId,
-                                           @RequestPart("file") MultipartFile file) {
+                                           @RequestPart("file") MultipartFile file, @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy) {
         try {
             List<String> metadataIds = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class ImportController {
                     switch (Objects.requireNonNull(file.getOriginalFilename())) {
                         case "organizations.csv":
                             OrganizationDTO.csvToOrganizations(file.getInputStream()).forEach(createRequest -> {
-                                OrganizationDTO.Response response = organizationService.createOrganization(createRequest);
+                                OrganizationDTO.Response response = organizationService.createOrganization(createRequest, updatedBy);
                                 metadataIds.addAll(response.getMetadata().stream().map(MetadataDTO.Response::getId).toList());
                             });
                         default:

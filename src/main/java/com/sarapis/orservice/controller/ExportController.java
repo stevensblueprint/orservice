@@ -25,7 +25,8 @@ public class ExportController {
     @PostMapping(produces = "application/zip")
     public void exportFiles(HttpServletResponse response, @RequestBody ExchangeDTO.Request request) {
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setHeader("Content-Disposition", "attachment; filename=\"orservice\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"orservice.zip\"");
+        response.setContentType("application/zip");
 
         try {
             long bytes = 0;
