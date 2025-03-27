@@ -42,6 +42,9 @@ public class Metadata {
   @Column(name = "updated_by", nullable = false)
   private String updatedBy;
 
+  @Column(name = "file_import_id")
+  private String fileImportId;
+
   @PrePersist
   public void prePersist() {
     if (this.getId() == null) {
