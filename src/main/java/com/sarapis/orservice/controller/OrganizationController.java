@@ -1,13 +1,25 @@
 package com.sarapis.orservice.controller;
 
+import static com.sarapis.orservice.controller.Constants.JSON;
+import static com.sarapis.orservice.controller.Constants.NDJSON;
+import static com.sarapis.orservice.controller.Constants.NDJSON_APPLICATION_TYPE;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.OrganizationService;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/organizations")
@@ -23,8 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganizationController {
   private final OrganizationService organizationService;
 
-  @GetMapping
-  public ResponseEntity<PaginationDTO<OrganizationDTO.Response>> getAllOrganizations(
+
+  @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
+  public ResponseEntity<?> getAllOrganizations(
       @RequestParam(name = "search", defaultValue = "") String search,
       @RequestParam(name = "full_service", defaultValue = "false") Boolean fullService,
       @RequestParam(name = "full", defaultValue = "true") Boolean full,
@@ -34,6 +48,41 @@ public class OrganizationController {
       @RequestParam(name = "per_page", defaultValue = "10") Integer perPage,
       @RequestParam(name = "format", defaultValue = "json") String format
   ) {
+    return switch (format) {
+      case (JSON) ->
+          handleJsonResponse(search, fullService, full, taxonomyTermId, taxonomyId, page, perPage);
+      case (NDJSON) ->
+          handleNdjsonResponse(search, fullService, full, taxonomyTermId, taxonomyId);
+      default -> ResponseEntity.badRequest().body(null);
+    };
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<OrganizationDTO.Response> getServiceById(
+      @PathVariable String id,
+      @RequestParam(name = "full_service", defaultValue = "true") Boolean fullService) {
+    return ResponseEntity.ok(organizationService.getOrganizationById(id, fullService));
+  }
+
+  @PostMapping
+  public ResponseEntity<OrganizationDTO.Response> createOrganization(
+      @Valid @RequestBody OrganizationDTO.Request request,
+      @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
+  ) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request, updatedBy));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteOrganization(@PathVariable String id) {
+    organizationService.deleteOrganization(id);
+    return ResponseEntity.noContent().build();
+  }
+
+
+  private ResponseEntity<PaginationDTO<OrganizationDTO.Response>> handleJsonResponse(
+      String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
+      Integer page, Integer perPage
+  ) {
     PaginationDTO<OrganizationDTO.Response> pagination = organizationService.getAllOrganizations(
         search,
         fullService,
@@ -41,22 +90,36 @@ public class OrganizationController {
         taxonomyTermId,
         taxonomyId,
         page,
-        perPage,
-        format
+        perPage
     );
 
     return ResponseEntity.ok(pagination);
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<OrganizationDTO.Response> getServiceById(@PathVariable String id) {
-    return ResponseEntity.ok(organizationService.getOrganizationById(id));
-  }
+  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId) {
+    StreamingResponseBody responseBody = outputStream -> {
+      try (Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
-  @PostMapping
-  public  ResponseEntity<OrganizationDTO.Response> createOrganization(
-      @Valid @RequestBody OrganizationDTO.Request request
-  ) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.createOrganization(request));
+        organizationService.streamAllOrganizations(
+            search, fullService, full, taxonomyTermId, taxonomyId,
+            organization -> {
+              try {
+                writer.write(objectMapper.writeValueAsString(organization));
+                writer.write("\n");
+                writer.flush();
+              } catch (IOException e) {
+                log.error("Error writing organization to stream", e);
+              }
+            }
+        );
+      } catch (IOException e) {
+        log.error("Error streaming organizations", e);
+      }
+    };
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.valueOf("application/x-ndjson"))
+        .body(responseBody);
   }
 }

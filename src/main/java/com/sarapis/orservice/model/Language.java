@@ -1,10 +1,19 @@
 package com.sarapis.orservice.model;
 
+import static com.sarapis.orservice.utils.MetadataUtils.LANGUAGE_RESOURCE_TYPE;
+
+import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.utils.MetadataType;
+import com.sarapis.orservice.utils.MetadataUtils;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,14 +26,17 @@ public class Language {
   @Column(name = "id", nullable = false, insertable = false)
   private String id;
 
-  @Column(name = "service_id")
-  private String serviceId;
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "service_id")
+  private Service service;
 
-  @Column(name = "location_id")
-  private String locationId;
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "location_id")
+  private Location location;
 
-  @Column(name = "phone_id")
-  private String phoneId;
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "phone_id")
+  private Phone phone;
 
   @Column(name = "name")
   private String name;
@@ -34,4 +46,25 @@ public class Language {
 
   @Column(name = "note")
   private String note;
+
+  public void setMetadata(MetadataRepository metadata, String updatedBy) {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+    metadata.saveAll(MetadataUtils.createMetadata(
+        this,
+        this,
+        this.getId(),
+        LANGUAGE_RESOURCE_TYPE,
+        MetadataType.CREATE,
+        updatedBy
+    ));
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+  }
 }

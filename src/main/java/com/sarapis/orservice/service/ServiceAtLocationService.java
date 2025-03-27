@@ -3,6 +3,7 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface ServiceAtLocationService {
   PaginationDTO<ServiceAtLocationDTO.Response> getAllServicesAtLocation(
@@ -14,11 +15,13 @@ public interface ServiceAtLocationService {
       Boolean full,
       Integer page,
       Integer perPage,
-      String format,
       String postcode,
       String proximity
   );
-  ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto);
+  void streamAllServicesAtLocation(String search, String taxonomyTermId, String taxonomyId, String organizationId,
+      String modifiedAfter, Boolean full, String postcode, String proximity, Consumer<ServiceAtLocationDTO.Response> consumer);
+
+  ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto, String updatedBy);
   ServiceAtLocationDTO.Response getServiceAtLocationById(String id);
 
 }

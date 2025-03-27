@@ -26,8 +26,8 @@ public class LocationDTO {
     private String alternateName;
     private String description;
     private String transportation;
-    private String latitude;
-    private String longitude;
+    private int latitude;
+    private int longitude;
     private String externalIdentifier;
     private String externalIdentifierType;
     private List<LanguageDTO.Request> languages;
@@ -54,8 +54,8 @@ public class LocationDTO {
     private String alternateName;
     private String description;
     private String transportation;
-    private String latitude;
-    private String longitude;
+    private int latitude;
+    private int longitude;
     private String externalIdentifier;
     private String externalIdentifierType;
     private List<LanguageDTO.Response> languages;

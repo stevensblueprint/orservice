@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.sarapis.orservice.dto.MetadataDTO.Response;
@@ -25,16 +26,22 @@ public class ScheduleDTO {
     private String serviceAtLocationId;
     private String validFrom;
     private String validTo;
+    @JsonProperty("dtstart")
     private String dtStart;
     private Integer timezone;
     private String until;
     private Integer count;
+    @JsonProperty("wkst")
     private String wkSt;
     private String freq;
     private Integer interval;
+    @JsonProperty("byday")
     private String byDay;
+    @JsonProperty("byweekno")
     private String byWeekNo;
+    @JsonProperty("bymonthday")
     private String byMonthDay;
+    @JsonProperty("byyearday")
     private String byYearDay;
     private String description;
     private String opensAt;
@@ -60,16 +67,22 @@ public class ScheduleDTO {
     private String serviceAtLocationId;
     private String validFrom;
     private String validTo;
+    @JsonProperty("dtstart")
     private String dtStart;
     private Integer timezone;
     private String until;
     private Integer count;
+    @JsonProperty("wkst")
     private String wkSt;
     private String freq;
     private Integer interval;
+    @JsonProperty("byday")
     private String byDay;
+    @JsonProperty("byweekno")
     private String byWeekNo;
+    @JsonProperty("bymonthday")
     private String byMonthDay;
+    @JsonProperty("byyearday")
     private String byYearDay;
     private String description;
     private String opensAt;

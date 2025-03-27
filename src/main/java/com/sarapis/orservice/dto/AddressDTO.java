@@ -1,6 +1,7 @@
 package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
@@ -22,8 +23,10 @@ public class AddressDTO {
     private String id;
     private String locationId;
     private String attention;
+    @JsonProperty("address_1")
     @NotBlank
     private String address1;
+    @JsonProperty("address_2")
     private String address2;
     @NotBlank
     private String city;
@@ -49,7 +52,9 @@ public class AddressDTO {
     @JsonIgnore
     private String locationId;
     private String attention;
+    @JsonProperty("address_1")
     private String address1;
+    @JsonProperty("address_2")
     private String address2;
     private String city;
     private String region;
