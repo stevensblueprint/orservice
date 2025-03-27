@@ -18,7 +18,6 @@ public class FileImportDTO {
     public static class Request {
         private ExchangeFormat format;
         private String userId;
-//        private MultipartFile file;
     }
 
     @Setter

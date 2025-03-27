@@ -745,7 +745,8 @@ CREATE TABLE public.metadata
     field_name        text                   NOT NULL,
     previous_value    text                   NOT NULL,
     replacement_value text                   NOT NULL,
-    updated_by        text                   NOT NULL
+    updated_by        text                   NOT NULL,
+    file_import_id    character varying(250)
 );
 
 
@@ -2013,7 +2014,8 @@ CREATE TABLE public.file_import
 (
     id          character varying(250) NOT NULL,
     timestamp   date                   NOT NULL,
-    file_name   text                   NOT NULL
+    file_name   text                   NOT NULL,
+    exchange_id character varying(250)
 );
 
 --

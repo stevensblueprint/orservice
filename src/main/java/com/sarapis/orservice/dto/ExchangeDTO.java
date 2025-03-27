@@ -6,6 +6,8 @@ import com.sarapis.orservice.model.ExchangeFormat;
 import com.sarapis.orservice.model.ExchangeType;
 import lombok.*;
 
+import java.util.List;
+
 public class ExchangeDTO {
     @Setter
     @Getter
@@ -31,5 +33,6 @@ public class ExchangeDTO {
         private ExchangeFormat format;
         private Integer size;
         private String userId;
+        private List<FileImportDTO.Response> fileImports;
     }
 }

@@ -24,18 +24,21 @@ public class ExchangeServiceImpl implements ExchangeService {
 
     @Override
     @Transactional(readOnly = true)
-    public ExchangeDTO.Response getExchangeById(String id) {
-        Exchange exchange = exchangeRepository.findById(id).orElseThrow();
-        ExchangeDTO.Response response = exchangeMapper.toResponseDTO(exchange);
-        return response;
+    public List<ExchangeDTO.Response> getExchangesByUserId(String userId) {
+        List<Exchange> exchanges = new ArrayList<>();
+        if (userId != null) {
+            exchanges.addAll(exchangeRepository.findByUserId(userId));
+        } else {
+            exchanges.addAll(exchangeRepository.findAll());
+        }
+        return exchanges.stream().map(exchangeMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExchangeDTO.Response> getExchangesByUserId(String userId) {
-        List<Exchange> exchanges = exchangeRepository.findByUserId(userId);
-        List<ExchangeDTO.Response> response = exchanges.stream().map(exchangeMapper::toResponseDTO).toList();
-        return response;
+    public ExchangeDTO.Response getExchangeById(String id) {
+        Exchange exchange = exchangeRepository.findById(id).orElseThrow();
+        return exchangeMapper.toResponseDTO(exchange);
     }
 
     @Override
@@ -53,7 +56,6 @@ public class ExchangeServiceImpl implements ExchangeService {
         exchange.setFileImports(new ArrayList<>());
 
         Exchange savedExchange = exchangeRepository.save(exchange);
-        ExchangeDTO.Response response = exchangeMapper.toResponseDTO(savedExchange);
-        return response;
+        return exchangeMapper.toResponseDTO(savedExchange);
     }
 }
