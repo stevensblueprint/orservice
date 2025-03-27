@@ -7,8 +7,12 @@ import com.sarapis.orservice.utils.IntegerUtils;
 import com.sarapis.orservice.validator.ValidEmail;
 import com.sarapis.orservice.validator.ValidUrl;
 import com.sarapis.orservice.validator.ValidYear;
-import java.util.ArrayList;
+import lombok.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
+import javax.validation.constraints.NotBlank;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,24 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import lombok.*;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 public class OrganizationDTO {
   @Getter
   @Setter
+  @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  @Builder
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;

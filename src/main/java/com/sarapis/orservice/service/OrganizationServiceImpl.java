@@ -15,17 +15,6 @@ import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -36,6 +25,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +47,6 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   private static final boolean RETURN_FULL_SERVICE = true;
   private static final int RECORDS_PER_STREAM = 100;
-
 
   @Override
   @Transactional(readOnly = true)
@@ -130,50 +128,50 @@ public class OrganizationServiceImpl implements OrganizationService {
     return spec;
   }
 
-    @Override
-    public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
-        // Sets CSV printer
-        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-        // Sets CSV header
-        csvPrinter.printRecord(OrganizationDTO.EXPORT_HEADER);
-        // Sets CSV entries
-        for (Organization organization : organizationRepository.findAll()) {
-            csvPrinter.printRecord(OrganizationDTO.toExport(organization));
-        }
-        // Flushes to zip entry
-        csvPrinter.flush();
-        ZipEntry entry = new ZipEntry("organizations.csv");
-        zipOutputStream.putNextEntry(entry);
-        IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
-        zipOutputStream.closeEntry();
-        return entry.getSize();
+  @Override
+  public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets CSV printer
+    final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+    // Sets CSV header
+    csvPrinter.printRecord(OrganizationDTO.EXPORT_HEADER);
+    // Sets CSV entries
+    for (Organization organization : organizationRepository.findAll()) {
+      csvPrinter.printRecord(OrganizationDTO.toExport(organization));
     }
+    // Flushes to zip entry
+    csvPrinter.flush();
+    ZipEntry entry = new ZipEntry("organizations.csv");
+    zipOutputStream.putNextEntry(entry);
+    IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
+    zipOutputStream.closeEntry();
+    return entry.getSize();
+  }
 
-    @Override
-    public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
-        // Sets PDF document to write directly to zip entry stream
-        ZipEntry entry = new ZipEntry("organizations.pdf");
-        zipOutputStream.putNextEntry(entry);
-        com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
-        PdfWriter.getInstance(document, zipOutputStream);
-        document.open();
-        // Sets table
-        PdfPTable table = new PdfPTable(10);
-        PdfPCell cell = new PdfPCell();
-        // Sets table header
-        OrganizationDTO.EXPORT_HEADER.forEach(column -> {
-            cell.setPhrase(new Phrase(column));
-            table.addCell(cell);
-        });
-        // Sets table entries
-        for (Organization organization : organizationRepository.findAll()) {
-            OrganizationDTO.toExport(organization).forEach(table::addCell);
-        }
-        document.add(table);
-        document.close();
-        zipOutputStream.closeEntry();
-        return entry.getSize();
+  @Override
+  public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets PDF document to write directly to zip entry stream
+    ZipEntry entry = new ZipEntry("organizations.pdf");
+    zipOutputStream.putNextEntry(entry);
+    com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
+    PdfWriter.getInstance(document, zipOutputStream);
+    document.open();
+    // Sets table
+    PdfPTable table = new PdfPTable(10);
+    PdfPCell cell = new PdfPCell();
+    // Sets table header
+    OrganizationDTO.EXPORT_HEADER.forEach(column -> {
+      cell.setPhrase(new Phrase(column));
+      table.addCell(cell);
+    });
+    // Sets table entries
+    for (Organization organization : organizationRepository.findAll()) {
+      OrganizationDTO.toExport(organization).forEach(table::addCell);
     }
+    document.add(table);
+    document.close();
+    zipOutputStream.closeEntry();
+    return entry.getSize();
+  }
 }

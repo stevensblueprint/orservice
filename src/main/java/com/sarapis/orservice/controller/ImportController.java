@@ -30,9 +30,12 @@ public class ImportController {
     private final FileImportService fileImportService;
 
     @PostMapping
-    public ResponseEntity<Void> importFile(@RequestParam("format") ExchangeFormat format,
-                                           @RequestParam("userId") String userId,
-                                           @RequestPart("file") MultipartFile file, @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy) {
+    public ResponseEntity<Void> importFile(
+            @RequestParam("format") ExchangeFormat format,
+            @RequestParam("userId") String userId,
+            @RequestPart("file") MultipartFile file,
+            @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
+    ) {
         try {
             List<String> metadataIds = new ArrayList<>();
 
