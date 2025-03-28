@@ -1,6 +1,6 @@
 package com.sarapis.orservice.model;
 
-public enum ExchangeType {
+public enum DataExchangeType {
     IMPORT,
     EXPORT
 }

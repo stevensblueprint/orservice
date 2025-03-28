@@ -1,6 +1,6 @@
 package com.sarapis.orservice.model;
 
-public enum ExchangeFormat {
+public enum DataExchangeFormat {
     CSV,
     PDF
 }

@@ -7,17 +7,17 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "exchange")
+@Table(name = "data_exchange")
 @Setter
 @Getter
-public class Exchange {
+public class DataExchange {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private ExchangeType type;
+    private DataExchangeType type;
 
     @Column(name = "success")
     private Boolean success;
@@ -27,7 +27,7 @@ public class Exchange {
 
     @Column(name = "format")
     @Enumerated(EnumType.STRING)
-    private ExchangeFormat format;
+    private DataExchangeFormat format;
 
     @Column(name = "size")
     private Long size;
@@ -36,6 +36,6 @@ public class Exchange {
     private String userId;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "exchange_id", referencedColumnName = "id")
+    @JoinColumn(name = "data_exchange_id", referencedColumnName = "id")
     private List<FileImport> fileImports;
 }
