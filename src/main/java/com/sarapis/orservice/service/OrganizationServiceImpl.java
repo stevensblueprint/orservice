@@ -108,7 +108,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   @Transactional
-  public void undoOrganizationMetadata(Metadata metadata) {
+  public void undoOrganizationMetadata(String metadataId) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+
     String resType = metadata.getResourceType();
     if(!resType.equals(ORGANIZATION_RESOURCE_TYPE)) {
       throw new RuntimeException("");
