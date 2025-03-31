@@ -41,16 +41,10 @@ public class MetadataUtils {
   public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
   public static final String EMPTY_PREVIOUS_VALUE = "";
 
-  public static final Map<MetadataType, String> ACTION_COMPLEMENT_MAP = Map.of(
-          CREATE, DELETE.toString(),
-          DELETE, CREATE.toString(),
-          UPDATE, UPDATE.toString()
-  );
-
-  public static final Map<String, MetadataType> ACTION_MAP = Map.of(
-          CREATE.toString(), CREATE,
-          DELETE.toString(), DELETE,
-          UPDATE.toString(), UPDATE
+  public static final Map<String, String> ACTION_COMPLEMENT_MAP = Map.of(
+          CREATE.toString(), DELETE.toString(),
+          DELETE.toString(), CREATE.toString(),
+          UPDATE.toString(), UPDATE.toString()
   );
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
@@ -83,12 +77,13 @@ public class MetadataUtils {
     String prevValue = metadata.getPreviousValue();
     setter.accept(entity, prevValue);
 
+    String revertAction = getComplementAction(metadata.getLastActionType());
     Metadata newMeta = new Metadata();
     newMeta.setId(UUID.randomUUID().toString());
     newMeta.setResourceId(resId);
     newMeta.setResourceType(metadata.getResourceType());
     newMeta.setLastActionDate(LocalDate.now());
-    newMeta.setLastActionType( getComplementAction(metadata.getLastActionType()) );
+    newMeta.setLastActionType(revertAction);
     newMeta.setFieldName(fieldName);
     newMeta.setPreviousValue(metadata.getReplacementValue());
     newMeta.setReplacementValue(metadata.getPreviousValue());
@@ -137,7 +132,6 @@ public class MetadataUtils {
   }
 
   public static String getComplementAction(String actionType) {
-      MetadataType action = ACTION_MAP.get(actionType);
-      return ACTION_COMPLEMENT_MAP.get(action);
+      return ACTION_COMPLEMENT_MAP.get(actionType);
   }
 }
