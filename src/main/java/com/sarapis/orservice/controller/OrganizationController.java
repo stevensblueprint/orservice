@@ -70,4 +70,10 @@ public class OrganizationController {
     organizationService.deleteOrganization(id);
     return ResponseEntity.noContent().build();
   }
+
+  @PostMapping("/undo/{metaId}")
+  public ResponseEntity<Void> tmpUndoMetadata(@PathVariable String metaId) {
+    organizationService.undoOrganizationMetadata(metaId);
+    return ResponseEntity.noContent().build();
+  }
 }
