@@ -116,6 +116,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     MetadataUtils.undoMetadata(
         metadata,
+        this.metadataRepository,
         this.organizationRepository,
         ORGANIZATION_FIELD_MAP
     );

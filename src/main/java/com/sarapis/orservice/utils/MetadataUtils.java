@@ -6,6 +6,7 @@ import static com.sarapis.orservice.utils.MetadataType.UPDATE;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sarapis.orservice.model.Metadata;
+import com.sarapis.orservice.repository.MetadataRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.lang.reflect.Field;
@@ -69,6 +70,7 @@ public class MetadataUtils {
   }
 
   public static <T> void undoMetadata(Metadata metadata,
+                                      MetadataRepository metadataRepository,
                                       JpaRepository<T, String> repository,
                                       Map<String, BiConsumer<T, String>> fieldMap) {
     String resId = metadata.getResourceId();
@@ -81,9 +83,19 @@ public class MetadataUtils {
     String prevValue = metadata.getPreviousValue();
     setter.accept(entity, prevValue);
 
-    // TODO: Save metadata to entity
     Metadata newMeta = new Metadata();
+    newMeta.setId(UUID.randomUUID().toString());
+    newMeta.setResourceId(resId);
+    newMeta.setResourceType(metadata.getResourceType());
+    newMeta.setLastActionDate(LocalDate.now());
+    newMeta.setLastActionType( getComplementAction(metadata.getLastActionType()) );
+    newMeta.setFieldName(fieldName);
+    newMeta.setPreviousValue(metadata.getReplacementValue());
+    newMeta.setReplacementValue(metadata.getPreviousValue());
+    newMeta.setUpdatedBy("SYSTEM");
+
     repository.save(entity);
+    metadataRepository.save(newMeta);
   }
 
   public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {
