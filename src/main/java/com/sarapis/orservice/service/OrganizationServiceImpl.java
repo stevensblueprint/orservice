@@ -112,10 +112,12 @@ public class OrganizationServiceImpl implements OrganizationService {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
+    /*
     String resType = metadata.getResourceType();
     if(!resType.equals(ORGANIZATION_RESOURCE_TYPE)) {
       throw new RuntimeException("");
     }
+    */
 
     MetadataUtils.undoMetadata(
         metadata,
