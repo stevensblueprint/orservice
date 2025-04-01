@@ -9,12 +9,16 @@ import java.util.function.Function;
 
 public class Parser {
     public static <T> BiConsumer<T, String> parseIntegerAndSet(BiConsumer<T, Integer> setter) {
-        return (o, s) -> setter.accept(o, Integer.parseInt(s));
+        return (o, s) -> setter.accept(o, parseIntegerOrNull(s));
     }
 
     public static <T, E> BiConsumer<T, String> parseObjectAndSet(BiConsumer<T, E> setter) {
         TypeReference<E> entityType = new TypeReference<>() {};
         ObjectMapper mapper = new ObjectMapper();
         return (o, s) -> setter.accept(o, mapper.convertValue(s, entityType));
+    }
+
+    private static Integer parseIntegerOrNull(String s) {
+        return s.isEmpty() ? null : Integer.parseInt(s);
     }
 }
