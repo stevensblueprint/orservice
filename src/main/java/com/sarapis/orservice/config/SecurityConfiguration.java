@@ -29,6 +29,7 @@ public class SecurityConfiguration {
     private final PublicEndpointScanner publicEndpointScanner;
 
     @Bean
+    @Profile("prod")
     public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
 
         Set<String> publicEndpoints = publicEndpointScanner.getPublicEndpoints();
@@ -52,15 +53,16 @@ public class SecurityConfiguration {
                 .build();
     }
 
-//    @Bean
-//    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .cors(withDefaults())
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .build();
-//    }
+    @Bean
+    @Profile("dev")
+    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
