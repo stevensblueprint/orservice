@@ -2486,6 +2486,23 @@ ALTER TABLE ONLY public.url
 ALTER TABLE ONLY public.url
     ADD CONSTRAINT url_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+                              id SERIAL PRIMARY KEY,
+                              first_name VARCHAR(255) NOT NULL,
+                              last_name VARCHAR(255) NOT NULL,
+                              email VARCHAR(255) NOT NULL UNIQUE,
+                              password VARCHAR(255) NOT NULL,
+                              updated_at DATE
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+
 
 --
 -- PostgreSQL database dump complete

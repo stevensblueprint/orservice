@@ -59,7 +59,13 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler(Exception.class)
+  @ExceptionHandler({
+          BadCredentialsException.class,
+          AccountStatusException.class,
+          AccessDeniedException.class,
+          SignatureException.class,
+          ExpiredJwtException.class
+  })
   public ProblemDetail handleSecurityException(Exception exception) {
 
     ProblemDetail errorDetail = null;
