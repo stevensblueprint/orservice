@@ -11,15 +11,20 @@ import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
 import io.micrometer.common.util.StringUtils;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.zip.ZipOutputStream;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -105,5 +110,20 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     return spec;
+  }
+
+  @Override
+  public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
+    return 0;
+  }
+
+  @Override
+  public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
+    return 0;
+  }
+
+  @Override
+  public void readCsv(MultipartFile file, String updatedBy, List<String> metadataIds) throws IOException {
+
   }
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,13 +15,13 @@ public class FileImport {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "timestamp")
-    private LocalDate timestamp;
-
     @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "exchange_id")
+    @Column(name = "size")
+    private Long size;
+
+    @Column(name = "data_exchange_id")
     private String exchangeId;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

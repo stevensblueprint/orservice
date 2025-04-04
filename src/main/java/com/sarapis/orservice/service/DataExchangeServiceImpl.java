@@ -1,8 +1,6 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.DataExchangeDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
 import com.sarapis.orservice.model.DataExchange;
@@ -19,10 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -62,6 +58,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                                                        String errorMessage, Long size, String userId) {
         DataExchange dataExchange = new DataExchange();
         dataExchange.setId(UUID.randomUUID().toString());
+        dataExchange.setTimestamp(LocalDateTime.now());
         dataExchange.setType(type);
         dataExchange.setSuccess(success);
         dataExchange.setErrorMessage(errorMessage);
@@ -78,17 +75,21 @@ public class DataExchangeServiceImpl implements DataExchangeService {
     @Transactional
     public int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto) {
         try {
+            Map<DataExchangeDTO.ExportFile, Exchangeable> exportMappings = createExportMappings();
+
             ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
 
             long bytes = 0;
 
-            switch (requestDto.getFormat()) {
-                case CSV:
-                    bytes += organizationService.writeCsv(zipOutputStream);
-                    break;
-                case PDF:
-                    bytes += organizationService.writePdf(zipOutputStream);
-                    break;
+            for (DataExchangeDTO.ExportFile file : requestDto.getFiles()) {
+                switch (requestDto.getFormat()) {
+                    case CSV:
+                        bytes += exportMappings.get(file).writeCsv(zipOutputStream);
+                        break;
+                    case PDF:
+                        bytes += exportMappings.get(file).writePdf(zipOutputStream);
+                        break;
+                }
             }
 
             zipOutputStream.finish();
@@ -106,37 +107,50 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     @Override
     @Transactional
-    public int importFile(DataExchangeFormat format, String userId, MultipartFile file, String updatedBy) {
+    public int importFile(DataExchangeFormat format, String userId, List<MultipartFile> files, String updatedBy) {
         try {
+            Map<String, Exchangeable> importMappings = createImportMappings();
             List<String> metadataIds = new ArrayList<>();
 
-            switch (format) {
-                case CSV: {
-                    if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
-                        return 400;
-                    }
+            for (MultipartFile file : files) {
+                switch (format) {
+                    case CSV: {
+                        if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
+                            return 400;
+                        }
 
-                    switch (Objects.requireNonNull(file.getOriginalFilename())) {
-                        case "organizations.csv":
-                            OrganizationDTO.csvToOrganizations(file.getInputStream()).forEach(createRequest -> {
-                                OrganizationDTO.Response response = organizationService.createOrganization(createRequest, updatedBy);
-                                metadataIds.addAll(response.getMetadata().stream().map(MetadataDTO.Response::getId).toList());
-                            });
-                        default:
-                            break;
+                        importMappings.get(file.getOriginalFilename()).readCsv(file, updatedBy, metadataIds);
                     }
+                    case PDF:
+                        break;
                 }
-                case PDF:
-                    break;
             }
 
+            HashMap<String, Long> fileSizeMappings = new HashMap<>();
+            for (MultipartFile file : files) {
+                fileSizeMappings.put(file.getOriginalFilename(), file.getSize());
+            }
+
+            Long totalSize = fileSizeMappings.values().stream().reduce(0L, Long::sum);
             DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, format, true,
-                    null, file.getSize(), userId);
-            fileImportService.createFileImport(file.getOriginalFilename(), exchangeResponse.getId(), metadataIds);
+                    null, totalSize, userId);
+            fileImportService.createFileImports(exchangeResponse.getId(), fileSizeMappings, metadataIds);
             return 204;
         } catch (Exception e) {
             createDataExchange(DataExchangeType.IMPORT, format, false, e.getMessage(), null, userId);
             return 500;
         }
+    }
+
+    private Map<DataExchangeDTO.ExportFile, Exchangeable> createExportMappings() {
+        return Map.ofEntries(
+                Map.entry(DataExchangeDTO.ExportFile.Organization, organizationService)
+        );
+    }
+
+    private Map<String, Exchangeable> createImportMappings() {
+        return Map.ofEntries(
+                Map.entry(DataExchangeUtils.ORGANIZATION_FILE_NAME, organizationService)
+        );
     }
 }

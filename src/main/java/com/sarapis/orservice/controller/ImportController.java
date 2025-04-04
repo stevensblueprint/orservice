@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/import")
 @RequiredArgsConstructor
@@ -19,10 +21,10 @@ public class ImportController {
     public ResponseEntity<Void> importFile(
             @RequestParam("format") DataExchangeFormat format,
             @RequestParam("userId") String userId,
-            @RequestPart("file") MultipartFile file,
+            @RequestPart("files") List<MultipartFile> files,
             @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
     ) {
-        int status = dataExchangeService.importFile(format, userId, file, updatedBy);
+        int status = dataExchangeService.importFile(format, userId, files, updatedBy);
         return ResponseEntity.status(status).build();
     }
 }

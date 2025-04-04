@@ -7,6 +7,8 @@ import com.sarapis.orservice.model.DataExchangeType;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface DataExchangeService {
     PaginationDTO<DataExchangeDTO.Response> getDataExchangesByUserId(String userId, Integer page, Integer perPage);
     DataExchangeDTO.Response getDataExchangeById(String id);
@@ -14,5 +16,5 @@ public interface DataExchangeService {
                                                 String errorMessage, Long size, String userId);
 
     int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto);
-    int importFile(DataExchangeFormat format, String userId, MultipartFile file, String updatedBy);
+    int importFile(DataExchangeFormat format, String userId, List<MultipartFile> files, String updatedBy);
 }

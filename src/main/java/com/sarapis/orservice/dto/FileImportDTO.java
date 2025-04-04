@@ -15,7 +15,6 @@ public class FileImportDTO {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class Response {
         private String id;
-        private LocalDate timestamp;
         private String fileName;
         private String metadataId;
         private String exchangeId;

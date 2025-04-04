@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -14,6 +15,9 @@ public class DataExchange {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
+
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)

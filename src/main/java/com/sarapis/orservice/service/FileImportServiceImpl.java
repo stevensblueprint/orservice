@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,24 +26,27 @@ public class FileImportServiceImpl implements FileImportService {
 
     @Override
     @Transactional
-    public FileImportDTO.Response createFileImport(String fileName, String exchangeId, List<String> metadataIds) {
-        String id = UUID.randomUUID().toString();
-        List<Metadata> metadataList = metadataIds.stream().map(metadataId -> {
-            Metadata metadata = metadataRepository.findById(metadataId).orElseThrow();
-            metadata.setFileImportId(id);
-            metadataRepository.save(metadata);
-            return metadata;
+    public List<FileImportDTO.Response> createFileImports(String exchangeId, HashMap<String, Long> fileSizeMappings,
+                                                          List<String> metadataIds) {
+        return fileSizeMappings.entrySet().stream().map(entry -> {
+            String id = UUID.randomUUID().toString();
+
+            List<Metadata> metadataList = metadataIds.stream().map(metadataId -> {
+                Metadata metadata = metadataRepository.findById(metadataId).orElseThrow();
+                metadata.setFileImportId(id);
+                metadataRepository.save(metadata);
+                return metadata;
+            }).toList();
+
+            FileImport fileImport = new FileImport();
+            fileImport.setId(id);
+            fileImport.setFileName(entry.getKey());
+            fileImport.setSize(entry.getValue());
+            fileImport.setExchangeId(exchangeId);
+            fileImport.setMetadata(metadataList);
+
+            FileImport savedFileImport = fileImportRepository.save(fileImport);
+            return fileImportMapper.toResponseDTO(savedFileImport);
         }).toList();
-
-        FileImport fileImport = new FileImport();
-        fileImport.setId(id);
-        fileImport.setTimestamp(LocalDate.now());
-        fileImport.setFileName(fileName);
-        fileImport.setExchangeId(exchangeId);
-        fileImport.setMetadata(metadataList);
-
-        FileImport savedFileImport = fileImportRepository.save(fileImport);
-        FileImportDTO.Response response = fileImportMapper.toResponseDTO(savedFileImport);
-        return response;
     }
 }

@@ -6,6 +6,7 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -173,5 +175,14 @@ public class OrganizationServiceImpl implements OrganizationService {
     document.close();
     zipOutputStream.closeEntry();
     return entry.getSize();
+  }
+
+  @Override
+  @Transactional
+  public void readCsv(MultipartFile file, String updatedBy, List<String> metadataIds) throws IOException {
+    OrganizationDTO.csvToOrganizations(file.getInputStream()).forEach(createRequest -> {
+      OrganizationDTO.Response response = createOrganization(createRequest, updatedBy);
+      metadataIds.addAll(response.getMetadata().stream().map(MetadataDTO.Response::getId).toList());
+    });
   }
 }
