@@ -5,6 +5,7 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.TaxonomyTermMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.TaxonomyTerm;
@@ -94,7 +95,7 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   @Transactional
   public Response undoTaxonomyTermMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     TaxonomyTerm reverted = MetadataUtils.undoMetadata(
             metadata,

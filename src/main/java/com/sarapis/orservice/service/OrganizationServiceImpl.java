@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.OrganizationMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Organization;
@@ -114,7 +115,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Transactional
   public Response undoOrganizationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     Organization reverted = MetadataUtils.undoMetadata(
         metadata,

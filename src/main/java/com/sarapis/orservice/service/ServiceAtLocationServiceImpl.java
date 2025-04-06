@@ -5,6 +5,7 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.ServiceAtLocationMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.ServiceAtLocation;
@@ -89,7 +90,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   @Transactional
   public Response undoServiceAtLocationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     ServiceAtLocation reverted = MetadataUtils.undoMetadata(
             metadata,

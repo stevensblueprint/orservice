@@ -4,6 +4,7 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Request;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.ServiceMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Service;
@@ -97,7 +98,7 @@ public class ServiceServiceImpl implements ServiceService {
   @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     Service reverted = MetadataUtils.undoMetadata(
             metadata,
