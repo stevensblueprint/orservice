@@ -10,17 +10,11 @@ import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
 
-import java.util.List;
-import java.util.Map;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.BiConsumer;
-
-import com.sarapis.orservice.utils.MetadataUtils;
-import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
-import static com.sarapis.orservice.utils.Parser.parseIntegerAndSet;
-import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
 
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
@@ -40,27 +34,6 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final MetadataService metadataService;
   private final MetadataRepository metadataRepository;
 
-  private static final Map<String, BiConsumer<Organization, String>> ORGANIZATION_FIELD_MAP = Map.ofEntries(
-          Map.entry("name", Organization::setName),
-          Map.entry("alternateName", Organization::setAlternateName),
-          Map.entry("description", Organization::setDescription),
-          Map.entry("email", Organization::setEmail),
-          Map.entry("website", Organization::setWebsite),
-          Map.entry("taxStatus", Organization::setTaxStatus),
-          Map.entry("taxId", Organization::setTaxId),
-          Map.entry("yearIncorporated", parseIntegerAndSet(Organization::setYearIncorporated)),
-          Map.entry("legalStatus", Organization::setLegalStatus),
-          Map.entry("logo", Organization::setLogo),
-          Map.entry("uri", Organization::setUri),
-          Map.entry("services", parseObjectAndSet(Organization::setServices)),
-          Map.entry("additionalWebsites", parseObjectAndSet(Organization::setAdditionalWebsites)),
-          Map.entry("funding", parseObjectAndSet(Organization::setFunding)),
-          Map.entry("contacts", parseObjectAndSet(Organization::setContacts)),
-          Map.entry("phones", parseObjectAndSet(Organization::setPhones)),
-          Map.entry("programs", parseObjectAndSet(Organization::setPrograms)),
-          Map.entry("organizationIdentifiers", parseObjectAndSet(Organization::setOrganizationIdentifiers)),
-          Map.entry("locations", parseObjectAndSet(Organization::setLocations))
-  );
   private static final boolean RETURN_FULL_SERVICE = true;
   private static final int RECORDS_PER_STREAM = 100;
 
@@ -142,13 +115,6 @@ public class OrganizationServiceImpl implements OrganizationService {
   public void undoOrganizationMetadata(String metadataId) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
-
-    /*
-    String resType = metadata.getResourceType();
-    if(!resType.equals(ORGANIZATION_RESOURCE_TYPE)) {
-      throw new RuntimeException("");
-    }
-    */
 
     MetadataUtils.undoMetadata(
         metadata,

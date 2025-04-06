@@ -11,14 +11,12 @@ import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
-import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
 
 import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.SERVICE_AT_LOCATION_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,16 +35,6 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   private final MetadataRepository metadataRepository;
 
   private static final int RECORDS_PER_STREAM = 100;
-
-  private static final Map<String, BiConsumer<ServiceAtLocation, String>> SERVICE_AT_LOCATION_FIELD_MAP = Map.ofEntries(
-          Map.entry("service", parseObjectAndSet(ServiceAtLocation::setService)),
-          Map.entry("location", parseObjectAndSet(ServiceAtLocation::setLocation)),
-          Map.entry("description", ServiceAtLocation::setDescription),
-          Map.entry("contacts", parseObjectAndSet(ServiceAtLocation::setContacts)),
-          Map.entry("phones", parseObjectAndSet(ServiceAtLocation::setPhones)),
-          Map.entry("schedules", parseObjectAndSet(ServiceAtLocation::setSchedules)),
-          Map.entry("serviceAreas", parseObjectAndSet(ServiceAtLocation::setServiceAreas))
-  );
 
   @Override
   @Transactional(readOnly = true)

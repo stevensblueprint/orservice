@@ -12,15 +12,11 @@ import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
 import com.sarapis.orservice.utils.MetadataUtils;
-import static com.sarapis.orservice.utils.Parser.parseIntegerAndSet;
-import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
-import static com.sarapis.orservice.utils.Parser.parseDateAndSet;
+import static com.sarapis.orservice.utils.FieldMap.SERVICE_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,39 +33,6 @@ public class ServiceServiceImpl implements ServiceService {
   private final MetadataService metadataService;
 
   private static final int RECORDS_PER_STREAM = 100;
-
-  private static final Map<String, BiConsumer<Service, String>> SERVICE_FIELD_MAP = Map.ofEntries(
-          Map.entry("organization", parseObjectAndSet(Service::setOrganization)),
-          Map.entry("name", Service::setName),
-          Map.entry("alternateName", Service::setAlternateName),
-          Map.entry("description", Service::setDescription),
-          Map.entry("url", Service::setUrl),
-          Map.entry("email", Service::setEmail),
-          Map.entry("status", Service::setStatus),
-          Map.entry("interpretationServices", Service::setInterpretationServices),
-          Map.entry("feesDescription", Service::setFeesDescription),
-          Map.entry("waitTime", Service::setWaitTime),
-          Map.entry("fees", Service::setFees),
-          Map.entry("accreditations", Service::setAccreditations),
-          Map.entry("eligibility_description", Service::setEligibility_description),   /* ? */
-          Map.entry("minimumAge", parseIntegerAndSet(Service::setMinimumAge)),
-          Map.entry("maximumAge", parseIntegerAndSet(Service::setMaximumAge)),
-          Map.entry("assuredDate", Service::setAssuredDate),
-          Map.entry("assurerEmail", Service::setAssurerEmail),
-          Map.entry("licenses", Service::setLicenses),
-          Map.entry("alert", Service::setAlert),
-          Map.entry("lastModified", parseDateAndSet(Service::setLastModified)),
-          Map.entry("phones", parseObjectAndSet(Service::setPhones)),
-          Map.entry("schedules", parseObjectAndSet(Service::setSchedules)),
-          Map.entry("serviceAreas", parseObjectAndSet(Service::setServiceAreas)),
-          Map.entry("serviceAtLocations", parseObjectAndSet(Service::setServiceAtLocations)),
-          Map.entry("languages", parseObjectAndSet(Service::setLanguages)),
-          Map.entry("funding", parseObjectAndSet(Service::setFunding)),
-          Map.entry("costOptions", parseObjectAndSet(Service::setCostOptions)),
-          Map.entry("requiredDocuments", parseObjectAndSet(Service::setRequiredDocuments)),
-          Map.entry("contacts", parseObjectAndSet(Service::setContacts)),
-          Map.entry("additionalUrls", parseObjectAndSet(Service::setAdditionalUrls))
-  );
 
   @Override
   @Transactional(readOnly = true)
