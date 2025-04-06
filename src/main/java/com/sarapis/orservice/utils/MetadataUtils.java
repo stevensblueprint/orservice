@@ -1,10 +1,8 @@
 package com.sarapis.orservice.utils;
 
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
-import static com.sarapis.orservice.utils.MetadataType.DELETE;
 import static com.sarapis.orservice.utils.MetadataType.UPDATE;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.MetadataRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class MetadataUtils {
   public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
@@ -40,12 +36,6 @@ public class MetadataUtils {
   public static final String TAXONOMY_TERM_RESOURCE_TYPE = "TAXONOMY_TERM";
   public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
   public static final String EMPTY_PREVIOUS_VALUE = "";
-
-  public static final Map<String, String> ACTION_COMPLEMENT_MAP = Map.of(
-          CREATE.toString(), DELETE.toString(),
-          DELETE.toString(), CREATE.toString(),
-          UPDATE.toString(), UPDATE.toString()
-  );
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
     if (actionType == MetadataType.UPDATE && (original == null || updated == null)) {
@@ -78,13 +68,12 @@ public class MetadataUtils {
     String prevValue = metadata.getPreviousValue();
     setter.accept(entity, prevValue);
 
-    String revertAction = getComplementAction(metadata.getLastActionType());
     Metadata newMeta = new Metadata();
     newMeta.setId(UUID.randomUUID().toString());
     newMeta.setResourceId(resId);
     newMeta.setResourceType(metadata.getResourceType());
     newMeta.setLastActionDate(LocalDate.now());
-    newMeta.setLastActionType(revertAction);
+    newMeta.setLastActionType(UPDATE.toString());
     newMeta.setFieldName(fieldName);
     newMeta.setPreviousValue(metadata.getReplacementValue());
     newMeta.setReplacementValue(metadata.getPreviousValue());
@@ -132,9 +121,5 @@ public class MetadataUtils {
       throw new RuntimeException("Error accessing entity fields", e);
     }
     return metadataEntries;
-  }
-
-  public static String getComplementAction(String actionType) {
-      return ACTION_COMPLEMENT_MAP.get(actionType);
   }
 }
