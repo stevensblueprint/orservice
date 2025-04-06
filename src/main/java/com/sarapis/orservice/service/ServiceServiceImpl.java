@@ -8,7 +8,6 @@ import com.sarapis.orservice.mapper.ServiceMapper;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.repository.MetadataRepository;
-import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
 import com.sarapis.orservice.utils.MetadataUtils;
@@ -96,16 +95,17 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
-  public void undoServiceMetadata(String metadataId) {
+  public Response undoServiceMetadata(String metadataId) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
-    MetadataUtils.undoMetadata(
+    Service reverted = MetadataUtils.undoMetadata(
             metadata,
             this.metadataRepository,
             this.serviceRepository,
             SERVICE_FIELD_MAP
     );
+    return serviceMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<Service> buildSpecification(String search, String modifiedAfter,

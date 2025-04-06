@@ -63,7 +63,7 @@ public class MetadataUtils {
     };
   }
 
-  public static <T> void undoMetadata(Metadata metadata,
+  public static <T> T undoMetadata(Metadata metadata,
                                       MetadataRepository metadataRepository,
                                       JpaRepository<T, String> repository,
                                       Map<String, BiConsumer<T, String>> fieldMap) {
@@ -91,6 +91,8 @@ public class MetadataUtils {
 
     repository.save(entity);
     metadataRepository.save(newMeta);
+
+    return entity;
   }
 
   public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {

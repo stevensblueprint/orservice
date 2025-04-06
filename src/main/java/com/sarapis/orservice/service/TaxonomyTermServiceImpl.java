@@ -92,16 +92,17 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
   @Override
   @Transactional
-  public void undoTaxonomyTermMetadata(String metadataId) {
+  public Response undoTaxonomyTermMetadata(String metadataId) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
-    MetadataUtils.undoMetadata(
+    TaxonomyTerm reverted = MetadataUtils.undoMetadata(
             metadata,
             this.metadataRepository,
             this.taxonomyTermRepository,
             TAXONOMY_TERM_FIELD_MAP
     );
+    return taxonomyTermMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<TaxonomyTerm> buildSpecification(String search, String taxonomyId, Boolean topOnly, String parentId) {

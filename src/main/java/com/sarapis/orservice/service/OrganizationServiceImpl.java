@@ -112,16 +112,17 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   @Transactional
-  public void undoOrganizationMetadata(String metadataId) {
+  public Response undoOrganizationMetadata(String metadataId) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
-    MetadataUtils.undoMetadata(
+    Organization reverted = MetadataUtils.undoMetadata(
         metadata,
         this.metadataRepository,
         this.organizationRepository,
         ORGANIZATION_FIELD_MAP
     );
+    return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
   }
   private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
     Specification<Organization> spec = Specification.where(null);
