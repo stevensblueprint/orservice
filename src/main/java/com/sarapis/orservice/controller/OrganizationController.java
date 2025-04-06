@@ -78,13 +78,6 @@ public class OrganizationController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/undo/{metadataId}")
-  public ResponseEntity<Void> undoOrganizationMetadata(@PathVariable String metadataId) {
-    organizationService.undoOrganizationMetadata(metadataId);
-    return ResponseEntity.noContent().build();
-  }
-
-
   private ResponseEntity<PaginationDTO<OrganizationDTO.Response>> handleJsonResponse(
       String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId,
       Integer page, Integer perPage

@@ -67,12 +67,6 @@ public class TaxonomyController {
     return ResponseEntity.status(HttpStatus.CREATED).body(taxonomy);
   }
 
-  @PostMapping("/undo/{metadataId}")
-  public ResponseEntity<Void> undoTaxonomyMetadata(@PathVariable String metadataId) {
-    taxonomyService.undoTaxonomyMetadata(metadataId);
-    return ResponseEntity.noContent().build();
-  }
-
   private ResponseEntity<PaginationDTO<TaxonomyDTO.Response>> handleJsonResponse(
       String search, Integer page, Integer perPage
   ) {
