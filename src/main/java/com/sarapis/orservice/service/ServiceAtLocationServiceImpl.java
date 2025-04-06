@@ -6,13 +6,19 @@ import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Response;
 import com.sarapis.orservice.mapper.ServiceAtLocationMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
+import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
+
+import com.sarapis.orservice.utils.MetadataUtils;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +37,16 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   private final MetadataRepository metadataRepository;
 
   private static final int RECORDS_PER_STREAM = 100;
+
+  private static final Map<String, BiConsumer<ServiceAtLocation, String>> SERVICE_AT_LOCATION_FIELD_MAP = Map.ofEntries(
+          Map.entry("service", parseObjectAndSet(ServiceAtLocation::setService)),
+          Map.entry("location", parseObjectAndSet(ServiceAtLocation::setLocation)),
+          Map.entry("description", ServiceAtLocation::setDescription),
+          Map.entry("contacts", parseObjectAndSet(ServiceAtLocation::setContacts)),
+          Map.entry("phones", parseObjectAndSet(ServiceAtLocation::setPhones)),
+          Map.entry("schedules", parseObjectAndSet(ServiceAtLocation::setSchedules)),
+          Map.entry("serviceAreas", parseObjectAndSet(ServiceAtLocation::setServiceAreas))
+  );
 
   @Override
   @Transactional(readOnly = true)
@@ -79,6 +95,20 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   public Response getServiceAtLocationById(String id) {
     ServiceAtLocation service = serviceAtLocationRepository.findById(id).orElseThrow();
     return serviceAtLocationMapper.toResponseDTO(service, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public void undoServiceAtLocationMetadata(String metadataId) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+
+    MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.serviceAtLocationRepository,
+            SERVICE_AT_LOCATION_FIELD_MAP
+    );
   }
 
   @Override

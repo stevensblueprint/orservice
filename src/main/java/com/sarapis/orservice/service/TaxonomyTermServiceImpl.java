@@ -6,13 +6,19 @@ import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Response;
 import com.sarapis.orservice.mapper.TaxonomyTermMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.TaxonomyTerm;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.TaxonomyTermRepository;
 import com.sarapis.orservice.repository.TaxonomyTermSpecifications;
+import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
+
+import com.sarapis.orservice.utils.MetadataUtils;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +37,16 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
 
   private static final int RECORDS_PER_STREAM = 100;
 
+  private static final Map<String, BiConsumer<TaxonomyTerm, String>> TAXONOMY_TERM_FIELD_MAP = Map.ofEntries(
+          Map.entry("code", TaxonomyTerm::setCode),
+          Map.entry("name", TaxonomyTerm::setName),
+          Map.entry("description", TaxonomyTerm::setDescription),
+          Map.entry("parent", parseObjectAndSet(TaxonomyTerm::setParent)),
+          Map.entry("taxonomy", TaxonomyTerm::setTaxonomy),
+          Map.entry("taxonomyDetail", parseObjectAndSet(TaxonomyTerm::setTaxonomyDetail)),
+          Map.entry("language", TaxonomyTerm::setLanguage),
+          Map.entry("termUri", TaxonomyTerm::setTermUri)
+  );
 
   @Override
   @Transactional(readOnly = true)
@@ -85,6 +101,20 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     taxonomyTerm.setMetadata(metadataRepository, updatedBy);
     TaxonomyTerm savedTaxonomyTerm = taxonomyTermRepository.save(taxonomyTerm);
     return taxonomyTermMapper.toResponseDTO(savedTaxonomyTerm, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public void undoTaxonomyTermMetadata(String metadataId) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+
+    MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.taxonomyTermRepository,
+            TAXONOMY_TERM_FIELD_MAP
+    );
   }
 
   private Specification<TaxonomyTerm> buildSpecification(String search, String taxonomyId, Boolean topOnly, String parentId) {

@@ -15,4 +15,5 @@ public interface TaxonomyService {
 
   TaxonomyDTO.Response getTaxonomyById(String id);
   TaxonomyDTO.Response createTaxonomy(TaxonomyDTO.Request requestDto, String updatedBy);
+  void undoTaxonomyMetadata(String metadataId);
 }

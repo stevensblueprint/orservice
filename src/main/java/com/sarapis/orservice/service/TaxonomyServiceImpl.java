@@ -5,13 +5,17 @@ import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyDTO.Response;
 import com.sarapis.orservice.mapper.TaxonomyMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Taxonomy;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.TaxonomyRepository;
 import com.sarapis.orservice.repository.TaxonomySpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +34,13 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
   private final MetadataService metadataService;
 
   private static final int RECORDS_PER_STREAM = 100;
+
+  private static final Map<String, BiConsumer<Taxonomy, String>> TAXONOMY_FIELD_MAP = Map.ofEntries(
+          Map.entry("name", Taxonomy::setName),
+          Map.entry("description", Taxonomy::setDescription),
+          Map.entry("version", Taxonomy::setVersion),
+          Map.entry("uri", Taxonomy::setUri)
+  );
 
   @Override
   @Transactional(readOnly = true)
@@ -83,6 +94,20 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
     taxonomy.setMetadata(metadataRepository, updatedBy);
     taxonomy = taxonomyRepository.save(taxonomy);
     return taxonomyMapper.toResponseDTO(taxonomy, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public void undoTaxonomyMetadata(String metadataId) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new RuntimeException("Metadata not found"));
+
+    MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.taxonomyRepository,
+            TAXONOMY_FIELD_MAP
+    );
   }
 
   private Specification<Taxonomy> buildSpecification(String search) {
