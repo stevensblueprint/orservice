@@ -64,9 +64,10 @@ public class MetadataUtils {
   }
 
   public static <T> T undoMetadata(Metadata metadata,
-                                      MetadataRepository metadataRepository,
-                                      JpaRepository<T, String> repository,
-                                      Map<String, BiConsumer<T, String>> fieldMap) {
+                                   MetadataRepository metadataRepository,
+                                   JpaRepository<T, String> repository,
+                                   Map<String, BiConsumer<T, String>> fieldMap,
+                                   String updatedBy) {
     String resId = metadata.getResourceId();
     T entity = repository.findById(resId)
             .orElseThrow();
@@ -87,7 +88,7 @@ public class MetadataUtils {
     newMeta.setFieldName(fieldName);
     newMeta.setPreviousValue(metadata.getReplacementValue());
     newMeta.setReplacementValue(metadata.getPreviousValue());
-    newMeta.setUpdatedBy("SYSTEM");
+    newMeta.setUpdatedBy(updatedBy);
 
     repository.save(entity);
     metadataRepository.save(newMeta);

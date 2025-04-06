@@ -28,15 +28,15 @@ public class MetadataController {
     ) {
         return ResponseEntity.ok(switch(entityType) {
             case ORGANIZATION_RESOURCE_TYPE ->
-                    organizationService.undoOrganizationMetadata(metadataId);
+                    organizationService.undoOrganizationMetadata(metadataId, updatedBy);
             case SERVICE_AT_LOCATION_RESOURCE_TYPE ->
-                    serviceAtLocationService.undoServiceAtLocationMetadata(metadataId);
+                    serviceAtLocationService.undoServiceAtLocationMetadata(metadataId, updatedBy);
             case SERVICE_RESOURCE_TYPE ->
-                    serviceService.undoServiceMetadata(metadataId);
+                    serviceService.undoServiceMetadata(metadataId, updatedBy);
             case TAXONOMY_RESOURCE_TYPE ->
-                    taxonomyService.undoTaxonomyMetadata(metadataId);
+                    taxonomyService.undoTaxonomyMetadata(metadataId, updatedBy);
             case TAXONOMY_TERM_RESOURCE_TYPE ->
-                    taxonomyTermService.undoTaxonomyTermMetadata(metadataId);
+                    taxonomyTermService.undoTaxonomyTermMetadata(metadataId, updatedBy);
             default -> ResponseEntity.badRequest().body(null);
         });
     }

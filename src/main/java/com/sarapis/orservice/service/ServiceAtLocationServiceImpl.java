@@ -87,7 +87,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
 
   @Override
   @Transactional
-  public Response undoServiceAtLocationMetadata(String metadataId) {
+  public Response undoServiceAtLocationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
@@ -95,7 +95,8 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
             metadata,
             this.metadataRepository,
             this.serviceAtLocationRepository,
-            SERVICE_AT_LOCATION_FIELD_MAP
+            SERVICE_AT_LOCATION_FIELD_MAP,
+            updatedBy
     );
     return serviceAtLocationMapper.toResponseDTO(reverted, metadataService);
   }

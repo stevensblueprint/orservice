@@ -23,5 +23,5 @@ public interface ServiceAtLocationService {
 
   ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto, String updatedBy);
   ServiceAtLocationDTO.Response getServiceAtLocationById(String id);
-  ServiceAtLocationDTO.Response undoServiceAtLocationMetadata(String metadataId);
+  ServiceAtLocationDTO.Response undoServiceAtLocationMetadata(String metadataId, String updatedBy);
 }

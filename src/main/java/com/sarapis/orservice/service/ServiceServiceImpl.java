@@ -95,7 +95,7 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
-  public Response undoServiceMetadata(String metadataId) {
+  public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new RuntimeException("Metadata not found"));
 
@@ -103,7 +103,8 @@ public class ServiceServiceImpl implements ServiceService {
             metadata,
             this.metadataRepository,
             this.serviceRepository,
-            SERVICE_FIELD_MAP
+            SERVICE_FIELD_MAP,
+            updatedBy
     );
     return serviceMapper.toResponseDTO(reverted, metadataService);
   }
