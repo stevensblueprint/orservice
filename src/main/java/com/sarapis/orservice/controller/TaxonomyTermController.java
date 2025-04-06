@@ -67,6 +67,12 @@ public class TaxonomyTermController {
     return ResponseEntity.ok(taxonomyTermService.createTaxonomyTerm(taxonomyTerm, updatedBy));
   }
 
+  @PostMapping("/undo/{metadataId}")
+  public ResponseEntity<Void> undoTaxonomyTermMetadata(@PathVariable String metadataId) {
+    taxonomyTermService.undoTaxonomyTermMetadata(metadataId);
+    return ResponseEntity.noContent().build();
+  }
+
   private ResponseEntity<PaginationDTO<TaxonomyTermDTO.Response>> handleJsonResponse(
       String search,
       Integer page,

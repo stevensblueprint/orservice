@@ -78,9 +78,9 @@ public class OrganizationController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/undo/{metaId}")
-  public ResponseEntity<Void> tmpUndoMetadata(@PathVariable String metaId) {
-    organizationService.undoOrganizationMetadata(metaId);
+  @PostMapping("/undo/{metadataId}")
+  public ResponseEntity<Void> undoOrganizationMetadata(@PathVariable String metadataId) {
+    organizationService.undoOrganizationMetadata(metadataId);
     return ResponseEntity.noContent().build();
   }
 

@@ -72,6 +72,12 @@ public class ServiceAtLocationController {
     return ResponseEntity.status(HttpStatus.CREATED).body(serviceAtLocationService.createServiceAtLocation(request, updatedBy));
   }
 
+  @PostMapping("/undo/{metadataId}")
+  public ResponseEntity<Void> undoServiceAtLocationMetadata(@PathVariable String metadataId) {
+    serviceAtLocationService.undoServiceAtLocationMetadata(metadataId);
+    return ResponseEntity.noContent().build();
+  }
+
   private ResponseEntity<PaginationDTO<ServiceAtLocationDTO.Response>> handleJsonResponse(
       String search,
       String taxonomyTermId,

@@ -71,6 +71,12 @@ public class ServiceController {
     return ResponseEntity.status(HttpStatus.CREATED).body(serviceService.createService(servicedDto, updatedBy));
   }
 
+  @PostMapping("/undo/{metadataId}")
+  public ResponseEntity<Void> undoServiceMetadata(@PathVariable String metadataId) {
+    serviceService.undoServiceMetadata(metadataId);
+    return ResponseEntity.noContent().build();
+  }
+
   private ResponseEntity<PaginationDTO<ServiceDTO.Response>> handleJsonResponse(
       String search,
       Integer page,
