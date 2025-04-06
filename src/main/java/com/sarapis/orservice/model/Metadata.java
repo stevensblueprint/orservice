@@ -1,6 +1,7 @@
 package com.sarapis.orservice.model;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,4 +41,11 @@ public class Metadata {
 
   @Column(name = "updated_by", nullable = false)
   private String updatedBy;
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+  }
 }

@@ -28,7 +28,7 @@ public class PhoneDTO {
     private String serviceAtLocationId;
     @NotBlank
     private String number;
-    private String extension;
+    private int extension;
     private String type;
     private String description;
     private List<LanguageDTO.Request> languages;
@@ -53,7 +53,7 @@ public class PhoneDTO {
     @JsonIgnore
     private String serviceAtLocationId;
     private String number;
-    private String extension;
+    private int extension;
     private String type;
     private String description;
     private List<LanguageDTO.Response> languages;

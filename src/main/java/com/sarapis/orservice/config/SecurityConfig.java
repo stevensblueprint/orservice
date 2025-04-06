@@ -2,7 +2,6 @@ package com.sarapis.orservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,43 +15,28 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Bean
-    @Profile("prod")
-    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator/**")
-                        .permitAll()
-                        .requestMatchers("/")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .build();
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/**").permitAll()
+                .anyRequest().authenticated())
+            .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
+                .configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .build();
     }
 
-    @Bean
-    @Profile("dev")
-    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/**")
-                        .permitAll())
-                .build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedOrigins(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.setAllowCredentials(false);
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;

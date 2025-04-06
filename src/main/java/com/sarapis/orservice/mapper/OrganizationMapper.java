@@ -11,7 +11,22 @@ import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.dto.ProgramDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.UrlDTO;
+import com.sarapis.orservice.model.Contact;
+import com.sarapis.orservice.model.Funding;
+import com.sarapis.orservice.model.Location;
 import com.sarapis.orservice.model.Organization;
+import com.sarapis.orservice.model.OrganizationIdentifier;
+import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.model.Program;
+import com.sarapis.orservice.model.Url;
+import com.sarapis.orservice.repository.ContactRepository;
+import com.sarapis.orservice.repository.FundingRepository;
+import com.sarapis.orservice.repository.LocationRepository;
+import com.sarapis.orservice.repository.OrganizationIdentifierRepository;
+import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.ProgramRepository;
+import com.sarapis.orservice.repository.ServiceRepository;
+import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,29 +41,43 @@ public abstract class OrganizationMapper {
 
   @Autowired
   private OrganizationIdentifierMapper identifierMapper;
+  @Autowired
+  private OrganizationIdentifierRepository organizationIdentifierRepository;
 
   @Autowired
   private UrlMapper urlMapper;
+  @Autowired
+  private UrlRepository urlRepository;
 
   @Autowired
   private FundingMapper fundingMapper;
+  @Autowired
+  private FundingRepository fundingRepository;
 
   @Autowired
   private PhoneMapper phoneMapper;
+  @Autowired
+  private PhoneRepository phoneRepository;
 
   @Autowired
   private ProgramMapper programMapper;
+  @Autowired
+  private ProgramRepository programRepository;
 
   @Autowired
   private ContactMapper contactMapper;
+  @Autowired
+  private ContactRepository contactRepository;
 
   @Autowired
   private LocationMapper locationMapper;
+  @Autowired
+  private LocationRepository locationRepository;
 
   @Autowired
   private ServiceMapper serviceMapper;
-
-  private static final Boolean shouldNotIncludeOrganization = false;
+  @Autowired
+  private ServiceRepository serviceRepository;
 
   public abstract Organization toEntity(OrganizationDTO.Request dto);
   public abstract OrganizationDTO.Response toResponseDTO(Organization entity);
@@ -56,42 +85,100 @@ public abstract class OrganizationMapper {
   @AfterMapping
   protected void setRelations(@MappingTarget Organization organization) {
     if (organization.getAdditionalWebsites() != null) {
-      organization.getAdditionalWebsites().forEach(website ->
-          website.setOrganization(organization));
+      List<Url> managedUrls = organization.getAdditionalWebsites().stream()
+          .map(url -> {
+            if (url.getId()!= null) {
+              return urlRepository.findById(url.getId())
+                 .orElse(url);
+            }
+            return url;
+          })
+          .peek(url -> url.setOrganization(organization)).toList();
+      organization.setAdditionalWebsites(managedUrls);
     }
 
     if (organization.getFunding() != null) {
-      organization.getFunding().forEach(funding ->
-          funding.setOrganization(organization));
+      List<Funding> managedFundings = organization.getFunding().stream()
+          .map(funding -> {
+            if (funding.getId()!= null) {
+              return fundingRepository.findById(funding.getId())
+                 .orElse(funding);
+            }
+            return funding;
+          })
+          .peek(funding -> funding.setOrganization(organization)).toList();
+      organization.setFunding(managedFundings);
     }
 
     if (organization.getPhones() != null) {
-      organization.getPhones().forEach(phone ->
-          phone.setOrganization(organization));
+      List<Phone> managedPhones = organization.getPhones().stream()
+          .map(phone -> {
+            if (phone.getId()!= null) {
+              return phoneRepository.findById(phone.getId())
+                 .orElse(phone);
+            }
+            return phone;
+          })
+          .peek(phone -> phone.setOrganization(organization)).toList();
+      organization.setPhones(managedPhones);
     }
 
     if (organization.getPrograms() != null) {
-      organization.getPrograms().forEach(program ->
-          program.setOrganization(organization));
+      List<Program> managedPrograms = organization.getPrograms().stream()
+          .map(program -> {
+            if (program.getId()!= null) {
+              return programRepository.findById(program.getId())
+                 .orElse(program);
+            }
+            return program;
+          })
+          .peek(program -> program.setOrganization(organization)).toList();
+      organization.setPrograms(managedPrograms);
     }
 
     if (organization.getContacts() != null) {
-      organization.getContacts().forEach(contact ->
-          contact.setOrganization(organization));
+      List<Contact> managedContacts = organization.getContacts().stream()
+          .map(contact -> {
+            if (contact.getId()!= null) {
+              return contactRepository.findById(contact.getId())
+                 .orElse(contact);
+            }
+            return contact;
+          })
+          .peek(contact -> contact.setOrganization(organization)).toList();
+      organization.setContacts(managedContacts);
     }
 
     if (organization.getLocations() != null) {
-      organization.getLocations().forEach(location ->
-          location.setOrganization(organization));
+      List<Location> managedLocations = organization.getLocations().stream()
+          .map(location -> {
+            if (location.getId()!= null) {
+              return locationRepository.findById(location.getId())
+                 .orElse(location);
+            }
+            return location;
+          })
+          .peek(location -> location.setOrganization(organization)).toList();
+      organization.setLocations(managedLocations);
     }
 
     if (organization.getOrganizationIdentifiers() != null) {
-      organization.getOrganizationIdentifiers().forEach(identifier ->
-          identifier.setOrganization(organization));
+      List<OrganizationIdentifier> managedOrganizationIdentifiers = organization
+          .getOrganizationIdentifiers()
+          .stream()
+          .map(identifier -> {
+            if (identifier.getId()!= null) {
+              return organizationIdentifierRepository.findById(identifier.getId())
+                 .orElse(identifier);
+            }
+            return identifier;
+          })
+          .peek(identifier -> identifier.setOrganization(organization)).toList();
+      organization.setOrganizationIdentifiers(managedOrganizationIdentifiers);
     }
   }
 
-  public OrganizationDTO.Response toResponseDTO(Organization entity, MetadataService metadataService) {
+  public OrganizationDTO.Response toResponseDTO(Organization entity, MetadataService metadataService, Boolean fullService) {
     OrganizationDTO.Response response = toResponseDTO(entity);
     enrichMetadata(entity, response, metadataService);
     if (entity.getOrganizationIdentifiers() != null) {
@@ -153,7 +240,7 @@ public abstract class OrganizationMapper {
     if (entity.getServices() != null) {
       List<ServiceDTO.Summary> enrichedServices =
           entity.getServices().stream()
-             .map(service -> serviceMapper.toSummaryDTO(service))
+             .map(service -> fullService ? serviceMapper.toSummaryDTO(service, metadataService) : serviceMapper.toSummaryDTOShort(service))
              .collect(Collectors.toList());
       response.setServices(enrichedServices);
     }

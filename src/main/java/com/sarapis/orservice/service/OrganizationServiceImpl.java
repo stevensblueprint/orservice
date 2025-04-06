@@ -13,6 +13,7 @@ import com.sarapis.orservice.repository.OrganizationSpecifications;
 
 import java.util.List;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -21,6 +22,7 @@ import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TY
 import static com.sarapis.orservice.utils.Parser.parseIntegerAndSet;
 import static com.sarapis.orservice.utils.Parser.parseObjectAndSet;
 
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -59,24 +61,53 @@ public class OrganizationServiceImpl implements OrganizationService {
           Map.entry("organizationIdentifiers", parseObjectAndSet(Organization::setOrganizationIdentifiers)),
           Map.entry("locations", parseObjectAndSet(Organization::setLocations))
   );
+  private static final boolean RETURN_FULL_SERVICE = true;
+  private static final int RECORDS_PER_STREAM = 100;
+
 
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllOrganizations(String search, Boolean full_service,
-      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage,
-      String format) {
-    Specification<Organization> spec = Specification.where(null);
-    if (search != null && !search.isEmpty()) {
-      spec = spec.and(OrganizationSpecifications.hasSearchTerm(search));
-    }
+      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
+    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
-
     Page<OrganizationDTO.Response> dtoPage = organizationPage
-        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService));
+        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
 
     return PaginationDTO.fromPage(dtoPage);
+  }
+
+  // In OrganizationServiceImpl.java
+  @Override
+  @Transactional(readOnly = true)
+  public void streamAllOrganizations(String search, Boolean fullService, Boolean full,
+      String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
+
+    Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
+    int currentPage = 0;
+    boolean hasMoreData = true;
+
+    while (hasMoreData) {
+      PageRequest pageable = PageRequest.of(currentPage, RECORDS_PER_STREAM);
+      Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
+
+      List<Organization> organizations = organizationPage.getContent();
+
+      if (organizations.isEmpty()) {
+        hasMoreData = false;
+      } else {
+        organizations.forEach(organization ->
+            consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
+        );
+        if (currentPage >= organizationPage.getTotalPages() - 1) {
+          hasMoreData = false;
+        } else {
+          currentPage++;
+        }
+      }
+    }
   }
 
 
@@ -84,7 +115,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Transactional(readOnly = true)
   public Response getOrganizationById(String id, Boolean fullService) {
     Organization organization = organizationRepository.findById(id).orElseThrow();
-    return organizationMapper.toResponseDTO(organization, metadataService);
+    return organizationMapper.toResponseDTO(organization, metadataService, fullService);
   }
 
   @Override
@@ -96,7 +127,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     Organization organization = organizationMapper.toEntity(requestDto);
     organization.setMetadata(metadataRepository, updatedBy);
     Organization savedOrganization = organizationRepository.save(organization);
-    return organizationMapper.toResponseDTO(savedOrganization, metadataService);
+    return organizationMapper.toResponseDTO(savedOrganization, metadataService, RETURN_FULL_SERVICE);
   }
 
   @Override
@@ -126,4 +157,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         ORGANIZATION_FIELD_MAP
     );
   }
+  private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
+    Specification<Organization> spec = Specification.where(null);
+    if (search != null && !search.isEmpty()) {
+      spec = spec.and(OrganizationSpecifications.hasSearchTerm(search));
+    }
+    return spec;
+  }
+
 }

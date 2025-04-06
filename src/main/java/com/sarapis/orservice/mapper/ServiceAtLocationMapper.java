@@ -6,7 +6,13 @@ import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
+import com.sarapis.orservice.model.Contact;
+import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.model.ServiceAtLocation;
+import com.sarapis.orservice.repository.ContactRepository;
+import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.ScheduleRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
@@ -23,6 +29,15 @@ public abstract class ServiceAtLocationMapper {
   private ServiceRepository serviceRepository;
 
   @Autowired
+  private ContactRepository contactRepository;
+
+  @Autowired
+  private PhoneRepository phoneRepository;
+
+  @Autowired
+  private ScheduleRepository scheduleRepository;
+
+  @Autowired
   private ContactMapper contactMapper;
 
   @Autowired
@@ -37,30 +52,55 @@ public abstract class ServiceAtLocationMapper {
 
   @AfterMapping
   protected void setRelations(@MappingTarget ServiceAtLocation serviceAtLocation) {
+    if (serviceAtLocation.getService().getId() != null) {
+      serviceAtLocation.setService(
+          serviceRepository.findById(serviceAtLocation.getService().getId()).orElseThrow(
+              () -> new RuntimeException("Service not found: " + serviceAtLocation.getService().getId())
+          )
+      );
+    }
+
     if (serviceAtLocation.getContacts() != null) {
-      serviceAtLocation.getContacts().forEach(contact ->
-          contact.setServiceAtLocation(serviceAtLocation));
+      List<Contact> managedContacts = serviceAtLocation.getContacts().stream()
+          .map(contact -> {
+            if (contact.getId() != null) {
+              return contactRepository.findById(contact.getId())
+                  .orElse(contact);
+            }
+            return contact;
+          })
+          .peek(contact -> contact.setServiceAtLocation(serviceAtLocation)).toList();
+
+      serviceAtLocation.setContacts(managedContacts);
     }
 
     if (serviceAtLocation.getPhones() != null) {
-      serviceAtLocation.getPhones().forEach(phone ->
-          phone.setServiceAtLocation(serviceAtLocation));
+      List<Phone> managedPhones = serviceAtLocation.getPhones().stream()
+          .map(phone -> {
+            if (phone.getId() != null) {
+              return phoneRepository.findById(phone.getId())
+                  .orElse(phone);
+            }
+            return phone;
+          })
+          .peek(phone -> phone.setServiceAtLocation(serviceAtLocation)).toList();
+
+      serviceAtLocation.setPhones(managedPhones);
     }
 
     if (serviceAtLocation.getSchedules() != null) {
-      serviceAtLocation.getSchedules().forEach(schedule ->
-          schedule.setServiceAtLocation(serviceAtLocation));
-    }
-  }
+      List<Schedule> managedSchedules = serviceAtLocation.getSchedules().stream()
+          .map(schedule -> {
+            if (schedule.getId() != null) {
+              return scheduleRepository.findById(schedule.getId())
+                  .orElse(schedule);
+            }
+            return schedule;
+          })
+          .peek(schedule -> schedule.setServiceAtLocation(serviceAtLocation)).toList();
 
-  @AfterMapping
-  public ServiceAtLocation toEntity(@MappingTarget ServiceAtLocation serviceAtLocation) {
-    if (serviceAtLocation.getService().getId() != null) {
-      serviceAtLocation.setService(
-          serviceRepository.findById(serviceAtLocation.getService().getId())
-              .orElseThrow(() -> new IllegalArgumentException("Service not found for service_at_location with ID: " + serviceAtLocation.getId())));
+      serviceAtLocation.setSchedules(managedSchedules);
     }
-    return serviceAtLocation;
   }
 
   public ServiceAtLocationDTO.Response toResponseDTO(ServiceAtLocation entity, MetadataService metadataService) {

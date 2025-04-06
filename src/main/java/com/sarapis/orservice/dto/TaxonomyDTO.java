@@ -2,6 +2,7 @@ package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class TaxonomyDTO {
     @NotBlank(message = "Description is required")
     private String description;
     private String version;
+    private String uri;
   }
 
   @Setter
@@ -39,7 +41,8 @@ public class TaxonomyDTO {
     private String name;
     private String description;
     private String version;
-    private List<TaxonomyTermDTO.Request> taxonomyTerms;
-    private List<MetadataDTO.Response> metadata;
+    private String uri;
+    @Builder.Default
+    private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
 }

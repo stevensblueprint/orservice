@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +58,7 @@ public class Contact {
  @Column(name = "email")
   private String email;
 
- @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+ @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
  @JoinColumn(name = "contact_id", referencedColumnName = "id")
  private List<Phone> phones;
 
@@ -76,4 +77,11 @@ public class Contact {
    metadataRepository.saveAll(metadata);
    this.getPhones().forEach(phone -> phone.setMetadata(metadataRepository, updatedBy));
  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
+  }
 }

@@ -2,6 +2,7 @@ package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.validator.ValidLanguageCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,11 @@ public class TaxonomyTermDTO {
     private String vocabulary;
     private String parentId;
     private String description;
+    private String taxonomy;
+    private TaxonomyDTO.Request taxonomyDetail;
+    @ValidLanguageCode
+    private String language;
+    private String termUri;
   }
 
   @Setter
@@ -45,6 +51,8 @@ public class TaxonomyTermDTO {
     private String parentId;
     private String language;
     private String termUri;
+    private String taxonomy;
+    private TaxonomyDTO.Response taxonomyDetail;
     private List<MetadataDTO.Response> metadata;
   }
 }

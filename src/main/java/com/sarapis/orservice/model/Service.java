@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -98,43 +99,43 @@ public class Service {
   @Column(name = "last_modified")
   private LocalDate lastModified;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Phone> phones = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Schedule> schedules= new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<ServiceArea> serviceAreas = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<ServiceAtLocation> serviceAtLocations = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Language> languages = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Funding> funding = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<CostOption> costOptions = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<RequiredDocument> requiredDocuments = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Contact> contacts = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Url> additionalUrls = new ArrayList<>();
 
@@ -162,5 +163,12 @@ public class Service {
     this.getRequiredDocuments().forEach(requiredDocument -> requiredDocument.setMetadata(metadataRepository, updatedBy));
     this.getContacts().forEach(contact -> contact.setMetadata(metadataRepository, updatedBy));
     this.getAdditionalUrls().forEach(url -> url.setMetadata(metadataRepository, updatedBy));
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }

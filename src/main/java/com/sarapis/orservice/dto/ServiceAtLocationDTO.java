@@ -19,11 +19,13 @@ public class ServiceAtLocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
-    private String serviceId;
+    private ServiceDTO.Request service;
     private String description;
+    private LocationDTO.Request location;
     private List<ContactDTO.Request> contacts;
     private List<PhoneDTO.Request> phones;
     private List<ScheduleDTO.Request> schedules;
+    private List<ServiceAreaDTO.Request> serviceAreas;
   }
 
   @Setter
@@ -34,11 +36,13 @@ public class ServiceAtLocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
-    private String serviceId;
     private String description;
+    private ServiceDTO.Response service;
+    private LocationDTO.Response location;
     private List<ContactDTO.Response> contacts;
     private List<PhoneDTO.Response> phones;
     private List<ScheduleDTO.Response> schedules;
+    private List<ServiceAreaDTO.Response> serviceAreas;
     private List<AttributeDTO.Response> attributes;
     private List<MetadataDTO.Response> metadata;
   }

@@ -19,6 +19,7 @@ public class ServiceAreaDTO {
   public static class Request {
     private String id;
     private String serviceId;
+    private String serviceAtLocationId;
     private String name;
     private String description;
     private String extent;
@@ -34,7 +35,6 @@ public class ServiceAreaDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
-    private String serviceId;
     private String name;
     private String description;
     private String extent;

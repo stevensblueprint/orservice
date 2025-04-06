@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,10 @@ public class ServiceArea {
   @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "service_id")
   private Service service;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "service_at_location_id")
+  private ServiceAtLocation serviceAtLocation;
 
   @Column(name = "name")
   private String name;
@@ -61,5 +66,12 @@ public class ServiceArea {
             updatedBy
         )
     );
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }

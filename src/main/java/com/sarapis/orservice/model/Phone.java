@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +55,7 @@ public class Phone {
   private String number;
 
   @Column(name = "extension")
-  private String extension;
+  private int extension;
 
   @Column(name = "type")
   private String type;
@@ -62,7 +63,7 @@ public class Phone {
   @Column(name = "description")
   private String description;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "phone_id", referencedColumnName = "id")
   private List<Language> languages;
 
@@ -80,5 +81,12 @@ public class Phone {
     );
     metadataRepository.saveAll(metadata);
     this.getLanguages().forEach(lang -> lang.setMetadata(metadataRepository, updatedBy));
+  }
+
+  @PrePersist
+  public void prePersist() {
+    if (this.getId() == null) {
+      this.setId(UUID.randomUUID().toString());
+    }
   }
 }
