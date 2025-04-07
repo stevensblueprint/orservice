@@ -4,11 +4,15 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.dto.TaxonomyDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.TaxonomyMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Taxonomy;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.TaxonomyRepository;
 import com.sarapis.orservice.repository.TaxonomySpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.TAXONOMY_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
 import java.util.UUID;
@@ -83,6 +87,22 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
     taxonomy.setMetadata(metadataRepository, updatedBy);
     taxonomy = taxonomyRepository.save(taxonomy);
     return taxonomyMapper.toResponseDTO(taxonomy, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public Response undoTaxonomyMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    Taxonomy reverted = MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.taxonomyRepository,
+            TAXONOMY_FIELD_MAP,
+            updatedBy
+    );
+    return taxonomyMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<Taxonomy> buildSpecification(String search) {

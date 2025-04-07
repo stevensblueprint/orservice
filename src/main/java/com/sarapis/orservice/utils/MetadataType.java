@@ -1,9 +1,9 @@
 package com.sarapis.orservice.utils;
 
 public enum MetadataType {
-  CREATE("create"),
-  UPDATE("update"),
-  DELETE("delete");
+  CREATE("CREATE"),
+  UPDATE("UPDATE"),
+  DELETE("DELETE");
 
   private final String value;
 

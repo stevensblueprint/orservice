@@ -5,11 +5,16 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.ServiceAtLocationMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
+
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.SERVICE_AT_LOCATION_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
 import java.util.UUID;
@@ -79,6 +84,22 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   public Response getServiceAtLocationById(String id) {
     ServiceAtLocation service = serviceAtLocationRepository.findById(id).orElseThrow();
     return serviceAtLocationMapper.toResponseDTO(service, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public Response undoServiceAtLocationMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    ServiceAtLocation reverted = MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.serviceAtLocationRepository,
+            SERVICE_AT_LOCATION_FIELD_MAP,
+            updatedBy
+    );
+    return serviceAtLocationMapper.toResponseDTO(reverted, metadataService);
   }
 
   @Override

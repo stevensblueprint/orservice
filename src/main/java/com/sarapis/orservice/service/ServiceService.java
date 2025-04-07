@@ -20,4 +20,5 @@ public interface ServiceService {
       String modifiedAfter, Boolean minimal, Boolean full, Consumer<ServiceDTO.Response> consumer);
   ServiceDTO.Response getServiceById(String id);
   ServiceDTO.Response createService(ServiceDTO.Request requestDto, String updatedBy);
+  ServiceDTO.Response undoServiceMetadata(String metadataId, String updatedBy);
 }

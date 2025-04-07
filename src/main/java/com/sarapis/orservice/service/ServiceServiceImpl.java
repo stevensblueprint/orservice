@@ -4,12 +4,15 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Request;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.ServiceMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.repository.MetadataRepository;
-import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.ServiceSpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.SERVICE_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.time.LocalDate;
 import java.util.List;
@@ -89,6 +92,22 @@ public class ServiceServiceImpl implements ServiceService {
     service.setMetadata(metadataRepository, updatedBy);
     Service savedService = serviceRepository.save(service);
     return serviceMapper.toResponseDTO(savedService, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public Response undoServiceMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    Service reverted = MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.serviceRepository,
+            SERVICE_FIELD_MAP,
+            updatedBy
+    );
+    return serviceMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<Service> buildSpecification(String search, String modifiedAfter,

@@ -4,13 +4,19 @@ import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
 import com.sarapis.orservice.dto.OrganizationDTO.Response;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.OrganizationMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
+
 import java.util.List;
 import java.util.UUID;
+
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +111,21 @@ public class OrganizationServiceImpl implements OrganizationService {
     log.info("Deleted organization with id: {}", id);
   }
 
+  @Override
+  @Transactional
+  public Response undoOrganizationMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    Organization reverted = MetadataUtils.undoMetadata(
+        metadata,
+        this.metadataRepository,
+        this.organizationRepository,
+        ORGANIZATION_FIELD_MAP,
+        updatedBy
+    );
+    return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
+  }
   private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
     Specification<Organization> spec = Specification.where(null);
     if (search != null && !search.isEmpty()) {
