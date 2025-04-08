@@ -26,18 +26,18 @@ public class MetadataController {
             @PathVariable String metadataId,
             @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
     ) {
-        return ResponseEntity.ok(switch(entityType) {
+        return switch(entityType) {
             case ORGANIZATION_RESOURCE_TYPE ->
-                    organizationService.undoOrganizationMetadata(metadataId, updatedBy);
+                    ResponseEntity.ok(organizationService.undoOrganizationMetadata(metadataId, updatedBy));
             case SERVICE_AT_LOCATION_RESOURCE_TYPE ->
-                    serviceAtLocationService.undoServiceAtLocationMetadata(metadataId, updatedBy);
+                    ResponseEntity.ok(serviceAtLocationService.undoServiceAtLocationMetadata(metadataId, updatedBy));
             case SERVICE_RESOURCE_TYPE ->
-                    serviceService.undoServiceMetadata(metadataId, updatedBy);
+                    ResponseEntity.ok(serviceService.undoServiceMetadata(metadataId, updatedBy));
             case TAXONOMY_RESOURCE_TYPE ->
-                    taxonomyService.undoTaxonomyMetadata(metadataId, updatedBy);
+                    ResponseEntity.ok(taxonomyService.undoTaxonomyMetadata(metadataId, updatedBy));
             case TAXONOMY_TERM_RESOURCE_TYPE ->
-                    taxonomyTermService.undoTaxonomyTermMetadata(metadataId, updatedBy);
+                    ResponseEntity.ok(taxonomyTermService.undoTaxonomyTermMetadata(metadataId, updatedBy));
             default -> ResponseEntity.badRequest().body(null);
-        });
+        };
     }
 }
