@@ -1997,14 +1997,14 @@ COMMENT ON COLUMN public.url.service_id IS 'The identifier for the service assoc
 
 CREATE TABLE public.data_exchange
 (
-    id            character varying(250) NOT NULL,
-    timestamp     date                   NOT NULL,
-    type          text                   NOT NULL,
-    success       boolean                NOT NULL,
+    id            character varying(250)        NOT NULL,
+    timestamp     timestamp without time zone   NOT NULL,
+    type          text                          NOT NULL,
+    success       boolean                       NOT NULL,
     error_message text,
-    format        text                   NOT NULL,
-    size          numeric                NOT NULL,
-    user_id       text                   NOT NULL
+    format        text                          NOT NULL,
+    size          numeric                       NOT NULL,
+    user_id       text                          NOT NULL
 );
 
 --

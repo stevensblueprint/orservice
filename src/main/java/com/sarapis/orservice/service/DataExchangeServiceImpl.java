@@ -32,16 +32,16 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginationDTO<DataExchangeDTO.Response> getDataExchangesByUserId(String userId, Integer page, Integer perPage) {
+    public PaginationDTO<DataExchangeDTO.Response> getDataExchangesByUserId(
+            String userId,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            Integer page,
+            Integer perPage
+    ) {
         PageRequest pageable = PageRequest.of(page, perPage);
-        Page<DataExchange> exchangePage;
-        if (userId != null) {
-            exchangePage = dataExchangeRepository.findByUserId(userId, pageable);
-        } else {
-            exchangePage = dataExchangeRepository.findAll(pageable);
-        }
+        Page<DataExchange> exchangePage = dataExchangeRepository.findDataExchanges(userId, fromDate, toDate, pageable);
         Page<DataExchangeDTO.Response> dtoPage = exchangePage.map(dataExchangeMapper::toResponseDTO);
-
         return PaginationDTO.fromPage(dtoPage);
     }
 
@@ -54,8 +54,14 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     @Override
     @Transactional
-    public DataExchangeDTO.Response createDataExchange(DataExchangeType type, DataExchangeFormat format, boolean success,
-                                                       String errorMessage, Long size, String userId) {
+    public DataExchangeDTO.Response createDataExchange(
+            DataExchangeType type,
+            DataExchangeFormat format,
+            boolean success,
+            String errorMessage,
+            Long size,
+            String userId
+    ) {
         DataExchange dataExchange = new DataExchange();
         dataExchange.setId(UUID.randomUUID().toString());
         dataExchange.setTimestamp(LocalDateTime.now());
