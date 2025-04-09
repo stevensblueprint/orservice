@@ -88,6 +88,19 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
 
   @Override
   @Transactional
+  public Response updateServiceAtLocation(String id, Request updatedDto, String updatedBy) {
+    if(!this.serviceAtLocationRepository.existsById(id)) {
+      throw new ResourceNotFoundException("ServiceAtLocation", id);
+    }
+
+    ServiceAtLocation newServLoc = this.serviceAtLocationMapper.toEntity(updatedDto);
+
+    ServiceAtLocation updatedServLoc = this.serviceAtLocationRepository.save(newServLoc);
+    return this.serviceAtLocationMapper.toResponseDTO(updatedServLoc, this.metadataService);
+  }
+
+  @Override
+  @Transactional
   public Response undoServiceAtLocationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
