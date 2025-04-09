@@ -104,7 +104,21 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationMapper.toResponseDTO(savedOrganization, metadataService, RETURN_FULL_SERVICE);
   }
 
-  @Override
+    @Override
+    @Transactional
+    public Response updateOrganization(String id, Request updatedDto, String updatedBy) {
+        // Ensure that 'id' exists in repository
+        if(!this.organizationRepository.existsById(id)) {
+          throw new ResourceNotFoundException("Organization", id);
+        }
+
+        updatedDto.setId(id);
+        Organization newEntity = this.organizationMapper.toEntity(updatedDto);
+        Organization updatedEntity = this.organizationRepository.save(newEntity);
+        return organizationMapper.toResponseDTO(updatedEntity, metadataService, RETURN_FULL_SERVICE);
+    }
+
+    @Override
   @Transactional
   public void deleteOrganization(String id) {
     organizationRepository.deleteById(id);

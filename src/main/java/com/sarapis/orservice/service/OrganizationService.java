@@ -20,6 +20,7 @@ public interface OrganizationService {
 
   OrganizationDTO.Response getOrganizationById(String id, Boolean fullService);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);
+  OrganizationDTO.Response updateOrganization(String id, OrganizationDTO.Request updatedDto, String updatedBy);
   void deleteOrganization(String id);
   OrganizationDTO.Response undoOrganizationMetadata(String metadataId, String updatedBy);
 }
