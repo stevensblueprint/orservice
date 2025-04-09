@@ -93,6 +93,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
       throw new ResourceNotFoundException("ServiceAtLocation", id);
     }
 
+    updatedDto.setId(id);
     ServiceAtLocation newServLoc = this.serviceAtLocationMapper.toEntity(updatedDto);
 
     ServiceAtLocation updatedServLoc = this.serviceAtLocationRepository.save(newServLoc);
