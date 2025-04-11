@@ -1,7 +1,6 @@
 package com.sarapis.orservice.service.auth;
 
-import com.sarapis.orservice.dto.auth.LoginUserDTO;
-import com.sarapis.orservice.dto.auth.RegisterUserDTO;
+import com.sarapis.orservice.dto.auth.*;
 import com.sarapis.orservice.model.User;
 import com.sarapis.orservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +19,23 @@ public class AuthenticationService {
 
 
 
-    public User signup(RegisterUserDTO input) {
+    public RegisterDTO.Response signup(RegisterDTO.Request input) {
         User user = new User();
         user.setFirstName(input.getFirstName());
         user.setLastName(input.getLastName());
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
+        userRepository.save(user);
 
 
-        return userRepository.save(user);
+        return RegisterDTO.Response.builder()
+                .email(input.getEmail())
+                .firstName(input.getFirstName())
+                .lastName(input.getLastName())
+                .build();
     }
 
-    public User authenticate(LoginUserDTO input) {
+    public User authenticate(LoginDTO.Request input) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),

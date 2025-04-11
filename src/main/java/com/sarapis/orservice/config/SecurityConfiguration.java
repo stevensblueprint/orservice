@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,6 +27,8 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final PublicEndpointScanner publicEndpointScanner;
 
+    private static final String AUTH_BASE_URL = "/auth/**";
+
     @Bean
     @Profile("prod")
     public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -36,10 +37,10 @@ public class SecurityConfiguration {
 
         return http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.ignoringRequestMatchers(AUTH_BASE_URL))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers(AUTH_BASE_URL).permitAll();
                     auth.requestMatchers("/actuator/**").permitAll();
 
                     publicEndpoints.forEach(endpoint ->
@@ -56,11 +57,11 @@ public class SecurityConfiguration {
     @Bean
     @Profile("dev")
     public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
+
         return http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(AUTH_BASE_URL))
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll())
                 .build();
     }
 

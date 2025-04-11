@@ -1,14 +1,15 @@
 package com.sarapis.orservice.service.auth;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
+import com.sarapis.orservice.dto.auth.LoginDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -85,5 +86,13 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public LoginDTO.Response createJwtResponse(UserDetails userDetails) {
+        String token = generateToken(userDetails);
+        return LoginDTO.Response.builder()
+                .token(token)
+                .expiresIn(getExpirationTime())
+                .build();
     }
 }
