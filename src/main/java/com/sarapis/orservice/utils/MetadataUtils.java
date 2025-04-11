@@ -1,13 +1,19 @@
 package com.sarapis.orservice.utils;
 
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
+import static com.sarapis.orservice.utils.MetadataType.UPDATE;
 
 import com.sarapis.orservice.model.Metadata;
+import com.sarapis.orservice.repository.MetadataRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 public class MetadataUtils {
   public static final String ORGANIZATION_RESOURCE_TYPE = "ORGANIZATION";
@@ -45,6 +51,38 @@ public class MetadataUtils {
       case CREATE -> handleCreate(updated, resourceId, resourceType, updatedBy);
       default -> throw new IllegalArgumentException("");
     };
+  }
+
+  public static <T> T undoMetadata(Metadata metadata,
+                                   MetadataRepository metadataRepository,
+                                   JpaRepository<T, String> repository,
+                                   Map<String, BiConsumer<T, String>> fieldMap,
+                                   String updatedBy) {
+    String resId = metadata.getResourceId();
+    T entity = repository.findById(resId)
+            .orElseThrow();
+
+    String fieldName = metadata.getFieldName();
+    BiConsumer<T, String> setter = fieldMap.get(fieldName);
+
+    String prevValue = metadata.getPreviousValue();
+    setter.accept(entity, prevValue);
+
+    Metadata newMeta = new Metadata();
+    newMeta.setId(UUID.randomUUID().toString());
+    newMeta.setResourceId(resId);
+    newMeta.setResourceType(metadata.getResourceType());
+    newMeta.setLastActionDate(LocalDate.now());
+    newMeta.setLastActionType(UPDATE.toString());
+    newMeta.setFieldName(fieldName);
+    newMeta.setPreviousValue(metadata.getReplacementValue());
+    newMeta.setReplacementValue(metadata.getPreviousValue());
+    newMeta.setUpdatedBy(updatedBy);
+
+    repository.save(entity);
+    metadataRepository.save(newMeta);
+
+    return entity;
   }
 
   public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {

@@ -5,11 +5,16 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Request;
 import com.sarapis.orservice.dto.TaxonomyTermDTO.Response;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.TaxonomyTermMapper;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.model.TaxonomyTerm;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.TaxonomyTermRepository;
 import com.sarapis.orservice.repository.TaxonomyTermSpecifications;
+
+import com.sarapis.orservice.utils.MetadataUtils;
+import static com.sarapis.orservice.utils.FieldMap.TAXONOMY_TERM_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +35,6 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
   private final MetadataRepository metadataRepository;
 
   private static final int RECORDS_PER_STREAM = 100;
-
 
   @Override
   @Transactional(readOnly = true)
@@ -85,6 +89,22 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     taxonomyTerm.setMetadata(metadataRepository, updatedBy);
     TaxonomyTerm savedTaxonomyTerm = taxonomyTermRepository.save(taxonomyTerm);
     return taxonomyTermMapper.toResponseDTO(savedTaxonomyTerm, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public Response undoTaxonomyTermMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    TaxonomyTerm reverted = MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.taxonomyTermRepository,
+            TAXONOMY_TERM_FIELD_MAP,
+            updatedBy
+    );
+    return taxonomyTermMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<TaxonomyTerm> buildSpecification(String search, String taxonomyId, Boolean topOnly, String parentId) {
