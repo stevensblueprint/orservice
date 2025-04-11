@@ -5,6 +5,7 @@ import static com.sarapis.orservice.controller.Constants.NDJSON;
 import static com.sarapis.orservice.controller.Constants.NDJSON_APPLICATION_TYPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sarapis.orservice.config.PublicEndpoint;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.service.OrganizationService;
@@ -37,6 +38,7 @@ public class OrganizationController {
   private final OrganizationService organizationService;
 
 
+  @PublicEndpoint
   @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
   public ResponseEntity<?> getAllOrganizations(
       @RequestParam(name = "search", defaultValue = "") String search,
@@ -57,6 +59,7 @@ public class OrganizationController {
     };
   }
 
+  @PublicEndpoint
   @GetMapping("/{id}")
   public ResponseEntity<OrganizationDTO.Response> getServiceById(
       @PathVariable String id,

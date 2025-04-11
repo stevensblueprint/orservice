@@ -6,6 +6,7 @@ import static com.sarapis.orservice.controller.Constants.NDJSON;
 import static com.sarapis.orservice.controller.Constants.NDJSON_APPLICATION_TYPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sarapis.orservice.config.PublicEndpoint;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.service.ServiceAtLocationService;
@@ -36,6 +37,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class ServiceAtLocationController {
   private final ServiceAtLocationService serviceAtLocationService;
 
+  @PublicEndpoint
   @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
   public ResponseEntity<?> getAllServicesAtLocation(
       @RequestParam(name = "search", defaultValue = "") String search,
@@ -59,6 +61,7 @@ public class ServiceAtLocationController {
     };
   }
 
+  @PublicEndpoint
   @GetMapping("/{id}")
   public ResponseEntity<ServiceAtLocationDTO.Response> getServiceAtLocationById(@PathVariable String id) {
     return ResponseEntity.ok(serviceAtLocationService.getServiceAtLocationById(id));
