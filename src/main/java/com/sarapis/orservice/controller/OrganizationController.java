@@ -36,7 +36,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class OrganizationController {
   private final OrganizationService organizationService;
 
-
   @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, NDJSON_APPLICATION_TYPE})
   public ResponseEntity<?> getAllOrganizations(
       @RequestParam(name = "search", defaultValue = "") String search,
@@ -95,7 +94,10 @@ public class OrganizationController {
     return ResponseEntity.ok(pagination);
   }
 
-  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(String search, Boolean fullService, Boolean full, String taxonomyTermId, String taxonomyId) {
+  private ResponseEntity<StreamingResponseBody> handleNdjsonResponse(
+          String search, Boolean fullService, Boolean full,
+          String taxonomyTermId, String taxonomyId
+  ) {
     StreamingResponseBody responseBody = outputStream -> {
       try (Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
         ObjectMapper objectMapper = new ObjectMapper();

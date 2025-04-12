@@ -2,7 +2,6 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
-
 import java.util.function.Consumer;
 
 public interface ServiceAtLocationService {
