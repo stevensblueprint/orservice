@@ -21,4 +21,5 @@ public interface OrganizationService extends Exchangeable {
       String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);
   void deleteOrganization(String id);
+  OrganizationDTO.Response undoOrganizationMetadata(String metadataId, String updatedBy);
 }
