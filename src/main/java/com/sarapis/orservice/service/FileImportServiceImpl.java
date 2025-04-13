@@ -26,9 +26,12 @@ public class FileImportServiceImpl implements FileImportService {
 
     @Override
     @Transactional
-    public List<FileImportDTO.Response> createFileImports(String exchangeId, HashMap<String, Long> fileSizeMappings,
-                                                          List<String> metadataIds) {
-        return fileSizeMappings.entrySet().stream().map(entry -> {
+    public List<FileImportDTO.Response> createFileImports(
+            String exchangeId,
+            HashMap<Integer, FileImportDTO.FileImportData> fileSizeMappings,
+            List<String> metadataIds
+    ) {
+        return fileSizeMappings.values().stream().map(data -> {
             String id = UUID.randomUUID().toString();
 
             List<Metadata> metadataList = metadataIds.stream().map(metadataId -> {
@@ -40,8 +43,8 @@ public class FileImportServiceImpl implements FileImportService {
 
             FileImport fileImport = new FileImport();
             fileImport.setId(id);
-            fileImport.setFileName(entry.getKey());
-            fileImport.setSize(entry.getValue());
+            fileImport.setFileName(data.getFileName());
+            fileImport.setSize(data.getSize());
             fileImport.setExchangeId(exchangeId);
             fileImport.setMetadata(metadataList);
 

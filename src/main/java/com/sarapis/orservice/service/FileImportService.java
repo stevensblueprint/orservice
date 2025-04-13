@@ -6,5 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface FileImportService {
-    List<FileImportDTO.Response> createFileImports(String exchangeId, HashMap<String, Long> fileSizeMappings, List<String> metadataIds);
+    List<FileImportDTO.Response> createFileImports(String exchangeId,
+                                                   HashMap<Integer, FileImportDTO.FileImportData> fileSizeMappings,
+                                                   List<String> metadataIds);
 }

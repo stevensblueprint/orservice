@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.DataExchangeDTO;
+import com.sarapis.orservice.dto.FileImportDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
 import com.sarapis.orservice.model.DataExchange;
@@ -105,7 +106,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                     requestDto.getUserId());
             return 201;
         } catch (Exception e) {
-            createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(), false, e.getMessage(), null,
+            createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(), false, e.getMessage(), 0L,
                     requestDto.getUserId());
             return 500;
         }
@@ -132,12 +133,19 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                 }
             }
 
-            HashMap<String, Long> fileSizeMappings = new HashMap<>();
-            for (MultipartFile file : files) {
-                fileSizeMappings.put(file.getOriginalFilename(), file.getSize());
+            HashMap<Integer, FileImportDTO.FileImportData> fileSizeMappings = new HashMap<>();
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                FileImportDTO.FileImportData fileImportData = FileImportDTO.FileImportData.builder()
+                        .fileName(file.getOriginalFilename())
+                        .size(file.getSize())
+                        .build();
+                fileSizeMappings.put(i, fileImportData);
             }
 
-            Long totalSize = fileSizeMappings.values().stream().reduce(0L, Long::sum);
+            Long totalSize = fileSizeMappings.values().stream()
+                    .map(FileImportDTO.FileImportData::getSize)
+                    .reduce(0L, Long::sum);
             DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, format, true,
                     null, totalSize, userId);
             fileImportService.createFileImports(exchangeResponse.getId(), fileSizeMappings, metadataIds);
