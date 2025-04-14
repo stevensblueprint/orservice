@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -133,16 +135,19 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                 }
             }
 
-            HashMap<Integer, FileImportDTO.FileImportData> fileSizeMappings = new HashMap<>();
-            for (int i = 0; i < files.size(); i++) {
-                MultipartFile file = files.get(i);
-                FileImportDTO.FileImportData fileImportData = FileImportDTO.FileImportData.builder()
-                        .fileName(file.getOriginalFilename())
-                        .size(file.getSize())
-                        .build();
-                fileSizeMappings.put(i, fileImportData);
-            }
-
+            Map<Integer, FileImportDTO.FileImportData> fileSizeMappings =
+                    IntStream.range(0, files.size())
+                            .boxed()
+                            .collect(Collectors.toMap(
+                                    i -> i,
+                                    i -> {
+                                        MultipartFile file = files.get(i);
+                                        return FileImportDTO.FileImportData.builder()
+                                                .fileName(file.getOriginalFilename())
+                                                .size(file.getSize())
+                                                .build();
+                                    }
+                            ));
             Long totalSize = fileSizeMappings.values().stream()
                     .map(FileImportDTO.FileImportData::getSize)
                     .reduce(0L, Long::sum);
