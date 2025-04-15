@@ -12,6 +12,16 @@ public class FileImportDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class FileImportData {
+        private String fileName;
+        private Long size;
+    }
+
+    @Setter
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class Response {
         private String id;

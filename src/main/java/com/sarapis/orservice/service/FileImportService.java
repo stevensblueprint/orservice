@@ -2,9 +2,11 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.FileImportDTO;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface FileImportService {
-    List<FileImportDTO.Response> createFileImports(String exchangeId, HashMap<String, Long> fileSizeMappings, List<String> metadataIds);
+    List<FileImportDTO.Response> createFileImports(String exchangeId,
+                                                   Map<Integer, FileImportDTO.FileImportData> fileSizeMappings,
+                                                   List<String> metadataIds);
 }

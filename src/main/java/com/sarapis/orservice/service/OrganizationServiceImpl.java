@@ -196,7 +196,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     ZipEntry entry = new ZipEntry("organizations.pdf");
     zipOutputStream.putNextEntry(entry);
     com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
-    PdfWriter.getInstance(document, zipOutputStream);
+    PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);
+    writer.setCloseStream(false);
     document.open();
     // Sets table
     PdfPTable table = new PdfPTable(10);
