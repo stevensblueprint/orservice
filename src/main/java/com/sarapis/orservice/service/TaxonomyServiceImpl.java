@@ -91,6 +91,20 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
 
   @Override
   @Transactional
+  public Response updateTaxonomy(String id, Request updateDTO, String updatedBy) {
+    if(!this.taxonomyRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Taxonomy", id);
+    }
+
+    updateDTO.setId(id);
+    Taxonomy newTaxonomy = this.taxonomyMapper.toEntity(updateDTO);
+
+    Taxonomy updatedTaxonomy = this.taxonomyRepository.save(newTaxonomy);
+    return this.taxonomyMapper.toResponseDTO(updatedTaxonomy, this.metadataService);
+  }
+
+  @Override
+  @Transactional
   public Response undoTaxonomyMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));

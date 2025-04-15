@@ -101,6 +101,20 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
+  public Response updateService(String id, Request updatedDto, String updatedBy) {
+    if(!this.serviceRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Service", id);
+    }
+
+    updatedDto.setId(id);
+    Service newService = this.serviceMapper.toEntity(updatedDto);
+
+    Service updatedService = this.serviceRepository.save(newService);
+    return this.serviceMapper.toResponseDTO(updatedService, this.metadataService);
+  }
+
+  @Override
+  @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));

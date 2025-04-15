@@ -20,6 +20,7 @@ public interface OrganizationService extends Exchangeable {
   void streamAllOrganizations(String search, Boolean fullService, Boolean full,
       String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer);
   OrganizationDTO.Response createOrganization(OrganizationDTO.Request requestDto, String updatedBy);
+  OrganizationDTO.Response updateOrganization(String id, OrganizationDTO.Request updatedDto, String updatedBy);
   void deleteOrganization(String id);
   OrganizationDTO.Response undoOrganizationMetadata(String metadataId, String updatedBy);
 }
