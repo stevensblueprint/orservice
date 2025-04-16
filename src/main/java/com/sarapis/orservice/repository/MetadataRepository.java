@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MetadataRepository extends JpaRepository<Metadata, String> {
   List<Metadata> findByResourceIdAndResourceType(String resourceId, String resourceType);
+  List<Metadata> findByFileImportIdAndResourceType(String fileImportId, String resourceType);
 }
