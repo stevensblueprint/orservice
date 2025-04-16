@@ -27,4 +27,14 @@ public class ImportController {
         int status = dataExchangeService.importFile(format, userId, files, updatedBy);
         return ResponseEntity.status(status).build();
     }
+
+    @PostMapping("/undo/{entityType}/{fileImportId}")
+    public ResponseEntity<Void> undoFileImport(
+            @PathVariable String entityType,
+            @PathVariable String fileImportId,
+            @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
+    ) {
+        dataExchangeService.undoImportedFile(fileImportId, entityType, updatedBy);
+        return ResponseEntity.ok().build();
+    }
 }
