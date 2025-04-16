@@ -119,6 +119,19 @@ public class TaxonomyServiceImpl implements  TaxonomyService {
     return taxonomyMapper.toResponseDTO(reverted, metadataService);
   }
 
+  @Override
+  @Transactional
+  public Response undoTaxonomyMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    Taxonomy reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.taxonomyRepository,
+            TAXONOMY_FIELD_MAP,
+            updatedBy
+    );
+    return taxonomyMapper.toResponseDTO(reverted, metadataService);
+  }
+
   private Specification<Taxonomy> buildSpecification(String search) {
     Specification<Taxonomy> spec = Specification.where(null);
 

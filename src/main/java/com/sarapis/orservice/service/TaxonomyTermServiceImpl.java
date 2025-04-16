@@ -121,6 +121,19 @@ public class TaxonomyTermServiceImpl implements TaxonomyTermService {
     return taxonomyTermMapper.toResponseDTO(reverted, metadataService);
   }
 
+  @Override
+  @Transactional
+  public Response undoTaxonomyTermMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    TaxonomyTerm reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.taxonomyTermRepository,
+            TAXONOMY_TERM_FIELD_MAP,
+            updatedBy
+    );
+    return taxonomyTermMapper.toResponseDTO(reverted, metadataService);
+  }
+
   private Specification<TaxonomyTerm> buildSpecification(String search, String taxonomyId, Boolean topOnly, String parentId) {
     Specification<TaxonomyTerm> spec = Specification.where(null);
 

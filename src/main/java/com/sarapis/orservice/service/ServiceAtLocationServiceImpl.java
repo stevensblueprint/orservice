@@ -118,6 +118,19 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
 
   @Override
   @Transactional
+  public Response undoServiceAtLocationMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    ServiceAtLocation reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.serviceAtLocationRepository,
+            SERVICE_AT_LOCATION_FIELD_MAP,
+            updatedBy
+    );
+    return serviceAtLocationMapper.toResponseDTO(reverted, metadataService);
+  }
+
+  @Override
+  @Transactional
   public Response createServiceAtLocation(Request dto, String updatedBy) {
     if (dto.getId() == null || StringUtils.isBlank(dto.getId())) {
       dto.setId(UUID.randomUUID().toString());

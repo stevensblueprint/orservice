@@ -2,7 +2,9 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.model.Metadata;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface OrganizationService extends Exchangeable {
@@ -23,4 +25,5 @@ public interface OrganizationService extends Exchangeable {
   OrganizationDTO.Response updateOrganization(String id, OrganizationDTO.Request updatedDto, String updatedBy);
   void deleteOrganization(String id);
   OrganizationDTO.Response undoOrganizationMetadata(String metadataId, String updatedBy);
+  OrganizationDTO.Response undoOrganizationMetadataBatch(List<Metadata> metadataList, String updatedBy);
 }

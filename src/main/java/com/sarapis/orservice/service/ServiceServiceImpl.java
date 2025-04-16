@@ -129,6 +129,19 @@ public class ServiceServiceImpl implements ServiceService {
     return serviceMapper.toResponseDTO(reverted, metadataService);
   }
 
+  @Override
+  @Transactional
+  public Response undoServiceMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    Service reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.serviceRepository,
+            SERVICE_FIELD_MAP,
+            updatedBy
+    );
+    return serviceMapper.toResponseDTO(reverted, metadataService);
+  }
+
   private Specification<Service> buildSpecification(String search, String modifiedAfter,
       String taxonomyTermId, String taxonomyId, String organizationId) {
     Specification<Service> spec = Specification.where(null);

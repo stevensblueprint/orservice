@@ -161,6 +161,20 @@ public class OrganizationServiceImpl implements OrganizationService {
     );
     return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
   }
+
+  @Override
+  @Transactional
+  public Response undoOrganizationMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    Organization reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.organizationRepository,
+            ORGANIZATION_FIELD_MAP,
+            updatedBy
+    );
+    return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
+  }
+
   private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
     Specification<Organization> spec = Specification.where(null);
     if (search != null && !search.isEmpty()) {
