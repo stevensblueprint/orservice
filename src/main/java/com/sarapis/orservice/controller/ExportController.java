@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class ExportController {
-    private final DataExchangeService dataExchangeService;
+  private final DataExchangeService dataExchangeService;
 
-    @PostMapping(produces = "application/zip")
-    public ResponseEntity<Void> exportFiles(HttpServletResponse response, @RequestBody DataExchangeDTO.Request request) {
-        DataExchangeUtils.configureExportResponse(response);
-        int statusCode = dataExchangeService.exportFile(response, request);
-        return ResponseEntity.status(statusCode).build();
-    }
+  @PostMapping(produces = "application/zip")
+  public ResponseEntity<Void> exportFiles(HttpServletResponse response, @RequestBody DataExchangeDTO.Request request) {
+    DataExchangeUtils.configureExportResponse(response);
+    int statusCode = dataExchangeService.exportFile(response, request);
+    return ResponseEntity.status(statusCode).build();
+  }
 }

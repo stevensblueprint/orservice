@@ -19,5 +19,5 @@ public interface DataExchangeService {
                                                 String errorMessage, Long size, String userId);
 
     int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto);
-    int importFile(DataExchangeFormat format, String userId, List<MultipartFile> files, String updatedBy);
+    int importFile(String userId, List<MultipartFile> files, String updatedBy);
 }

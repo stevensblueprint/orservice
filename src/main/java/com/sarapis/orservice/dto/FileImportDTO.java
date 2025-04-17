@@ -26,6 +26,7 @@ public class FileImportDTO {
     public static class Response {
         private String id;
         private String fileName;
+        private String size;
         private String metadataId;
         private String exchangeId;
     }
