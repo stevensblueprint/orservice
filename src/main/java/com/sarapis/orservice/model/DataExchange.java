@@ -41,5 +41,5 @@ public class DataExchange {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "data_exchange_id", referencedColumnName = "id")
-    private List<FileImport> fileImports;
+    private List<DataExchangeFile> dataExchangeFiles;
 }

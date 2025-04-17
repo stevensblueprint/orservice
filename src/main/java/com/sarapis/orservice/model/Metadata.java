@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import lombok.ToString;
 
 @Entity
 @Table(name = "metadata")
@@ -42,8 +41,8 @@ public class Metadata {
   @Column(name = "updated_by", nullable = false)
   private String updatedBy;
 
-  @Column(name = "file_import_id")
-  private String fileImportId;
+  @Column(name = "data_exchange_file_id")
+  private String dataExchangeFileId;
 
   @PrePersist
   public void prePersist() {
