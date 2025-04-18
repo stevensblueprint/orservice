@@ -34,7 +34,7 @@ public class ImportController {
             @PathVariable String fileImportId,
             @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
     ) {
-        dataExchangeService.undoImportedFile(fileImportId, entityType, updatedBy);
-        return ResponseEntity.ok().build();
+        int status = dataExchangeService.undoImportedFile(fileImportId, entityType, updatedBy);
+        return ResponseEntity.status(status).build();
     }
 }

@@ -176,7 +176,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     @Override
     @Transactional
-    public void undoImportedFile(String fileImportId, String resourceType, String updatedBy) {
+    public int undoImportedFile(String fileImportId, String resourceType, String updatedBy) {
         List<Metadata> fileMetadata = metadataService.getMetadataByFileImportIdAndResourceType(fileImportId, resourceType)
                 .stream()
                 .map(metadataMapper::toEntity)
@@ -197,7 +197,11 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                 taxonomyService.undoTaxonomyMetadataBatch(fileMetadata, updatedBy);
             case TAXONOMY_TERM_RESOURCE_TYPE ->
                 taxonomyTermService.undoTaxonomyTermMetadataBatch(fileMetadata, updatedBy);
+            default -> {
+                return 400;
+            }
         }
+        return 200;
     }
 
     private Map<DataExchangeDTO.ExportFile, Exchangeable> createExportMappings() {
