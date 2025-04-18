@@ -3,6 +3,7 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.FileImportDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
 import com.sarapis.orservice.mapper.MetadataMapper;
 import com.sarapis.orservice.model.DataExchange;
@@ -180,6 +181,10 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                 .stream()
                 .map(metadataMapper::toEntity)
                 .toList();
+
+        if(fileMetadata.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No Metadata with fileImportId %s exists", fileImportId));
+        }
 
         switch(resourceType) {
             case ORGANIZATION_RESOURCE_TYPE ->
