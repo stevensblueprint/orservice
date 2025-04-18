@@ -183,7 +183,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
                 .toList();
 
         if(fileMetadata.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("No Metadata with fileImportId %s exists", fileImportId));
+            throw new ResourceNotFoundException(String.format("No %s Metadata with fileImportId %s exists", resourceType, fileImportId));
         }
 
         switch(resourceType) {
@@ -198,7 +198,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             case TAXONOMY_TERM_RESOURCE_TYPE ->
                 taxonomyTermService.undoTaxonomyTermMetadataBatch(fileMetadata, updatedBy);
             default -> {
-                return 400;
+                return 500;
             }
         }
         return 200;
