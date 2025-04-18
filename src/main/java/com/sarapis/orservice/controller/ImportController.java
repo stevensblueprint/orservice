@@ -28,9 +28,9 @@ public class ImportController {
         return ResponseEntity.status(status).build();
     }
 
-    @PostMapping("/undo/{entityType}/{fileImportId}")
+    @PostMapping("/undo/{fileImportId}")
     public ResponseEntity<Void> undoFileImport(
-            @PathVariable String entityType,
+            @RequestParam("entityType") String entityType,
             @PathVariable String fileImportId,
             @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
     ) {
