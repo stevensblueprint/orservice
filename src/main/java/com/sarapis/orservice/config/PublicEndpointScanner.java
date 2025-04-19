@@ -1,6 +1,7 @@
 package com.sarapis.orservice.config;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Collections;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,16 +42,10 @@ public class PublicEndpointScanner {
             }
 
             PathPatternsRequestCondition pathPatternsCondition = mappingInfo.getPathPatternsCondition();
-            if (pathPatternsCondition != null) {
-                Set<String> patterns = pathPatternsCondition.getPatternValues();
-                publicEndpoints.addAll(patterns);
-                return;
-            }
-
-            if (mappingInfo.getPatternsCondition() != null) {
-                Set<String> patterns = mappingInfo.getPatternsCondition().getPatterns();
-                publicEndpoints.addAll(patterns);
-            }
+            Set<String> patterns = pathPatternsCondition != null ? pathPatternsCondition.getPatternValues()
+                : mappingInfo.getPatternsCondition() != null ? mappingInfo.getPatternsCondition().getPatterns()
+                    : Collections.emptySet();
+            publicEndpoints.addAll(patterns);
         });
     }
 }
