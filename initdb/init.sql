@@ -745,7 +745,8 @@ CREATE TABLE public.metadata
     field_name        text                   NOT NULL,
     previous_value    text                   NOT NULL,
     replacement_value text                   NOT NULL,
-    updated_by        text                   NOT NULL
+    updated_by        text                   NOT NULL,
+    file_import_id    character varying(250)
 );
 
 
@@ -1990,6 +1991,33 @@ COMMENT ON COLUMN public.url.organization_id IS 'The identifier for the organiza
 
 COMMENT ON COLUMN public.url.service_id IS 'The identifier for the service associated with this URL object';
 
+--
+-- Name: dataExchange; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.data_exchange
+(
+    id            character varying(250)        NOT NULL,
+    timestamp     timestamp without time zone   NOT NULL,
+    type          text                          NOT NULL,
+    success       boolean                       NOT NULL,
+    error_message text,
+    format        text                          NOT NULL,
+    size          numeric                       NOT NULL,
+    user_id       text                          NOT NULL
+);
+
+--
+-- Name: file_import; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.file_import
+(
+    id               character varying(250) NOT NULL,
+    file_name        text                   NOT NULL,
+    size             numeric                NOT NULL,
+    data_exchange_id character varying(250)
+);
 
 --
 -- Name: accessibility accessibility_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -2486,6 +2514,17 @@ ALTER TABLE ONLY public.url
 ALTER TABLE ONLY public.url
     ADD CONSTRAINT url_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.service (id);
 
+ALTER TABLE ONLY public.data_exchange
+    ADD CONSTRAINT data_exchange_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.file_import
+    ADD CONSTRAINT file_import_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.file_import
+    ADD CONSTRAINT file_import_data_exchange_id_fkey FOREIGN KEY (data_exchange_id) REFERENCES public.data_exchange (id);
+
+ALTER TABLE ONLY public.metadata
+    ADD CONSTRAINT metadata_file_import_id_fkey FOREIGN KEY (file_import_id) REFERENCES public.file_import (id)
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --

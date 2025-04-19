@@ -20,14 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
@@ -73,6 +66,15 @@ public class ServiceAtLocationController {
       @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
   ) {
     return ResponseEntity.status(HttpStatus.CREATED).body(serviceAtLocationService.createServiceAtLocation(request, updatedBy));
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<ServiceAtLocationDTO.Response> updateServiceAtLocation(
+          @PathVariable String id,
+          @Valid @RequestBody ServiceAtLocationDTO.Request request,
+          @CookieValue(value = "updatedBy", required = false, defaultValue = "SYSTEM") String updatedBy
+  ) {
+    return ResponseEntity.ok(this.serviceAtLocationService.updateServiceAtLocation(id, request, updatedBy));
   }
 
   private ResponseEntity<PaginationDTO<ServiceAtLocationDTO.Response>> handleJsonResponse(

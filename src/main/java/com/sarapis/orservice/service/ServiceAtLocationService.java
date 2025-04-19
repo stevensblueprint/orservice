@@ -2,7 +2,6 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
-
 import java.util.function.Consumer;
 
 public interface ServiceAtLocationService {
@@ -23,5 +22,6 @@ public interface ServiceAtLocationService {
 
   ServiceAtLocationDTO.Response createServiceAtLocation(ServiceAtLocationDTO.Request dto, String updatedBy);
   ServiceAtLocationDTO.Response getServiceAtLocationById(String id);
+  ServiceAtLocationDTO.Response updateServiceAtLocation(String id, ServiceAtLocationDTO.Request updatedDto, String updatedBy);
   ServiceAtLocationDTO.Response undoServiceAtLocationMetadata(String metadataId, String updatedBy);
 }

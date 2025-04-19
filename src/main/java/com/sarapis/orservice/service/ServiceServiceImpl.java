@@ -14,15 +14,20 @@ import com.sarapis.orservice.repository.ServiceSpecifications;
 import com.sarapis.orservice.utils.MetadataUtils;
 import static com.sarapis.orservice.utils.FieldMap.SERVICE_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.zip.ZipOutputStream;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -96,6 +101,20 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
+  public Response updateService(String id, Request updatedDto, String updatedBy) {
+    if(!this.serviceRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Service", id);
+    }
+
+    updatedDto.setId(id);
+    Service newService = this.serviceMapper.toEntity(updatedDto);
+
+    Service updatedService = this.serviceRepository.save(newService);
+    return this.serviceMapper.toResponseDTO(updatedService, this.metadataService);
+  }
+
+  @Override
+  @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
             .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
@@ -124,5 +143,20 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     return spec;
+  }
+
+  @Override
+  public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
+    return 0;
+  }
+
+  @Override
+  public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
+    return 0;
+  }
+
+  @Override
+  public void readCsv(MultipartFile file, String updatedBy, List<String> metadataIds) throws IOException {
+
   }
 }
