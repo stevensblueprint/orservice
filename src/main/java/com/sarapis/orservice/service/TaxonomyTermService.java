@@ -2,6 +2,9 @@ package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
+import com.sarapis.orservice.model.Metadata;
+
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface TaxonomyTermService {
@@ -21,4 +24,5 @@ public interface TaxonomyTermService {
   TaxonomyTermDTO.Response createTaxonomyTerm(TaxonomyTermDTO.Request requestDto, String updatedBy);
   TaxonomyTermDTO.Response updateTaxonomyTerm(String id, TaxonomyTermDTO.Request updateDto, String updatedBy);
   TaxonomyTermDTO.Response undoTaxonomyTermMetadata(String metadataId, String updatedBy);
+  TaxonomyTermDTO.Response undoTaxonomyTermMetadataBatch(List<Metadata> metadataList, String updatedBy);
 }
