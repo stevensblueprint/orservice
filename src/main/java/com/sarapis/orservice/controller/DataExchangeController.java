@@ -19,22 +19,22 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Slf4j
 public class DataExchangeController {
-    private final DataExchangeService dataExchangeService;
+  private final DataExchangeService dataExchangeService;
 
-    @GetMapping
-    public ResponseEntity<PaginationDTO<DataExchangeDTO.Response>> getAllExchanges(
-            @RequestParam(name = "user_id") String userId,
-            @RequestParam(name = "from_date", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime fromDate,
-            @RequestParam(name = "to_date", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime toDate,
-            @RequestParam(name = "page", defaultValue = "0") Integer page,
-            @RequestParam(name = "per_page", defaultValue = "10") Integer perPage
-    ) {
-        PaginationDTO<DataExchangeDTO.Response> exchanges = dataExchangeService
-                .getDataExchangesByUserId(userId, fromDate, toDate, page, perPage);
-        return ResponseEntity.ok(exchanges);
-    }
+  @GetMapping
+  public ResponseEntity<PaginationDTO<DataExchangeDTO.Response>> getAllExchanges(
+    @RequestParam(name = "user_id") String userId,
+    @RequestParam(name = "from_date", required = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    LocalDateTime fromDate,
+    @RequestParam(name = "to_date", required = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    LocalDateTime toDate,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "per_page", defaultValue = "10") Integer perPage
+  ) {
+    PaginationDTO<DataExchangeDTO.Response> exchanges = dataExchangeService
+      .getDataExchangesByUserId(userId, fromDate, toDate, page, perPage);
+    return ResponseEntity.ok(exchanges);
+  }
 }

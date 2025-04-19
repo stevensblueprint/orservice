@@ -19,12 +19,6 @@ import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
 import com.sarapis.orservice.utils.MetadataUtils;
-import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
-
-import java.util.List;
-import java.util.UUID;
-
-import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -46,6 +40,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
 
 @Service
 @RequiredArgsConstructor
@@ -208,9 +204,9 @@ public class OrganizationServiceImpl implements OrganizationService {
       table.addCell(cell);
     });
     // Sets table entries
-    for (Organization organization : organizationRepository.findAll()) {
-      OrganizationDTO.toExport(organization).forEach(table::addCell);
-    }
+    organizationRepository.findAll()
+      .forEach(organization -> OrganizationDTO.toExport(organization)
+        .forEach(table::addCell));
     document.add(table);
     document.close();
     zipOutputStream.closeEntry();
