@@ -3,10 +3,13 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.FileImportDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
+import com.sarapis.orservice.mapper.MetadataMapper;
 import com.sarapis.orservice.model.DataExchange;
 import com.sarapis.orservice.model.DataExchangeFormat;
 import com.sarapis.orservice.model.DataExchangeType;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.DataExchangeRepository;
 import com.sarapis.orservice.utils.DataExchangeUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,18 +23,31 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.MetadataUtils.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class DataExchangeServiceImpl implements DataExchangeService {
     private final DataExchangeRepository dataExchangeRepository;
+
     private final FileImportService fileImportService;
+    private final MetadataService metadataService;
     private final OrganizationService organizationService;
+    private final ServiceAtLocationService serviceAtLocationService;
+    private final ServiceService serviceService;
+    private final TaxonomyService taxonomyService;
+    private final TaxonomyTermService taxonomyTermService;
+
     private final DataExchangeMapper dataExchangeMapper;
+    private final MetadataMapper metadataMapper;
+
+    private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
 
     @Override
     @Transactional(readOnly = true)
@@ -161,6 +177,29 @@ public class DataExchangeServiceImpl implements DataExchangeService {
         }
     }
 
+    @Override
+    @Transactional
+    public int undoImportedFile(String fileImportId, String resourceType, String updatedBy) {
+        List<Metadata> fileMetadata = metadataService.getMetadataByFileImportIdAndResourceType(fileImportId, resourceType)
+                .stream()
+                .map(metadataMapper::toEntity)
+                .toList();
+
+        if(fileMetadata.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No %s Metadata with fileImportId %s exists", resourceType, fileImportId));
+        }
+
+        Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap = this.getUndoBatchTypeMap();
+        try {
+            BiConsumer<List<Metadata>, String> undoBatch = undoBatchTypeMap.get(resourceType);
+            undoBatch.accept(fileMetadata, updatedBy);
+            return 200;
+        } catch (NullPointerException e) {
+            log.error("No undo file import applicable for {}", resourceType);
+            return 500;
+        }
+    }
+
     private Map<DataExchangeDTO.ExportFile, Exchangeable> createExportMappings() {
         return Map.ofEntries(
                 Map.entry(DataExchangeDTO.ExportFile.Organization, organizationService)
@@ -171,5 +210,18 @@ public class DataExchangeServiceImpl implements DataExchangeService {
         return Map.ofEntries(
                 Map.entry(DataExchangeUtils.ORGANIZATION_FILE_NAME, organizationService)
         );
+    }
+
+    private Map<String, BiConsumer<List<Metadata>, String>> getUndoBatchTypeMap() {
+        if(this.undoBatchTypeMap == null) {
+            this.undoBatchTypeMap = Map.of(
+                ORGANIZATION_RESOURCE_TYPE, organizationService::undoOrganizationMetadataBatch,
+                SERVICE_AT_LOCATION_RESOURCE_TYPE, serviceAtLocationService::undoServiceAtLocationMetadataBatch,
+                SERVICE_RESOURCE_TYPE, serviceService::undoServiceMetadataBatch,
+                TAXONOMY_RESOURCE_TYPE, taxonomyService::undoTaxonomyMetadataBatch,
+                TAXONOMY_TERM_RESOURCE_TYPE, taxonomyTermService::undoTaxonomyTermMetadataBatch
+            );
+        }
+        return this.undoBatchTypeMap;
     }
 }
