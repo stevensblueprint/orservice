@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipOutputStream;
@@ -45,6 +46,8 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     private final DataExchangeMapper dataExchangeMapper;
     private final MetadataMapper metadataMapper;
+
+    private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
 
     @Override
     @Transactional(readOnly = true)
@@ -186,22 +189,15 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             throw new ResourceNotFoundException(String.format("No %s Metadata with fileImportId %s exists", resourceType, fileImportId));
         }
 
-        switch(resourceType) {
-            case ORGANIZATION_RESOURCE_TYPE ->
-                organizationService.undoOrganizationMetadataBatch(fileMetadata, updatedBy);
-            case SERVICE_AT_LOCATION_RESOURCE_TYPE ->
-                serviceAtLocationService.undoServiceAtLocationMetadataBatch(fileMetadata, updatedBy);
-            case SERVICE_RESOURCE_TYPE ->
-                serviceService.undoServiceMetadataBatch(fileMetadata, updatedBy);
-            case TAXONOMY_RESOURCE_TYPE ->
-                taxonomyService.undoTaxonomyMetadataBatch(fileMetadata, updatedBy);
-            case TAXONOMY_TERM_RESOURCE_TYPE ->
-                taxonomyTermService.undoTaxonomyTermMetadataBatch(fileMetadata, updatedBy);
-            default -> {
-                return 500;
-            }
+        Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap = this.getUndoBatchTypeMap();
+        try {
+            BiConsumer<List<Metadata>, String> undoBatch = undoBatchTypeMap.get(resourceType);
+            undoBatch.accept(fileMetadata, updatedBy);
+            return 200;
+        } catch (NullPointerException e) {
+            log.error("No undo file import applicable for {}", resourceType);
+            return 500;
         }
-        return 200;
     }
 
     private Map<DataExchangeDTO.ExportFile, Exchangeable> createExportMappings() {
@@ -214,5 +210,18 @@ public class DataExchangeServiceImpl implements DataExchangeService {
         return Map.ofEntries(
                 Map.entry(DataExchangeUtils.ORGANIZATION_FILE_NAME, organizationService)
         );
+    }
+
+    private Map<String, BiConsumer<List<Metadata>, String>> getUndoBatchTypeMap() {
+        if(this.undoBatchTypeMap == null) {
+            this.undoBatchTypeMap = Map.of(
+                ORGANIZATION_RESOURCE_TYPE, organizationService::undoOrganizationMetadataBatch,
+                SERVICE_AT_LOCATION_RESOURCE_TYPE, serviceAtLocationService::undoServiceAtLocationMetadataBatch,
+                SERVICE_RESOURCE_TYPE, serviceService::undoServiceMetadataBatch,
+                TAXONOMY_RESOURCE_TYPE, taxonomyService::undoTaxonomyMetadataBatch,
+                TAXONOMY_TERM_RESOURCE_TYPE, taxonomyTermService::undoTaxonomyTermMetadataBatch
+            );
+        }
+        return this.undoBatchTypeMap;
     }
 }
