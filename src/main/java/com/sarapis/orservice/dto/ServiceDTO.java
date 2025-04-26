@@ -222,7 +222,6 @@ public class ServiceDTO {
   public static final List<String> EXPORT_HEADER = Arrays.asList(
     "id",
     "organization_id",
-    "program_id",
     "name",
     "alternate_name",
     "description",
@@ -234,15 +233,13 @@ public class ServiceDTO {
     "wait_time",
     "fees",
     "accreditations",
-    "licenses",
-    "taxonomy_ids"
+    "licenses"
   );
 
   public static List<String> toExport(Service service) {
     return Arrays.asList(
       service.getId(),
       service.getOrganization() == null ? null : service.getOrganization().getId(),
-      null,
       service.getName(),
       service.getAlternateName(),
       service.getDescription(),
@@ -254,8 +251,7 @@ public class ServiceDTO {
       service.getWaitTime(),
       service.getFees(),
       service.getAccreditations(),
-      service.getLicenses(),
-      null
+      service.getLicenses()
     );
   }
 
@@ -281,7 +277,6 @@ public class ServiceDTO {
         .fees(csvRecord.get("fees"))
         .accreditations(csvRecord.get("accreditations"))
         .licenses(csvRecord.get("licenses"))
-        .program(ProgramDTO.Request.builder().id(csvRecord.get("program_id")).build())
         .build();
       services.add(service);
     }

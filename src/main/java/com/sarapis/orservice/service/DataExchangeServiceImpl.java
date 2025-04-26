@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -33,6 +30,8 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   private final DataExchangeFileService dataExchangeFileService;
   private final OrganizationService organizationService;
   private final ServiceService serviceService;
+  private final LocationService locationService;
+  private final ServiceAtLocationService serviceAtLocationService;
   private final DataExchangeRepository dataExchangeRepository;
 
   @Override
@@ -105,6 +104,8 @@ public class DataExchangeServiceImpl implements DataExchangeService {
               .size(exportMappings.get(file.name()).writePdf(zipOutputStream))
               .build());
             break;
+          default:
+            throw new Exception("File type not supported.");
         }
       }
 
@@ -130,7 +131,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
       Map<String, Exchangeable> importMappings = createImportMappings();
       List<String> metadataIds = new ArrayList<>();
 
-      // ORDER MATTERS
+      files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER.get(file.getOriginalFilename())));
       for (MultipartFile file : files) {
         if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
           return 400;
@@ -160,15 +161,19 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
   private Map<String, Exchangeable> createExportMappings() {
     return Map.ofEntries(
-      Map.entry(DataExchangeDTO.ExchangeableFile.organization.name(), organizationService),
-      Map.entry(DataExchangeDTO.ExchangeableFile.service.name(), serviceService)
+      Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.name(), organizationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE.name(), serviceService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.name(), locationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.name(), serviceAtLocationService)
     );
   }
 
   private Map<String, Exchangeable> createImportMappings() {
     return Map.ofEntries(
-      Map.entry(DataExchangeDTO.ExchangeableFile.organization.toFileName(), organizationService),
-      Map.entry(DataExchangeDTO.ExchangeableFile.service.toFileName(), serviceService)
+      Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.toFileName(), organizationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE.toFileName(), serviceService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.toFileName(), locationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName(), serviceAtLocationService)
     );
   }
 }

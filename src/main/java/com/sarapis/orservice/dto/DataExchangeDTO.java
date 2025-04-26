@@ -12,8 +12,10 @@ import java.util.List;
 
 public class DataExchangeDTO {
   public enum ExchangeableFile {
-    organization ("organizations.csv"),
-    service ("services.csv");
+    ORGANIZATION("organizations.csv"),
+    SERVICE("services.csv"),
+    LOCATION("locations.csv"),
+    SERVICE_AT_LOCATION("service_at_locations.csv"),;
 
     private final String fileName;
 
