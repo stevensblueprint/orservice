@@ -6,6 +6,7 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
@@ -18,6 +19,7 @@ import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
+import com.sarapis.orservice.utils.DataExchangeUtils;
 import com.sarapis.orservice.utils.MetadataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +56,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   private static final boolean RETURN_FULL_SERVICE = true;
   private static final int RECORDS_PER_STREAM = 100;
-
+  private static final String FILENAME = DataExchangeDTO.ExchangeableFile.ORGANIZATION.toFileName();
 
   @Override
   @Transactional(readOnly = true)
@@ -179,7 +181,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
     // Flushes to zip entry
     csvPrinter.flush();
-    ZipEntry entry = new ZipEntry("organizations.csv");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.CSV_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
     zipOutputStream.closeEntry();
@@ -189,7 +191,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
     // Sets PDF document to write directly to zip entry stream
-    ZipEntry entry = new ZipEntry("organizations.pdf");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.PDF_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
     PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);

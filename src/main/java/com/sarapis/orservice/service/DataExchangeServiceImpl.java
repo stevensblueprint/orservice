@@ -94,13 +94,13 @@ public class DataExchangeServiceImpl implements DataExchangeService {
         switch (requestDto.getFormat()) {
           case CSV:
             fileDataList.add(DataExchangeFileDTO.ExchangeFileData.builder()
-              .fileName(file.toFileName())
+              .fileName(DataExchangeUtils.addExtension(file.toFileName(), DataExchangeUtils.CSV_EXTENSION))
               .size(exportMappings.get(file.name()).writeCsv(zipOutputStream))
               .build());
             break;
           case PDF:
             fileDataList.add(DataExchangeFileDTO.ExchangeFileData.builder()
-              .fileName(file.toFileName())
+              .fileName(DataExchangeUtils.addExtension(file.toFileName(), DataExchangeUtils.PDF_EXTENSION))
               .size(exportMappings.get(file.name()).writePdf(zipOutputStream))
               .build());
             break;
@@ -131,13 +131,16 @@ public class DataExchangeServiceImpl implements DataExchangeService {
       Map<String, Exchangeable> importMappings = createImportMappings();
       List<String> metadataIds = new ArrayList<>();
 
-      files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER.get(file.getOriginalFilename())));
+      files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER
+        .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))));
       for (MultipartFile file : files) {
         if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
           return 400;
         }
 
-        importMappings.get(file.getOriginalFilename()).readCsv(file, updatedBy, metadataIds);
+        importMappings
+          .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))
+          .readCsv(file, updatedBy, metadataIds);
       }
 
       List<DataExchangeFileDTO.ExchangeFileData> fileDataList = files

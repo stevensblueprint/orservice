@@ -6,12 +6,14 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.mapper.LocationMapper;
 import com.sarapis.orservice.model.Location;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.utils.DataExchangeUtils;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -37,6 +39,8 @@ public class LocationServiceImpl implements LocationService {
   private final LocationMapper locationMapper;
   private final MetadataRepository metadataRepository;
   private final MetadataService metadataService;
+
+  private static final String FILENAME = DataExchangeDTO.ExchangeableFile.LOCATION.toFileName();
 
   @Override
   @Transactional
@@ -64,7 +68,7 @@ public class LocationServiceImpl implements LocationService {
     }
     // Flushes to zip entry
     csvPrinter.flush();
-    ZipEntry entry = new ZipEntry("locations.csv");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.CSV_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
     zipOutputStream.closeEntry();
@@ -74,7 +78,7 @@ public class LocationServiceImpl implements LocationService {
   @Override
   public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
     // Sets PDF document to write directly to zip entry stream
-    ZipEntry entry = new ZipEntry("locations.pdf");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.PDF_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
     PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);

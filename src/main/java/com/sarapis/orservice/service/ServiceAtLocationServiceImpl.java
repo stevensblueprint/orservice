@@ -7,10 +7,7 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-import com.sarapis.orservice.dto.LocationDTO;
-import com.sarapis.orservice.dto.MetadataDTO;
-import com.sarapis.orservice.dto.PaginationDTO;
-import com.sarapis.orservice.dto.ServiceAtLocationDTO;
+import com.sarapis.orservice.dto.*;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Response;
 import com.sarapis.orservice.exceptions.ResourceNotFoundException;
@@ -20,6 +17,7 @@ import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
+import com.sarapis.orservice.utils.DataExchangeUtils;
 import com.sarapis.orservice.utils.MetadataUtils;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +52,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   private final MetadataRepository metadataRepository;
 
   private static final int RECORDS_PER_STREAM = 100;
+  private static final String FILENAME = DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName();
 
   @Override
   @Transactional(readOnly = true)
@@ -169,7 +168,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     }
     // Flushes to zip entry
     csvPrinter.flush();
-    ZipEntry entry = new ZipEntry("service_at_locations.csv");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.CSV_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
     zipOutputStream.closeEntry();
@@ -179,7 +178,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   @Override
   public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
     // Sets PDF document to write directly to zip entry stream
-    ZipEntry entry = new ZipEntry("locations.pdf");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.PDF_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
     PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);
