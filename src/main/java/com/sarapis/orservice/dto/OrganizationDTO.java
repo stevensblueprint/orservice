@@ -96,17 +96,29 @@ public class OrganizationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
+
     private String name;
+
     private String alternateName;
+
     private String description;
+
     private String email;
+
     private String website;
+
     private String taxStatus;
+
     private String taxId;
+
     private Integer yearIncorporated;
+
     private String legalStatus;
+
     private String logo;
+
     private String uri;
+
     private String parentOrganizationId;
 
     @Builder.Default

@@ -14,7 +14,7 @@ public class DataExchangeUtils {
   public static Map<String, Integer> IMPORT_ORDER = Map.ofEntries(
     Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.toFileName(), 0),
     Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE.toFileName(), 1),
-    Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.toFileName(), 1),
+    Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.toFileName(), 3),
     Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName(), 2)
   );
 

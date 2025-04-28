@@ -2,6 +2,7 @@ package com.sarapis.orservice.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.sarapis.orservice.model.LocationType;
 import com.sarapis.orservice.model.Schedule;
 
 import java.io.BufferedReader;
@@ -32,13 +33,24 @@ public class ServiceAtLocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
+
     private ServiceDTO.Request service;
+
     private String description;
+
     private LocationDTO.Request location;
-    private List<ContactDTO.Request> contacts;
-    private List<PhoneDTO.Request> phones;
-    private List<ScheduleDTO.Request> schedules;
-    private List<ServiceAreaDTO.Request> serviceAreas;
+
+    @Builder.Default
+    private List<ContactDTO.Request> contacts = new ArrayList<>();
+
+    @Builder.Default
+    private List<PhoneDTO.Request> phones = new ArrayList<>();
+
+    @Builder.Default
+    private List<ScheduleDTO.Request> schedules = new ArrayList<>();
+
+    @Builder.Default
+    private List<ServiceAreaDTO.Request> serviceAreas = new ArrayList<>();
   }
 
   @Setter
@@ -49,15 +61,30 @@ public class ServiceAtLocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
+
     private String description;
+
     private ServiceDTO.Summary service;
+
     private LocationDTO.Response location;
-    private List<ContactDTO.Response> contacts;
-    private List<PhoneDTO.Response> phones;
-    private List<ScheduleDTO.Response> schedules;
-    private List<ServiceAreaDTO.Response> serviceAreas;
-    private List<AttributeDTO.Response> attributes;
-    private List<MetadataDTO.Response> metadata;
+
+    @Builder.Default
+    private List<ContactDTO.Response> contacts = new ArrayList<>();
+
+    @Builder.Default
+    private List<PhoneDTO.Response> phones = new ArrayList<>();
+
+    @Builder.Default
+    private List<ScheduleDTO.Response> schedules = new ArrayList<>();
+
+    @Builder.Default
+    private List<ServiceAreaDTO.Response> serviceAreas = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Response> attributes = new ArrayList<>();
+
+    @Builder.Default
+    private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
 
   public static final List<String> EXPORT_HEADER = Arrays.asList(
@@ -86,7 +113,10 @@ public class ServiceAtLocationDTO {
       ServiceAtLocationDTO.Request serviceAtLocation = Request.builder()
         .id(csvRecord.get("id"))
         .service(ServiceDTO.Request.builder().id(csvRecord.get("service_id")).build())
-        .location(LocationDTO.Request.builder().id(csvRecord.get("location_id")).build())
+        .location(LocationDTO.Request.builder()
+          .id(csvRecord.get("location_id"))
+          .locationType(LocationType.physical.name()) // temporarily set to avoid null constraint
+          .build())
         .description(csvRecord.get("description"))
         .build();
       serviceAtLocations.add(serviceAtLocation);

@@ -59,8 +59,8 @@ public class ServiceServiceImpl implements ServiceService {
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllServices(String search, Integer page, Integer perPage,
-      String taxonomyTermId, String taxonomyId, String organizationId,
-      String modifiedAfter, Boolean minimal, Boolean full) {
+                                                String taxonomyTermId, String taxonomyId, String organizationId,
+                                                String modifiedAfter, Boolean minimal, Boolean full) {
     Specification<Service> spec = buildSpecification(search, modifiedAfter, taxonomyTermId, taxonomyId, organizationId);
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Service> servicePage = serviceRepository.findAll(spec, pageable);
@@ -71,8 +71,8 @@ public class ServiceServiceImpl implements ServiceService {
   @Override
   @Transactional(readOnly = true)
   public void streamAllServices(String search, String taxonomyTermId, String taxonomyId,
-      String organizationId, String modifiedAfter, Boolean minimal, Boolean full,
-      Consumer<Response> consumer) {
+                                String organizationId, String modifiedAfter, Boolean minimal, Boolean full,
+                                Consumer<Response> consumer) {
     Specification<Service> spec = buildSpecification(search, modifiedAfter, taxonomyTermId, taxonomyId, organizationId);
     int currentPage = 0;
     boolean hasMoreData = true;
@@ -85,7 +85,7 @@ public class ServiceServiceImpl implements ServiceService {
         hasMoreData = false;
       } else {
         services.forEach(service ->
-            consumer.accept(serviceMapper.toResponseDTO(service, metadataService))
+          consumer.accept(serviceMapper.toResponseDTO(service, metadataService))
         );
         if (currentPage >= servicePage.getTotalPages() - 1) {
           hasMoreData = false;
@@ -119,7 +119,7 @@ public class ServiceServiceImpl implements ServiceService {
   @Override
   @Transactional
   public Response updateService(String id, Request updatedDto, String updatedBy) {
-    if(!this.serviceRepository.existsById(id)) {
+    if (!this.serviceRepository.existsById(id)) {
       throw new ResourceNotFoundException("Service", id);
     }
 
@@ -134,27 +134,27 @@ public class ServiceServiceImpl implements ServiceService {
   @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+      .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     Service reverted = MetadataUtils.undoMetadata(
-            metadata,
-            this.metadataRepository,
-            this.serviceRepository,
-            SERVICE_FIELD_MAP,
-            updatedBy
+      metadata,
+      this.metadataRepository,
+      this.serviceRepository,
+      SERVICE_FIELD_MAP,
+      updatedBy
     );
     return serviceMapper.toResponseDTO(reverted, metadataService);
   }
 
   private Specification<Service> buildSpecification(String search, String modifiedAfter,
-      String taxonomyTermId, String taxonomyId, String organizationId) {
+                                                    String taxonomyTermId, String taxonomyId, String organizationId) {
     Specification<Service> spec = Specification.where(null);
 
-    if (search!= null &&!search.isEmpty()) {
+    if (search != null && !search.isEmpty()) {
       spec = spec.and(ServiceSpecifications.hasSearchTerm(search));
     }
 
-    if (modifiedAfter!= null &&!modifiedAfter.isEmpty()) {
+    if (modifiedAfter != null && !modifiedAfter.isEmpty()) {
       LocalDate modifiedDate = LocalDate.parse(modifiedAfter);
       spec = spec.and(ServiceSpecifications.modifiedAfter(modifiedDate));
     }
@@ -202,8 +202,8 @@ public class ServiceServiceImpl implements ServiceService {
     });
     // Sets table entries
     serviceRepository.findAll()
-        .forEach(service -> ServiceDTO.toExport(service)
-          .forEach(table::addCell));
+      .forEach(service -> ServiceDTO.toExport(service)
+        .forEach(table::addCell));
     document.add(table);
     document.close();
     zipOutputStream.closeEntry();

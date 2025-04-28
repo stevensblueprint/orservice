@@ -33,23 +33,46 @@ public class LocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Request {
     private String id;
+
     private String locationType;
+
     private String url;
+
     private String organizationId;
+
     private String name;
+
     private String alternateName;
+
     private String description;
+
     private String transportation;
+
     private Integer latitude;
+
     private Integer longitude;
+
     private String externalIdentifier;
+
     private String externalIdentifierType;
-    private List<LanguageDTO.Request> languages;
-    private List<AddressDTO.Request> addresses;
-    private List<ContactDTO.Request> contacts;
-    private List<AccessibilityDTO.Request> accessibility;
-    private List<PhoneDTO.Request> phones;
-    private List<ScheduleDTO.Request> schedules;
+
+    @Builder.Default
+    private List<LanguageDTO.Request> languages = new ArrayList<>();
+
+    @Builder.Default
+    private List<AddressDTO.Request> addresses = new ArrayList<>();
+
+    @Builder.Default
+    private List<ContactDTO.Request> contacts = new ArrayList<>();
+
+    @Builder.Default
+    private List<AccessibilityDTO.Request> accessibility = new ArrayList<>();
+
+    @Builder.Default
+    private List<PhoneDTO.Request> phones = new ArrayList<>();
+
+    @Builder.Default
+    private List<ScheduleDTO.Request> schedules = new ArrayList<>();
   }
 
   @Setter
@@ -60,26 +83,53 @@ public class LocationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
+
     private String locationType;
+
     private String url;
+
     @JsonIgnore
     private String organizationId;
+
     private String name;
+
     private String alternateName;
+
     private String description;
+
     private String transportation;
+
     private Integer latitude;
+
     private Integer longitude;
+
     private String externalIdentifier;
+
     private String externalIdentifierType;
-    private List<LanguageDTO.Response> languages;
-    private List<AddressDTO.Response> addresses;
-    private List<ContactDTO.Response> contacts;
-    private List<AccessibilityDTO.Response> accessibility;
-    private List<PhoneDTO.Response> phones;
-    private List<ScheduleDTO.Response> schedules;
-    private List<AttributeDTO.Response> attributes;
-    private List<MetadataDTO.Response> metadata;
+
+    @Builder.Default
+    private List<LanguageDTO.Response> languages = new ArrayList<>();
+
+    @Builder.Default
+    private List<AddressDTO.Response> addresses = new ArrayList<>();
+
+    @Builder.Default
+    private List<ContactDTO.Response> contacts = new ArrayList<>();
+
+    @Builder.Default
+    private List<AccessibilityDTO.Response> accessibility = new ArrayList<>();
+
+    @Builder.Default
+    private List<PhoneDTO.Response> phones = new ArrayList<>();
+
+    @Builder.Default
+    private List<ScheduleDTO.Response> schedules = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Response> attributes = new ArrayList<>();
+
+    @Builder.Default
+    private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
 
   public static final List<String> EXPORT_HEADER = Arrays.asList(

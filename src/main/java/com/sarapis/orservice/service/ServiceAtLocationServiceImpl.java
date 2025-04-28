@@ -7,7 +7,10 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-import com.sarapis.orservice.dto.*;
+import com.sarapis.orservice.dto.DataExchangeDTO;
+import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Response;
 import com.sarapis.orservice.exceptions.ResourceNotFoundException;
@@ -28,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -161,7 +165,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
     // Sets CSV header
-    csvPrinter.printRecord(LocationDTO.EXPORT_HEADER);
+    csvPrinter.printRecord(ServiceAtLocationDTO.EXPORT_HEADER);
     // Sets CSV entries
     for (ServiceAtLocation serviceAtLocation : serviceAtLocationRepository.findAll()) {
       csvPrinter.printRecord(ServiceAtLocationDTO.toExport(serviceAtLocation));

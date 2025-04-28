@@ -67,7 +67,6 @@ public class DataExchangeServiceImpl implements DataExchangeService {
     String userId
   ) {
     DataExchange dataExchange = new DataExchange();
-    dataExchange.setId(UUID.randomUUID().toString());
     dataExchange.setTimestamp(LocalDateTime.now());
     dataExchange.setType(type);
     dataExchange.setSuccess(success);

@@ -61,13 +61,13 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllOrganizations(String search, Boolean full_service,
-      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
+                                                     Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
     Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
     Page<OrganizationDTO.Response> dtoPage = organizationPage
-        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
+      .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
 
     return PaginationDTO.fromPage(dtoPage);
   }
@@ -76,7 +76,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   @Transactional(readOnly = true)
   public void streamAllOrganizations(String search, Boolean fullService, Boolean full,
-      String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
+                                     String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
 
     Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
     int currentPage = 0;
@@ -92,7 +92,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         hasMoreData = false;
       } else {
         organizations.forEach(organization ->
-            consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
+          consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
         );
         if (currentPage >= organizationPage.getTotalPages() - 1) {
           hasMoreData = false;
@@ -123,21 +123,21 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationMapper.toResponseDTO(savedOrganization, metadataService, RETURN_FULL_SERVICE);
   }
 
-    @Override
-    @Transactional
-    public Response updateOrganization(String id, Request updatedDto, String updatedBy) {
-        // Ensure that 'id' exists in repository
-        if(!this.organizationRepository.existsById(id)) {
-          throw new ResourceNotFoundException("Organization", id);
-        }
-
-        updatedDto.setId(id);
-        Organization newEntity = this.organizationMapper.toEntity(updatedDto);
-        Organization updatedEntity = this.organizationRepository.save(newEntity);
-        return organizationMapper.toResponseDTO(updatedEntity, metadataService, RETURN_FULL_SERVICE);
+  @Override
+  @Transactional
+  public Response updateOrganization(String id, Request updatedDto, String updatedBy) {
+    // Ensure that 'id' exists in repository
+    if (!this.organizationRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Organization", id);
     }
 
-    @Override
+    updatedDto.setId(id);
+    Organization newEntity = this.organizationMapper.toEntity(updatedDto);
+    Organization updatedEntity = this.organizationRepository.save(newEntity);
+    return organizationMapper.toResponseDTO(updatedEntity, metadataService, RETURN_FULL_SERVICE);
+  }
+
+  @Override
   @Transactional
   public void deleteOrganization(String id) {
     organizationRepository.deleteById(id);
@@ -148,17 +148,18 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Transactional
   public Response undoOrganizationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+      .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     Organization reverted = MetadataUtils.undoMetadata(
-        metadata,
-        this.metadataRepository,
-        this.organizationRepository,
-        ORGANIZATION_FIELD_MAP,
-        updatedBy
+      metadata,
+      this.metadataRepository,
+      this.organizationRepository,
+      ORGANIZATION_FIELD_MAP,
+      updatedBy
     );
     return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
   }
+
   private Specification<Organization> buildSpecification(String search, String taxonomyTerm, String taxonomyId) {
     Specification<Organization> spec = Specification.where(null);
     if (search != null && !search.isEmpty()) {
