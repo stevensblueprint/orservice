@@ -15,9 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.ZipOutputStream;
@@ -33,6 +36,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   private final LocationService locationService;
   private final ServiceAtLocationService serviceAtLocationService;
   private final DataExchangeRepository dataExchangeRepository;
+  private final TransactionTemplate transactionTemplate;
 
   @Override
   @Transactional(readOnly = true)
@@ -127,36 +131,54 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   @Transactional
   public int importFile(String userId, List<MultipartFile> files, String updatedBy) {
     try {
+      transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
       Map<String, Exchangeable> importMappings = createImportMappings();
       List<String> metadataIds = new ArrayList<>();
 
-      files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER
-        .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))));
-      for (MultipartFile file : files) {
-        if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
-          return 400;
+      String errorMessage = (String) transactionTemplate.execute(status -> {
+        files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER
+          .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))));
+        for (MultipartFile file : files) {
+          if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
+            return 400;
+          }
+
+          try {
+            importMappings
+              .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))
+              .readCsv(file, updatedBy, metadataIds);
+          } catch (IOException e) {
+            return e.getMessage();
+          }
         }
+        return null;
+      });
+      if (errorMessage != null) {
+        createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, errorMessage, 0L, userId);
+        return 500;
+      } else {
+        transactionTemplate.execute(status -> {
+          List<DataExchangeFileDTO.ExchangeFileData> fileDataList = files
+            .stream().map(file ->
+              DataExchangeFileDTO.ExchangeFileData.builder()
+                .fileName(file.getOriginalFilename())
+                .size(file.getSize())
+                .build())
+            .toList();
 
-        importMappings
-          .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))
-          .readCsv(file, updatedBy, metadataIds);
+          long totalBytes = fileDataList.stream().mapToLong(DataExchangeFileDTO.ExchangeFileData::getSize).sum();
+          DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV,
+            true, null, totalBytes, userId);
+          dataExchangeFileService.addImportedFiles(exchangeResponse.getId(), fileDataList, metadataIds);
+          return null;
+        });
+        return 204;
       }
-
-      List<DataExchangeFileDTO.ExchangeFileData> fileDataList = files
-        .stream().map(file ->
-          DataExchangeFileDTO.ExchangeFileData.builder()
-            .fileName(file.getOriginalFilename())
-            .size(file.getSize())
-            .build())
-        .toList();
-
-      long totalBytes = fileDataList.stream().mapToLong(DataExchangeFileDTO.ExchangeFileData::getSize).sum();
-      DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV,
-        true, null, totalBytes, userId);
-      dataExchangeFileService.addImportedFiles(exchangeResponse.getId(), fileDataList, metadataIds);
-      return 204;
     } catch (Exception e) {
-      createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, e.getMessage(), 0L, userId);
+      transactionTemplate.execute(status -> {
+        createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, e.getMessage(), 0L, userId);
+        return null;
+      });
       return 500;
     }
   }
