@@ -131,16 +131,21 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   @Transactional
   public int importFile(String userId, List<MultipartFile> files, String updatedBy) {
     try {
+      // Creates a new transaction per execute call
       transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
       Map<String, Exchangeable> importMappings = createImportMappings();
       List<String> metadataIds = new ArrayList<>();
 
-      String errorMessage = (String) transactionTemplate.execute(status -> {
+      // Transaction for importing data from CSV
+      DataExchangeDTO.ImportTransactionResponse importTransaction = transactionTemplate.execute(status -> {
         files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER
           .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))));
         for (MultipartFile file : files) {
           if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
-            return 400;
+            return DataExchangeDTO.ImportTransactionResponse.builder()
+              .statusCode(400)
+              .errorMessage("Expected CSV file.")
+              .build();
           }
 
           try {
@@ -148,15 +153,27 @@ public class DataExchangeServiceImpl implements DataExchangeService {
               .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))
               .readCsv(file, updatedBy, metadataIds);
           } catch (IOException e) {
-            return e.getMessage();
+            return DataExchangeDTO.ImportTransactionResponse.builder()
+              .statusCode(500)
+              .errorMessage(e.getMessage())
+              .build();
           }
         }
-        return null;
+        return DataExchangeDTO.ImportTransactionResponse.builder()
+          .statusCode(204)
+          .build();
       });
-      if (errorMessage != null) {
-        createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, errorMessage, 0L, userId);
-        return 500;
+
+      int statusCode = Objects.requireNonNull(importTransaction).getStatusCode();
+      if (statusCode > 200) {
+        // Transaction for writing error
+        transactionTemplate.execute(status -> {
+          createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false,
+            importTransaction.getErrorMessage(), 0L, userId);
+          return null;
+        });
       } else {
+        // Transaction for writing success
         transactionTemplate.execute(status -> {
           List<DataExchangeFileDTO.ExchangeFileData> fileDataList = files
             .stream().map(file ->
@@ -172,9 +189,11 @@ public class DataExchangeServiceImpl implements DataExchangeService {
           dataExchangeFileService.addImportedFiles(exchangeResponse.getId(), fileDataList, metadataIds);
           return null;
         });
-        return 204;
       }
+
+      return statusCode;
     } catch (Exception e) {
+      // Transaction for writing error
       transactionTemplate.execute(status -> {
         createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, e.getMessage(), 0L, userId);
         return null;

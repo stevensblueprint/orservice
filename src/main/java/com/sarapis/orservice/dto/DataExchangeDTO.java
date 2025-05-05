@@ -59,4 +59,14 @@ public class DataExchangeDTO {
     @Builder.Default
     private List<DataExchangeFileDTO.Response> dataExchangeFiles = new ArrayList<>();
   }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  public static class ImportTransactionResponse {
+    private int statusCode;
+    private String errorMessage;
+  }
 }
