@@ -7,10 +7,10 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "file_import")
+@Table(name = "data_exchange_file")
 @Setter
 @Getter
-public class FileImport {
+public class DataExchangeFile {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
@@ -22,9 +22,9 @@ public class FileImport {
     private Long size;
 
     @Column(name = "data_exchange_id")
-    private String exchangeId;
+    private String dataExchangeId;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "file_import_id", referencedColumnName = "id")
+    @JoinColumn(name = "data_exchange_file_id", referencedColumnName = "id")
     private List<Metadata> metadata;
 }
