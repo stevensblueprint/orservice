@@ -7,7 +7,7 @@ import com.sarapis.orservice.model.Metadata;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface ServiceAtLocationService {
+public interface ServiceAtLocationService extends Exchangeable {
   PaginationDTO<ServiceAtLocationDTO.Response> getAllServicesAtLocation(
       String search,
       String taxonomyTermId,

@@ -1,7 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.DataExchangeDTO;
-import com.sarapis.orservice.dto.FileImportDTO;
+import com.sarapis.orservice.dto.DataExchangeFileDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
@@ -18,14 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.sarapis.orservice.utils.MetadataUtils.*;
@@ -34,148 +35,187 @@ import static com.sarapis.orservice.utils.MetadataUtils.*;
 @RequiredArgsConstructor
 @Slf4j
 public class DataExchangeServiceImpl implements DataExchangeService {
-    private final DataExchangeRepository dataExchangeRepository;
+  private final DataExchangeMapper dataExchangeMapper;
+  private final DataExchangeFileService dataExchangeFileService;
+  private final OrganizationService organizationService;
+  private final ServiceService serviceService;
+  private final LocationService locationService;
+  private final ServiceAtLocationService serviceAtLocationService;
+  private final DataExchangeRepository dataExchangeRepository;
+  private final TransactionTemplate transactionTemplate;
+  private final DataExchangeRepository dataExchangeRepository;
 
-    private final FileImportService fileImportService;
-    private final MetadataService metadataService;
-    private final OrganizationService organizationService;
-    private final ServiceAtLocationService serviceAtLocationService;
-    private final ServiceService serviceService;
-    private final TaxonomyService taxonomyService;
-    private final TaxonomyTermService taxonomyTermService;
+  private final FileImportService fileImportService;
+  private final MetadataService metadataService;
+  private final TaxonomyService taxonomyService;
+  private final TaxonomyTermService taxonomyTermService;
+  private final MetadataMapper metadataMapper;
 
-    private final DataExchangeMapper dataExchangeMapper;
-    private final MetadataMapper metadataMapper;
+  private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
 
-    private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
+  @Override
+  @Transactional(readOnly = true)
+  public PaginationDTO<DataExchangeDTO.Response> getDataExchangesByUserId(
+    String userId,
+    LocalDateTime fromDate,
+    LocalDateTime toDate,
+    Integer page,
+    Integer perPage
+  ) {
+    PageRequest pageable = PageRequest.of(page, perPage);
+    Page<DataExchange> exchangePage = dataExchangeRepository.findDataExchanges(userId, fromDate, toDate, pageable);
+    Page<DataExchangeDTO.Response> dtoPage = exchangePage.map(dataExchangeMapper::toResponseDTO);
+    return PaginationDTO.fromPage(dtoPage);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PaginationDTO<DataExchangeDTO.Response> getDataExchangesByUserId(
-            String userId,
-            LocalDateTime fromDate,
-            LocalDateTime toDate,
-            Integer page,
-            Integer perPage
-    ) {
-        PageRequest pageable = PageRequest.of(page, perPage);
-        Page<DataExchange> exchangePage = dataExchangeRepository.findDataExchanges(userId, fromDate, toDate, pageable);
-        Page<DataExchangeDTO.Response> dtoPage = exchangePage.map(dataExchangeMapper::toResponseDTO);
-        return PaginationDTO.fromPage(dtoPage);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public DataExchangeDTO.Response getDataExchangeById(String id) {
+    DataExchange dataExchange = dataExchangeRepository.findById(id).orElseThrow();
+    return dataExchangeMapper.toResponseDTO(dataExchange);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public DataExchangeDTO.Response getDataExchangeById(String id) {
-        DataExchange dataExchange = dataExchangeRepository.findById(id).orElseThrow();
-        return dataExchangeMapper.toResponseDTO(dataExchange);
-    }
+  @Override
+  @Transactional
+  public DataExchangeDTO.Response createDataExchange(
+    DataExchangeType type,
+    DataExchangeFormat format,
+    boolean success,
+    String errorMessage,
+    Long size,
+    String userId
+  ) {
+    DataExchange dataExchange = new DataExchange();
+    dataExchange.setTimestamp(LocalDateTime.now());
+    dataExchange.setType(type);
+    dataExchange.setSuccess(success);
+    dataExchange.setErrorMessage(errorMessage);
+    dataExchange.setFormat(format);
+    dataExchange.setSize(size);
+    dataExchange.setUserId(userId);
+    dataExchange.setDataExchangeFiles(new ArrayList<>());
 
-    @Override
-    @Transactional
-    public DataExchangeDTO.Response createDataExchange(
-            DataExchangeType type,
-            DataExchangeFormat format,
-            boolean success,
-            String errorMessage,
-            Long size,
-            String userId
-    ) {
-        DataExchange dataExchange = new DataExchange();
-        dataExchange.setId(UUID.randomUUID().toString());
-        dataExchange.setTimestamp(LocalDateTime.now());
-        dataExchange.setType(type);
-        dataExchange.setSuccess(success);
-        dataExchange.setErrorMessage(errorMessage);
-        dataExchange.setFormat(format);
-        dataExchange.setSize(size);
-        dataExchange.setUserId(userId);
-        dataExchange.setFileImports(new ArrayList<>());
+    DataExchange savedDataExchange = dataExchangeRepository.save(dataExchange);
+    return dataExchangeMapper.toResponseDTO(savedDataExchange);
+  }
 
-        DataExchange savedDataExchange = dataExchangeRepository.save(dataExchange);
-        return dataExchangeMapper.toResponseDTO(savedDataExchange);
-    }
+  @Override
+  @Transactional
+  public int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto) {
+    try {
+      Map<String, Exchangeable> exportMappings = createExportMappings();
 
-    @Override
-    @Transactional
-    public int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto) {
-        try {
-            Map<DataExchangeDTO.ExportFile, Exchangeable> exportMappings = createExportMappings();
+      ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
 
-            ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-
-            long bytes = 0;
-
-            for (DataExchangeDTO.ExportFile file : requestDto.getFiles()) {
-                switch (requestDto.getFormat()) {
-                    case CSV:
-                        bytes += exportMappings.get(file).writeCsv(zipOutputStream);
-                        break;
-                    case PDF:
-                        bytes += exportMappings.get(file).writePdf(zipOutputStream);
-                        break;
-                }
-            }
-
-            zipOutputStream.finish();
-            zipOutputStream.close();
-
-            createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(), true, null, bytes,
-                    requestDto.getUserId());
-            return 201;
-        } catch (Exception e) {
-            createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(), false, e.getMessage(), 0L,
-                    requestDto.getUserId());
-            return 500;
+      List<DataExchangeFileDTO.ExchangeFileData> fileDataList = new ArrayList<>();
+      for (DataExchangeDTO.ExchangeableFile file : requestDto.getFiles()) {
+        switch (requestDto.getFormat()) {
+          case CSV:
+            fileDataList.add(DataExchangeFileDTO.ExchangeFileData.builder()
+              .fileName(DataExchangeUtils.addExtension(file.toFileName(), DataExchangeUtils.CSV_EXTENSION))
+              .size(exportMappings.get(file.name()).writeCsv(zipOutputStream))
+              .build());
+            break;
+          case PDF:
+            fileDataList.add(DataExchangeFileDTO.ExchangeFileData.builder()
+              .fileName(DataExchangeUtils.addExtension(file.toFileName(), DataExchangeUtils.PDF_EXTENSION))
+              .size(exportMappings.get(file.name()).writePdf(zipOutputStream))
+              .build());
+            break;
+          default:
+            throw new Exception("File type not supported.");
         }
+      }
+
+      zipOutputStream.finish();
+      zipOutputStream.close();
+
+      long totalBytes = fileDataList.stream().mapToLong(DataExchangeFileDTO.ExchangeFileData::getSize).sum();
+      DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(),
+        true, null, totalBytes, requestDto.getUserId());
+      dataExchangeFileService.addExportedFiles(exchangeResponse.getId(), fileDataList);
+      return 201;
+    } catch (Exception e) {
+      createDataExchange(DataExchangeType.EXPORT, requestDto.getFormat(), false, e.getMessage(), 0L,
+        requestDto.getUserId());
+      return 500;
     }
+  }
 
-    @Override
-    @Transactional
-    public int importFile(DataExchangeFormat format, String userId, List<MultipartFile> files, String updatedBy) {
-        try {
-            Map<String, Exchangeable> importMappings = createImportMappings();
-            List<String> metadataIds = new ArrayList<>();
+  @Override
+  @Transactional
+  public int importFile(String userId, List<MultipartFile> files, String updatedBy) {
+    try {
+      // Creates a new transaction per execute call
+      transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+      Map<String, Exchangeable> importMappings = createImportMappings();
+      List<String> metadataIds = new ArrayList<>();
 
-            for (MultipartFile file : files) {
-                switch (format) {
-                    case CSV: {
-                        if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
-                            return 400;
-                        }
+      // Transaction for importing data from CSV
+      DataExchangeDTO.ImportTransactionResponse importTransaction = transactionTemplate.execute(status -> {
+        files.sort(Comparator.comparingInt(file -> DataExchangeUtils.IMPORT_ORDER
+          .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))));
+        for (MultipartFile file : files) {
+          if (!(DataExchangeUtils.CSV_FORMAT.equals(file.getContentType()))) {
+            return DataExchangeDTO.ImportTransactionResponse.builder()
+              .statusCode(400)
+              .errorMessage("Expected CSV file.")
+              .build();
+          }
 
-                        importMappings.get(file.getOriginalFilename()).readCsv(file, updatedBy, metadataIds);
-                    }
-                    case PDF:
-                        break;
-                }
-            }
-
-            Map<Integer, FileImportDTO.FileImportData> fileSizeMappings =
-                    IntStream.range(0, files.size())
-                            .boxed()
-                            .collect(Collectors.toMap(
-                                    i -> i,
-                                    i -> {
-                                        MultipartFile file = files.get(i);
-                                        return FileImportDTO.FileImportData.builder()
-                                                .fileName(file.getOriginalFilename())
-                                                .size(file.getSize())
-                                                .build();
-                                    }
-                            ));
-            Long totalSize = fileSizeMappings.values().stream()
-                    .map(FileImportDTO.FileImportData::getSize)
-                    .reduce(0L, Long::sum);
-            DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, format, true,
-                    null, totalSize, userId);
-            fileImportService.createFileImports(exchangeResponse.getId(), fileSizeMappings, metadataIds);
-            return 204;
-        } catch (Exception e) {
-            createDataExchange(DataExchangeType.IMPORT, format, false, e.getMessage(), null, userId);
-            return 500;
+          try {
+            importMappings
+              .get(DataExchangeUtils.getOriginalFileNameNoExtensions(file))
+              .readCsv(file, updatedBy, metadataIds);
+          } catch (IOException e) {
+            return DataExchangeDTO.ImportTransactionResponse.builder()
+              .statusCode(500)
+              .errorMessage(e.getMessage())
+              .build();
+          }
         }
+        return DataExchangeDTO.ImportTransactionResponse.builder()
+          .statusCode(204)
+          .build();
+      });
+
+      int statusCode = Objects.requireNonNull(importTransaction).getStatusCode();
+      if (statusCode > 200) {
+        // Transaction for writing error
+        transactionTemplate.execute(status -> {
+          createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false,
+            importTransaction.getErrorMessage(), 0L, userId);
+          return null;
+        });
+      } else {
+        // Transaction for writing success
+        transactionTemplate.execute(status -> {
+          List<DataExchangeFileDTO.ExchangeFileData> fileDataList = files
+            .stream().map(file ->
+              DataExchangeFileDTO.ExchangeFileData.builder()
+                .fileName(file.getOriginalFilename())
+                .size(file.getSize())
+                .build())
+            .toList();
+
+          long totalBytes = fileDataList.stream().mapToLong(DataExchangeFileDTO.ExchangeFileData::getSize).sum();
+          DataExchangeDTO.Response exchangeResponse = createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV,
+            true, null, totalBytes, userId);
+          dataExchangeFileService.addImportedFiles(exchangeResponse.getId(), fileDataList, metadataIds);
+          return null;
+        });
+      }
+
+      return statusCode;
+    } catch (Exception e) {
+      // Transaction for writing error
+      transactionTemplate.execute(status -> {
+        createDataExchange(DataExchangeType.IMPORT, DataExchangeFormat.CSV, false, e.getMessage(), 0L, userId);
+        return null;
+      });
+      return 500;
     }
+  }
 
     @Override
     @Transactional
@@ -200,17 +240,23 @@ public class DataExchangeServiceImpl implements DataExchangeService {
         }
     }
 
-    private Map<DataExchangeDTO.ExportFile, Exchangeable> createExportMappings() {
-        return Map.ofEntries(
-                Map.entry(DataExchangeDTO.ExportFile.Organization, organizationService)
-        );
-    }
+  private Map<String, Exchangeable> createExportMappings() {
+    return Map.ofEntries(
+      Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.name(), organizationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE.name(), serviceService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.name(), locationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.name(), serviceAtLocationService)
+    );
+  }
 
-    private Map<String, Exchangeable> createImportMappings() {
-        return Map.ofEntries(
-                Map.entry(DataExchangeUtils.ORGANIZATION_FILE_NAME, organizationService)
-        );
-    }
+  private Map<String, Exchangeable> createImportMappings() {
+    return Map.ofEntries(
+      Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.toFileName(), organizationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE.toFileName(), serviceService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.LOCATION.toFileName(), locationService),
+      Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName(), serviceAtLocationService)
+    );
+  }
 
     private Map<String, BiConsumer<List<Metadata>, String>> getUndoBatchTypeMap() {
         if(this.undoBatchTypeMap == null) {

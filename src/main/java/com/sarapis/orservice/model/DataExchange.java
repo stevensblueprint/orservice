@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 public class DataExchange {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
@@ -26,7 +27,7 @@ public class DataExchange {
     @Column(name = "success")
     private Boolean success;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", length = 1024)
     private String errorMessage;
 
     @Column(name = "format")
@@ -41,5 +42,5 @@ public class DataExchange {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "data_exchange_id", referencedColumnName = "id")
-    private List<FileImport> fileImports;
+    private List<DataExchangeFile> dataExchangeFiles;
 }

@@ -1,6 +1,14 @@
 package com.sarapis.orservice.service;
 
 
+import com.amazonaws.util.IOUtils;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.DataExchangeDTO;
+import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO.Request;
@@ -12,52 +20,65 @@ import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationSpecifications;
-
+import com.sarapis.orservice.utils.DataExchangeUtils;
 import com.sarapis.orservice.utils.MetadataUtils;
-import static com.sarapis.orservice.utils.FieldMap.SERVICE_AT_LOCATION_FIELD_MAP;
 import io.micrometer.common.util.StringUtils;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.FieldMap.SERVICE_AT_LOCATION_FIELD_MAP;
 
 @Service
 @RequiredArgsConstructor
 public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
-
   private final ServiceAtLocationRepository serviceAtLocationRepository;
   private final ServiceAtLocationMapper serviceAtLocationMapper;
   private final MetadataService metadataService;
   private final MetadataRepository metadataRepository;
 
   private static final int RECORDS_PER_STREAM = 100;
+  private static final String FILENAME = DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName();
 
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllServicesAtLocation(String search, String taxonomyTermId,
-      String taxonomyId, String organizationId, String modifiedAfter, Boolean full, Integer page,
-      Integer perPage, String postcode, String proximity) {
+                                                          String taxonomyId, String organizationId, String modifiedAfter, Boolean full, Integer page,
+                                                          Integer perPage, String postcode, String proximity) {
     Specification<ServiceAtLocation> spec = buildSpecification(search, taxonomyTermId, taxonomyId,
-        organizationId, modifiedAfter, postcode, proximity);
+      organizationId, modifiedAfter, postcode, proximity);
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<ServiceAtLocation> serviceAtLocationPage = serviceAtLocationRepository.findAll(spec, pageable);
     Page<ServiceAtLocationDTO.Response> dtoPage =
-        serviceAtLocationPage.map(serviceAtLocation -> serviceAtLocationMapper.toResponseDTO(serviceAtLocation, metadataService));
+      serviceAtLocationPage.map(serviceAtLocation -> serviceAtLocationMapper.toResponseDTO(serviceAtLocation, metadataService));
     return PaginationDTO.fromPage(dtoPage);
   }
 
   @Override
   @Transactional(readOnly = true)
   public void streamAllServicesAtLocation(String search, String taxonomyTermId, String taxonomyId, String organizationId,
-      String modifiedAfter, Boolean full, String postcode, String proximity, Consumer<Response> consumer) {
+                                          String modifiedAfter, Boolean full, String postcode, String proximity, Consumer<Response> consumer) {
     Specification<ServiceAtLocation> spec = buildSpecification(search, taxonomyTermId, taxonomyId,
-        organizationId, modifiedAfter, postcode, proximity);
+      organizationId, modifiedAfter, postcode, proximity);
     int currentPage = 0;
     boolean hasMoreData = true;
     while (hasMoreData) {
@@ -70,11 +91,11 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
         services.forEach(service -> {
           consumer.accept(serviceAtLocationMapper.toResponseDTO(service, metadataService));
         });
-          if (currentPage >= services.getTotalPages() - 1) {
-            hasMoreData = false;
-          } else {
-            currentPage++;
-          }
+        if (currentPage >= services.getTotalPages() - 1) {
+          hasMoreData = false;
+        } else {
+          currentPage++;
+        }
       }
     }
   }
@@ -89,7 +110,7 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   @Override
   @Transactional
   public Response updateServiceAtLocation(String id, Request updatedDto, String updatedBy) {
-    if(!this.serviceAtLocationRepository.existsById(id)) {
+    if (!this.serviceAtLocationRepository.existsById(id)) {
       throw new ResourceNotFoundException("ServiceAtLocation", id);
     }
 
@@ -104,14 +125,14 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   @Transactional
   public Response undoServiceAtLocationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+      .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     ServiceAtLocation reverted = MetadataUtils.undoMetadata(
-            metadata,
-            this.metadataRepository,
-            this.serviceAtLocationRepository,
-            SERVICE_AT_LOCATION_FIELD_MAP,
-            updatedBy
+      metadata,
+      this.metadataRepository,
+      this.serviceAtLocationRepository,
+      SERVICE_AT_LOCATION_FIELD_MAP,
+      updatedBy
     );
     return serviceAtLocationMapper.toResponseDTO(reverted, metadataService);
   }
@@ -142,11 +163,68 @@ public class ServiceAtLocationServiceImpl implements ServiceAtLocationService {
   }
 
   private Specification<ServiceAtLocation> buildSpecification(String search, String taxonomyTermId,
-      String taxonomyId, String organizationId, String modifiedAfter, String postcode, String proximity) {
+                                                              String taxonomyId, String organizationId, String modifiedAfter, String postcode, String proximity) {
     Specification<ServiceAtLocation> spec = Specification.where(null);
-    if (search!= null &&!search.isEmpty()) {
+    if (search != null && !search.isEmpty()) {
       spec = spec.and(ServiceAtLocationSpecifications.hasSearchTerm(search));
     }
     return spec;
+  }
+
+  @Override
+  public long writeCsv(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets CSV printer
+    final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+    // Sets CSV header
+    csvPrinter.printRecord(ServiceAtLocationDTO.EXPORT_HEADER);
+    // Sets CSV entries
+    for (ServiceAtLocation serviceAtLocation : serviceAtLocationRepository.findAll()) {
+      csvPrinter.printRecord(ServiceAtLocationDTO.toExport(serviceAtLocation));
+    }
+    // Flushes to zip entry
+    csvPrinter.flush();
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.CSV_EXTENSION));
+    zipOutputStream.putNextEntry(entry);
+    IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
+    zipOutputStream.closeEntry();
+    return entry.getSize();
+  }
+
+  @Override
+  public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
+    // Sets PDF document to write directly to zip entry stream
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.PDF_EXTENSION));
+    zipOutputStream.putNextEntry(entry);
+    com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
+    PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);
+    writer.setCloseStream(false);
+    document.open();
+    // Sets table
+    PdfPTable table = new PdfPTable(10);
+    PdfPCell cell = new PdfPCell();
+    // Sets table header
+    ServiceAtLocationDTO.EXPORT_HEADER.forEach(column -> {
+      cell.setPhrase(new Phrase(column));
+      table.addCell(cell);
+    });
+    // Sets table entries
+    serviceAtLocationRepository.findAll()
+      .forEach(serviceAtLocation -> ServiceAtLocationDTO.toExport(serviceAtLocation)
+        .forEach(table::addCell));
+    document.add(table);
+    document.close();
+    zipOutputStream.closeEntry();
+    return entry.getSize();
+  }
+
+  @Override
+  @Transactional
+  public void readCsv(MultipartFile file, String updatedBy, List<String> metadataIds) throws IOException {
+    ServiceAtLocationDTO.csvToServiceAtLocations(file.getInputStream()).forEach(createRequest -> {
+      ServiceAtLocationDTO.Response response = createServiceAtLocation(createRequest, updatedBy);
+      metadataIds.addAll(response.getMetadata().stream().map(MetadataDTO.Response::getId).toList());
+    });
   }
 }

@@ -737,16 +737,16 @@ COMMENT ON COLUMN public.meta_table_description.character_set IS 'The character 
 
 CREATE TABLE public.metadata
 (
-    id                character varying(250) NOT NULL,
-    resource_id       text                   NOT NULL,
-    resource_type     text                   NOT NULL,
-    last_action_date  date                   NOT NULL,
-    last_action_type  text                   NOT NULL,
-    field_name        text                   NOT NULL,
-    previous_value    text                   NOT NULL,
-    replacement_value text                   NOT NULL,
-    updated_by        text                   NOT NULL,
-    file_import_id    character varying(250)
+    id                      character varying(250) NOT NULL,
+    resource_id             text                   NOT NULL,
+    resource_type           text                   NOT NULL,
+    last_action_date        date                   NOT NULL,
+    last_action_type        text                   NOT NULL,
+    field_name              text                   NOT NULL,
+    previous_value          text                   NOT NULL,
+    replacement_value       text                   NOT NULL,
+    updated_by              text                   NOT NULL,
+    data_exchange_file_id   character varying(250)
 );
 
 
@@ -2011,7 +2011,7 @@ CREATE TABLE public.data_exchange
 -- Name: file_import; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.file_import
+CREATE TABLE public.data_exchange_file
 (
     id               character varying(250) NOT NULL,
     file_name        text                   NOT NULL,
@@ -2517,14 +2517,14 @@ ALTER TABLE ONLY public.url
 ALTER TABLE ONLY public.data_exchange
     ADD CONSTRAINT data_exchange_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.file_import
-    ADD CONSTRAINT file_import_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.data_exchange_file
+    ADD CONSTRAINT data_exchange_file_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.file_import
-    ADD CONSTRAINT file_import_data_exchange_id_fkey FOREIGN KEY (data_exchange_id) REFERENCES public.data_exchange (id);
+ALTER TABLE ONLY public.data_exchange_file
+    ADD CONSTRAINT data_exchange_file_data_exchange_id_fkey FOREIGN KEY (data_exchange_id) REFERENCES public.data_exchange (id);
 
 ALTER TABLE ONLY public.metadata
-    ADD CONSTRAINT metadata_file_import_id_fkey FOREIGN KEY (file_import_id) REFERENCES public.file_import (id)
+    ADD CONSTRAINT metadata_data_exchange_file_id_fkey FOREIGN KEY (data_exchange_file_id) REFERENCES public.data_exchange_file (id)
 
 --
 -- PostgreSQL database dump complete

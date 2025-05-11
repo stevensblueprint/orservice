@@ -6,6 +6,7 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.dto.OrganizationDTO;
 import com.sarapis.orservice.dto.OrganizationDTO.Request;
@@ -18,13 +19,8 @@ import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.OrganizationSpecifications;
+import com.sarapis.orservice.utils.DataExchangeUtils;
 import com.sarapis.orservice.utils.MetadataUtils;
-import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
-
-import java.util.List;
-import java.util.UUID;
-
-import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -47,6 +43,8 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.sarapis.orservice.utils.FieldMap.ORGANIZATION_FIELD_MAP;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -58,18 +56,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   private static final boolean RETURN_FULL_SERVICE = true;
   private static final int RECORDS_PER_STREAM = 100;
-
+  private static final String FILENAME = DataExchangeDTO.ExchangeableFile.ORGANIZATION.toFileName();
 
   @Override
   @Transactional(readOnly = true)
   public PaginationDTO<Response> getAllOrganizations(String search, Boolean full_service,
-      Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
+                                                     Boolean full, String taxonomyTerm, String taxonomyId, Integer page, Integer perPage) {
     Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
 
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<Organization> organizationPage = organizationRepository.findAll(spec, pageable);
     Page<OrganizationDTO.Response> dtoPage = organizationPage
-        .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
+      .map(organization -> organizationMapper.toResponseDTO(organization, metadataService, full_service));
 
     return PaginationDTO.fromPage(dtoPage);
   }
@@ -78,7 +76,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   @Transactional(readOnly = true)
   public void streamAllOrganizations(String search, Boolean fullService, Boolean full,
-      String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
+                                     String taxonomyTerm, String taxonomyId, Consumer<OrganizationDTO.Response> consumer) {
 
     Specification<Organization> spec = buildSpecification(search, taxonomyTerm, taxonomyId);
     int currentPage = 0;
@@ -94,7 +92,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         hasMoreData = false;
       } else {
         organizations.forEach(organization ->
-            consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
+          consumer.accept(organizationMapper.toResponseDTO(organization, metadataService, fullService))
         );
         if (currentPage >= organizationPage.getTotalPages() - 1) {
           hasMoreData = false;
@@ -125,21 +123,21 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationMapper.toResponseDTO(savedOrganization, metadataService, RETURN_FULL_SERVICE);
   }
 
-    @Override
-    @Transactional
-    public Response updateOrganization(String id, Request updatedDto, String updatedBy) {
-        // Ensure that 'id' exists in repository
-        if(!this.organizationRepository.existsById(id)) {
-          throw new ResourceNotFoundException("Organization", id);
-        }
-
-        updatedDto.setId(id);
-        Organization newEntity = this.organizationMapper.toEntity(updatedDto);
-        Organization updatedEntity = this.organizationRepository.save(newEntity);
-        return organizationMapper.toResponseDTO(updatedEntity, metadataService, RETURN_FULL_SERVICE);
+  @Override
+  @Transactional
+  public Response updateOrganization(String id, Request updatedDto, String updatedBy) {
+    // Ensure that 'id' exists in repository
+    if (!this.organizationRepository.existsById(id)) {
+      throw new ResourceNotFoundException("Organization", id);
     }
 
-    @Override
+    updatedDto.setId(id);
+    Organization newEntity = this.organizationMapper.toEntity(updatedDto);
+    Organization updatedEntity = this.organizationRepository.save(newEntity);
+    return organizationMapper.toResponseDTO(updatedEntity, metadataService, RETURN_FULL_SERVICE);
+  }
+
+  @Override
   @Transactional
   public void deleteOrganization(String id) {
     organizationRepository.deleteById(id);
@@ -197,7 +195,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
     // Flushes to zip entry
     csvPrinter.flush();
-    ZipEntry entry = new ZipEntry("organizations.csv");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.CSV_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     IOUtils.copy(new ByteArrayInputStream(out.toByteArray()), zipOutputStream);
     zipOutputStream.closeEntry();
@@ -207,7 +205,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public long writePdf(ZipOutputStream zipOutputStream) throws IOException {
     // Sets PDF document to write directly to zip entry stream
-    ZipEntry entry = new ZipEntry("organizations.pdf");
+    ZipEntry entry = new ZipEntry(DataExchangeUtils.addExtension(FILENAME, DataExchangeUtils.PDF_EXTENSION));
     zipOutputStream.putNextEntry(entry);
     com.lowagie.text.Document document = new com.lowagie.text.Document(PageSize.A4);
     PdfWriter writer = PdfWriter.getInstance(document, zipOutputStream);
@@ -222,9 +220,9 @@ public class OrganizationServiceImpl implements OrganizationService {
       table.addCell(cell);
     });
     // Sets table entries
-    for (Organization organization : organizationRepository.findAll()) {
-      OrganizationDTO.toExport(organization).forEach(table::addCell);
-    }
+    organizationRepository.findAll()
+      .forEach(organization -> OrganizationDTO.toExport(organization)
+        .forEach(table::addCell));
     document.add(table);
     document.close();
     zipOutputStream.closeEntry();
