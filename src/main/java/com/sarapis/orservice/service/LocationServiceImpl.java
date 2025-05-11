@@ -9,11 +9,14 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.LocationDTO;
 import com.sarapis.orservice.dto.MetadataDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.LocationMapper;
 import com.sarapis.orservice.model.Location;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.MetadataRepository;
 import com.sarapis.orservice.utils.DataExchangeUtils;
+import com.sarapis.orservice.utils.MetadataUtils;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -31,6 +34,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.FieldMap.LOCATION_FIELD_MAP;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +57,35 @@ public class LocationServiceImpl implements LocationService {
     location.setMetadata(metadataRepository, updatedBy);
     Location savedLocation = locationRepository.save(location);
     return locationMapper.toResponseDTO(savedLocation, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public LocationDTO.Response undoLocationMetadata(String metadataId, String updatedBy) {
+    Metadata metadata = this.metadataRepository.findById(metadataId)
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+
+    Location reverted = MetadataUtils.undoMetadata(
+            metadata,
+            this.metadataRepository,
+            this.locationRepository,
+            LOCATION_FIELD_MAP,
+            updatedBy
+    );
+    return locationMapper.toResponseDTO(reverted, metadataService);
+  }
+
+  @Override
+  @Transactional
+  public LocationDTO.Response undoLocationMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    Location reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.locationRepository,
+            LOCATION_FIELD_MAP,
+            updatedBy
+    );
+    return locationMapper.toResponseDTO(reverted, metadataService);
   }
 
   @Override
