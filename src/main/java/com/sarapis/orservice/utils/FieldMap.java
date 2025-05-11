@@ -91,4 +91,24 @@ public class FieldMap {
             Map.entry("language", TaxonomyTerm::setLanguage),
             Map.entry("termUri", TaxonomyTerm::setTermUri)
     );
+
+    public static final Map<String, BiConsumer<Location, String>> LOCATION_FIELD_MAP = Map.ofEntries(
+            Map.entry("locationType", parseEnumAndSet(Location::setLocationType, LocationType.class)),
+            Map.entry("url", Location::setUrl),
+            Map.entry("organization", parseObjectAndSet(Location::setOrganization)),
+            Map.entry("name", Location::setName),
+            Map.entry("alternateName", Location::setAlternateName),
+            Map.entry("description", Location::setDescription),
+            Map.entry("transportation", Location::setTransportation),
+            Map.entry("latitude", parseIntegerAndSet(Location::setLatitude)),
+            Map.entry("longitude", parseIntegerAndSet(Location::setLongitude)),
+            Map.entry("externalIdentifier", Location::setExternalIdentifier),
+            Map.entry("externalIdentifierType", Location::setExternalIdentifierType),
+            Map.entry("languages", parseObjectAndSet(Location::setLanguages)),
+            Map.entry("addresses", parseObjectAndSet(Location::setAddresses)),
+            Map.entry("contacts", parseObjectAndSet(Location::setContacts)),
+            Map.entry("accessibility", parseObjectAndSet(Location::setAccessibility)),
+            Map.entry("phones", parseObjectAndSet(Location::setPhones)),
+            Map.entry("schedules", parseObjectAndSet(Location::setSchedules))
+    );
 }

@@ -3,10 +3,17 @@ package com.sarapis.orservice.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.sarapis.orservice.utils.IntegerUtils;
+import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.validator.ValidEmail;
 import com.sarapis.orservice.validator.ValidUrl;
+import lombok.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,17 +23,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 public class ServiceDTO {
   @Getter
@@ -221,5 +217,70 @@ public class ServiceDTO {
     private List<ServiceAreaDTO.Response> serviceAreas = new ArrayList<>();
     private List<LanguageDTO.Response> languages = new ArrayList<>();
     private List<MetadataDTO.Response> metadata = new ArrayList<>();
+  }
+
+  public static final List<String> EXPORT_HEADER = Arrays.asList(
+    "id",
+    "organization_id",
+    "name",
+    "alternate_name",
+    "description",
+    "url",
+    "email",
+    "status",
+    "interpretation_services",
+    "application_process",
+    "wait_time",
+    "fees",
+    "accreditations",
+    "licenses"
+  );
+
+  public static List<String> toExport(Service service) {
+    return Arrays.asList(
+      service.getId(),
+      service.getOrganization() == null ? null : service.getOrganization().getId(),
+      service.getName(),
+      service.getAlternateName(),
+      service.getDescription(),
+      service.getUrl(),
+      service.getEmail(),
+      service.getStatus(),
+      service.getInterpretationServices(),
+      service.getApplicationProcess(),
+      service.getWaitTime(),
+      service.getFees(),
+      service.getAccreditations(),
+      service.getLicenses()
+    );
+  }
+
+  public static List<ServiceDTO.Request> csvToServices(InputStream inputStream) throws IOException {
+    BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    CSVParser csvParser = new CSVParser(fileReader,
+      CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim().withNullString(""));
+    List<ServiceDTO.Request> services = new ArrayList<>();
+    Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+    for (CSVRecord csvRecord : csvRecords) {
+      ServiceDTO.Request service = Request.builder()
+        .id(csvRecord.get("id"))
+        .organization(OrganizationDTO.Request.builder().id(csvRecord.get("organization_id")).build())
+        .name(csvRecord.get("name"))
+        .alternateName(csvRecord.get("alternate_name"))
+        .description(csvRecord.get("description"))
+        .url(csvRecord.get("url"))
+        .email(csvRecord.get("email"))
+        .status(csvRecord.get("status"))
+        .interpretationServices(csvRecord.get("interpretation_services"))
+        .applicationProcess(csvRecord.get("application_process"))
+        .waitTime(csvRecord.get("wait_time"))
+        .fees(csvRecord.get("fees"))
+        .accreditations(csvRecord.get("accreditations"))
+        .licenses(csvRecord.get("licenses"))
+        .build();
+      services.add(service);
+    }
+
+    return services;
   }
 }

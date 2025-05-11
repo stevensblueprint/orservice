@@ -24,6 +24,10 @@ public class Parser {
         return (o, s) -> setter.accept(o, parseDateOrNull(s));
     }
 
+    public static <T, E extends Enum<E>> BiConsumer<T, String> parseEnumAndSet(BiConsumer<T, E> setter, Class<E> enumClass) {
+        return (o, s) -> setter.accept(o, Enum.valueOf(enumClass, s));
+    }
+
     private static Integer parseIntegerOrNull(String s) {
         return s.isEmpty() ? null : Integer.parseInt(s);
     }
