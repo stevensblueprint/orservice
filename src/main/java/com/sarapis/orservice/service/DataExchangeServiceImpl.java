@@ -43,9 +43,6 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   private final ServiceAtLocationService serviceAtLocationService;
   private final DataExchangeRepository dataExchangeRepository;
   private final TransactionTemplate transactionTemplate;
-  private final DataExchangeRepository dataExchangeRepository;
-
-  private final FileImportService fileImportService;
   private final MetadataService metadataService;
   private final TaxonomyService taxonomyService;
   private final TaxonomyTermService taxonomyTermService;
@@ -219,14 +216,17 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     @Override
     @Transactional
-    public int undoImportedFile(String fileImportId, String resourceType, String updatedBy) {
-        List<Metadata> fileMetadata = metadataService.getMetadataByFileImportIdAndResourceType(fileImportId, resourceType)
+    public int undoImportedFile(String dataExchangeFileId, String resourceType, String updatedBy) {
+        List<Metadata> fileMetadata = metadataService.getMetadataByDataExchangeFileIdAndResourceType(dataExchangeFileId, resourceType)
                 .stream()
                 .map(metadataMapper::toEntity)
                 .toList();
 
         if(fileMetadata.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("No %s Metadata with fileImportId %s exists", resourceType, fileImportId));
+            throw new ResourceNotFoundException(
+                String.format("No %s Metadata with dataExchangeFileId %s exists",
+                              resourceType,
+                              dataExchangeFileId));
         }
 
         Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap = this.getUndoBatchTypeMap();

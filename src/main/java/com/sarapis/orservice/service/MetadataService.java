@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface MetadataService {
   List<Response> getMetadataByResourceIdAndResourceType(String resourceId, String resourceType);
-  List<Response> getMetadataByFileImportIdAndResourceType(String fileImportId, String resourceType);
+  List<Response> getMetadataByDataExchangeFileIdAndResourceType(String dataExchangeFileId, String resourceType);
 }
