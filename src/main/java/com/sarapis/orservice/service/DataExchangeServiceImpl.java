@@ -44,8 +44,6 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   private final DataExchangeRepository dataExchangeRepository;
   private final TransactionTemplate transactionTemplate;
   private final MetadataService metadataService;
-  private final TaxonomyService taxonomyService;
-  private final TaxonomyTermService taxonomyTermService;
   private final MetadataMapper metadataMapper;
 
   private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
@@ -263,9 +261,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             this.undoBatchTypeMap = Map.of(
                 ORGANIZATION_RESOURCE_TYPE, organizationService::undoOrganizationMetadataBatch,
                 SERVICE_RESOURCE_TYPE, serviceService::undoServiceMetadataBatch,
-                LOCATION_RESOURCE_TYPE, locationService::undoLocationMetadataBatch,
-                TAXONOMY_RESOURCE_TYPE, taxonomyService::undoTaxonomyMetadataBatch,
-                TAXONOMY_TERM_RESOURCE_TYPE, taxonomyTermService::undoTaxonomyTermMetadataBatch
+                LOCATION_RESOURCE_TYPE, locationService::undoLocationMetadataBatch
             );
         }
         return this.undoBatchTypeMap;
