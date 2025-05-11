@@ -261,7 +261,8 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             this.undoBatchTypeMap = Map.of(
                 ORGANIZATION_RESOURCE_TYPE, organizationService::undoOrganizationMetadataBatch,
                 SERVICE_RESOURCE_TYPE, serviceService::undoServiceMetadataBatch,
-                LOCATION_RESOURCE_TYPE, locationService::undoLocationMetadataBatch
+                LOCATION_RESOURCE_TYPE, locationService::undoLocationMetadataBatch,
+                SERVICE_AT_LOCATION_RESOURCE_TYPE, serviceAtLocationService::undoServiceAtLocationMetadataBatch
             );
         }
         return this.undoBatchTypeMap;
