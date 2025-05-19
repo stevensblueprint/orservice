@@ -2525,6 +2525,23 @@ ALTER TABLE ONLY public.file_import
 
 ALTER TABLE ONLY public.metadata
     ADD CONSTRAINT metadata_file_import_id_fkey FOREIGN KEY (file_import_id) REFERENCES public.file_import (id)
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+                              id SERIAL PRIMARY KEY,
+                              first_name VARCHAR(255) NOT NULL,
+                              last_name VARCHAR(255) NOT NULL,
+                              email VARCHAR(255) NOT NULL UNIQUE,
+                              password VARCHAR(255) NOT NULL,
+                              updated_at DATE
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+
 
 --
 -- PostgreSQL database dump complete
