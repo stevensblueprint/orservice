@@ -131,7 +131,13 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
+  @Transactional
   public void deleteService(String id) {
+    if (!serviceRepository.existsById(id)) {
+      throw new ResourceNotFoundException(
+          String.format("No Service found with id '%s'", id)
+      );
+    }
     serviceRepository.deleteById(id);
   }
 
