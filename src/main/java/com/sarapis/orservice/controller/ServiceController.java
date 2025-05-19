@@ -73,6 +73,12 @@ public class ServiceController {
     return ResponseEntity.ok(this.serviceService.updateService(id, request, updatedBy));
   }
 
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteService(@PathVariable String id) {
+    serviceService.deleteService(id);
+    return ResponseEntity.noContent().build();
+  }
+
   private ResponseEntity<PaginationDTO<ServiceDTO.Response>> handleJsonResponse(
       String search,
       Integer page,

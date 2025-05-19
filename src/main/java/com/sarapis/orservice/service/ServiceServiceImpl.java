@@ -131,6 +131,11 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
+  public void deleteService(String id) {
+    serviceRepository.deleteById(id);
+  }
+
+  @Override
   @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
