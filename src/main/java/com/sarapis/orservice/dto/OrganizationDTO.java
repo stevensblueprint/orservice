@@ -96,17 +96,29 @@ public class OrganizationDTO {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   public static class Response {
     private String id;
+
     private String name;
+
     private String alternateName;
+
     private String description;
+
     private String email;
+
     private String website;
+
     private String taxStatus;
+
     private String taxId;
+
     private Integer yearIncorporated;
+
     private String legalStatus;
+
     private String logo;
+
     private String uri;
+
     private String parentOrganizationId;
 
     @Builder.Default
@@ -176,16 +188,16 @@ public class OrganizationDTO {
     Iterable<CSVRecord> csvRecords = csvParser.getRecords();
     for (CSVRecord csvRecord : csvRecords) {
       OrganizationDTO.Request organization = Request.builder()
-              .id(csvRecord.get("id"))
-              .name(csvRecord.get("name"))
-              .description(csvRecord.get("description"))
-              .email(csvRecord.get("email"))
-              .uri(csvRecord.get("uri"))
-              .taxStatus(csvRecord.get("tax_status"))
-              .taxId(csvRecord.get("tax_id"))
-              .yearIncorporated(IntegerUtils.parseIntOrNull(csvRecord.get("year_incorporated")))
-              .legalStatus(csvRecord.get("legal_status"))
-              .build();
+        .id(csvRecord.get("id"))
+        .name(csvRecord.get("name"))
+        .description(csvRecord.get("description"))
+        .email(csvRecord.get("email"))
+        .uri(csvRecord.get("uri"))
+        .taxStatus(csvRecord.get("tax_status"))
+        .taxId(csvRecord.get("tax_id"))
+        .yearIncorporated(IntegerUtils.parseIntOrNull(csvRecord.get("year_incorporated")))
+        .legalStatus(csvRecord.get("legal_status"))
+        .build();
       organizations.add(organization);
     }
 

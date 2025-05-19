@@ -4,7 +4,7 @@ import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.dto.ServiceAtLocationDTO;
 import java.util.function.Consumer;
 
-public interface ServiceAtLocationService {
+public interface ServiceAtLocationService extends Exchangeable {
   PaginationDTO<ServiceAtLocationDTO.Response> getAllServicesAtLocation(
       String search,
       String taxonomyTermId,
