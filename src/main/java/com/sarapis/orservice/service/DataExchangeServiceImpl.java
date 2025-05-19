@@ -3,10 +3,13 @@ package com.sarapis.orservice.service;
 import com.sarapis.orservice.dto.DataExchangeDTO;
 import com.sarapis.orservice.dto.DataExchangeFileDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
+import com.sarapis.orservice.exceptions.ResourceNotFoundException;
 import com.sarapis.orservice.mapper.DataExchangeMapper;
+import com.sarapis.orservice.mapper.MetadataMapper;
 import com.sarapis.orservice.model.DataExchange;
 import com.sarapis.orservice.model.DataExchangeFormat;
 import com.sarapis.orservice.model.DataExchangeType;
+import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.DataExchangeRepository;
 import com.sarapis.orservice.utils.DataExchangeUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.zip.ZipOutputStream;
+
+import static com.sarapis.orservice.utils.MetadataUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +43,10 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   private final ServiceAtLocationService serviceAtLocationService;
   private final DataExchangeRepository dataExchangeRepository;
   private final TransactionTemplate transactionTemplate;
+  private final MetadataService metadataService;
+  private final MetadataMapper metadataMapper;
+
+  private Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap;
 
   @Override
   @Transactional(readOnly = true)
@@ -202,6 +212,32 @@ public class DataExchangeServiceImpl implements DataExchangeService {
     }
   }
 
+    @Override
+    @Transactional
+    public int undoImportedFile(String dataExchangeFileId, String resourceType, String updatedBy) {
+        List<Metadata> fileMetadata = metadataService.getMetadataByDataExchangeFileIdAndResourceType(dataExchangeFileId, resourceType)
+                .stream()
+                .map(metadataMapper::toEntity)
+                .toList();
+
+        if(fileMetadata.isEmpty()) {
+            throw new ResourceNotFoundException(
+                String.format("No %s Metadata with dataExchangeFileId %s exists",
+                              resourceType,
+                              dataExchangeFileId));
+        }
+
+        Map<String, BiConsumer<List<Metadata>, String>> undoBatchTypeMap = this.getUndoBatchTypeMap();
+        try {
+            BiConsumer<List<Metadata>, String> undoBatch = undoBatchTypeMap.get(resourceType);
+            undoBatch.accept(fileMetadata, updatedBy);
+            return 200;
+        } catch (NullPointerException e) {
+            log.error("No undo file import applicable for {}", resourceType);
+            return 500;
+        }
+    }
+
   private Map<String, Exchangeable> createExportMappings() {
     return Map.ofEntries(
       Map.entry(DataExchangeDTO.ExchangeableFile.ORGANIZATION.name(), organizationService),
@@ -219,4 +255,16 @@ public class DataExchangeServiceImpl implements DataExchangeService {
       Map.entry(DataExchangeDTO.ExchangeableFile.SERVICE_AT_LOCATION.toFileName(), serviceAtLocationService)
     );
   }
+
+    private Map<String, BiConsumer<List<Metadata>, String>> getUndoBatchTypeMap() {
+        if(this.undoBatchTypeMap == null) {
+            this.undoBatchTypeMap = Map.of(
+                ORGANIZATION_RESOURCE_TYPE, organizationService::undoOrganizationMetadataBatch,
+                SERVICE_RESOURCE_TYPE, serviceService::undoServiceMetadataBatch,
+                LOCATION_RESOURCE_TYPE, locationService::undoLocationMetadataBatch,
+                SERVICE_AT_LOCATION_RESOURCE_TYPE, serviceAtLocationService::undoServiceAtLocationMetadataBatch
+            );
+        }
+        return this.undoBatchTypeMap;
+    }
 }

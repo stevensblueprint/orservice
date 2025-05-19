@@ -148,14 +148,27 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Transactional
   public Response undoOrganizationMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
-      .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
+            .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));
 
     Organization reverted = MetadataUtils.undoMetadata(
-      metadata,
-      this.metadataRepository,
-      this.organizationRepository,
-      ORGANIZATION_FIELD_MAP,
-      updatedBy
+        metadata,
+        this.metadataRepository,
+        this.organizationRepository,
+        ORGANIZATION_FIELD_MAP,
+        updatedBy
+    );
+    return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
+  }
+
+  @Override
+  @Transactional
+  public Response undoOrganizationMetadataBatch(List<Metadata> metadataList, String updatedBy) {
+    Organization reverted = MetadataUtils.undoMetadataBatch(
+            metadataList,
+            this.metadataRepository,
+            this.organizationRepository,
+            ORGANIZATION_FIELD_MAP,
+            updatedBy
     );
     return organizationMapper.toResponseDTO(reverted, metadataService, RETURN_FULL_SERVICE);
   }

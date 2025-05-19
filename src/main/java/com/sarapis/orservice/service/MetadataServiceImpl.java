@@ -22,4 +22,11 @@ public class MetadataServiceImpl implements MetadataService {
     List<Metadata> metadataList = metadataRepository.findByResourceIdAndResourceType(resourceId, resourceType);
     return metadataList.stream().map(metadataMapper::toResponseDTO).collect(Collectors.toList());
   }
+
+  @Override
+  @Transactional
+  public List<Response> getMetadataByDataExchangeFileIdAndResourceType(String dataExchangeFileId, String resourceType) {
+    List<Metadata> metadataList = metadataRepository.findByDataExchangeFileIdAndResourceType(dataExchangeFileId, resourceType);
+    return metadataList.stream().map(metadataMapper::toResponseDTO).collect(Collectors.toList());
+  }
 }

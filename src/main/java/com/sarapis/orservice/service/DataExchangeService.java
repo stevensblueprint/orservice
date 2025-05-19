@@ -20,4 +20,5 @@ public interface DataExchangeService {
 
     int exportFile(HttpServletResponse response, DataExchangeDTO.Request requestDto);
     int importFile(String userId, List<MultipartFile> files, String updatedBy);
+    int undoImportedFile(String fileImportId, String resourceType, String updatedBy);
 }

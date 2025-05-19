@@ -57,6 +57,7 @@ public class MetadataUtils {
                                    MetadataRepository metadataRepository,
                                    JpaRepository<T, String> repository,
                                    Map<String, BiConsumer<T, String>> fieldMap,
+                                   LocalDate actionDate,
                                    String updatedBy) {
     String resId = metadata.getResourceId();
     T entity = repository.findById(resId)
@@ -72,7 +73,7 @@ public class MetadataUtils {
     newMeta.setId(UUID.randomUUID().toString());
     newMeta.setResourceId(resId);
     newMeta.setResourceType(metadata.getResourceType());
-    newMeta.setLastActionDate(LocalDate.now());
+    newMeta.setLastActionDate(actionDate);
     newMeta.setLastActionType(UPDATE.toString());
     newMeta.setFieldName(fieldName);
     newMeta.setPreviousValue(metadata.getReplacementValue());
@@ -83,6 +84,42 @@ public class MetadataUtils {
     metadataRepository.save(newMeta);
 
     return entity;
+  }
+
+  public static <T> T undoMetadata(Metadata metadata,
+                                   MetadataRepository metadataRepository,
+                                   JpaRepository<T, String> repository,
+                                   Map<String, BiConsumer<T, String>> fieldMap,
+                                   String updatedBy) {
+      return undoMetadata(
+              metadata,
+              metadataRepository,
+              repository,
+              fieldMap,
+              LocalDate.now(),
+              updatedBy
+      );
+  }
+
+  public static <T> T undoMetadataBatch(List<Metadata> metadataList,
+                                        MetadataRepository metadataRepository,
+                                        JpaRepository<T, String> repository,
+                                        Map<String, BiConsumer<T, String>> fieldMap,
+                                        String updatedBy) {
+    LocalDate actionDate = LocalDate.now();
+    T latest = null;    // Organization after all undo ops
+
+    for(Metadata metadata : metadataList) {
+      latest = undoMetadata(
+              metadata,
+              metadataRepository,
+              repository,
+              fieldMap,
+              actionDate,
+              updatedBy
+      );
+    }
+    return latest;
   }
 
   public static <T> List<Metadata> handleCreate(T created, String resourceId, String resourceType, String updatedBy) {
