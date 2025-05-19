@@ -1,7 +1,8 @@
 name: Build and publish Docker image
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   docker:
@@ -9,12 +10,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Login to Github container registry
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Prepare JAR for Docker
+        run: cp target/*.jar app.jar
+
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
