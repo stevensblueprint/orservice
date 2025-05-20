@@ -132,6 +132,17 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
+  public void deleteService(String id) {
+    if (!serviceRepository.existsById(id)) {
+      throw new ResourceNotFoundException(
+          String.format("No Service found with id '%s'", id)
+      );
+    }
+    serviceRepository.deleteById(id);
+  }
+
+  @Override
+  @Transactional
   public Response undoServiceMetadata(String metadataId, String updatedBy) {
     Metadata metadata = this.metadataRepository.findById(metadataId)
       .orElseThrow(() -> new ResourceNotFoundException("Metadata", metadataId));

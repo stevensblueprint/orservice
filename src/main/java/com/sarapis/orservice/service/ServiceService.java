@@ -24,6 +24,7 @@ public interface ServiceService extends Exchangeable {
   ServiceDTO.Response getServiceById(String id);
   ServiceDTO.Response createService(ServiceDTO.Request requestDto, String updatedBy);
   ServiceDTO.Response updateService(String id, ServiceDTO.Request updatedDto, String updatedBy);
+  void deleteService(String id);
   ServiceDTO.Response undoServiceMetadata(String metadataId, String updatedBy);
   ServiceDTO.Response undoServiceMetadataBatch(List<Metadata> metadataList, String updatedBy);
 }
