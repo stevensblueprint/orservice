@@ -106,6 +106,9 @@ public class ServiceDTO {
 
     @Builder.Default
     private List<UrlDTO.Request> additionalUrls = new ArrayList<>();
+
+    @Builder.Default
+    private List<ServiceCapacityDTO.Request> capacities = new ArrayList<>();
   }
 
   @Getter
@@ -171,6 +174,9 @@ public class ServiceDTO {
     private List<UrlDTO.Response> additionalUrls = new ArrayList<>();
 
     @Builder.Default
+    private List<ServiceCapacityDTO.Response> capacities = new ArrayList<>();
+
+    @Builder.Default
     private List<AttributeDTO.Response> attributes = new ArrayList<>();
 
     @Builder.Default
@@ -216,6 +222,7 @@ public class ServiceDTO {
     private List<ScheduleDTO.Response> schedules = new ArrayList<>();
     private List<ServiceAreaDTO.Response> serviceAreas = new ArrayList<>();
     private List<LanguageDTO.Response> languages = new ArrayList<>();
+    private List<ServiceCapacityDTO.Response> capacities = new ArrayList<>();
     private List<MetadataDTO.Response> metadata = new ArrayList<>();
   }
 

@@ -142,6 +142,11 @@ public class Service {
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Url> additionalUrls = new ArrayList<>();
 
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<ServiceCapacity> capacities = new ArrayList<>();
+
+
   public void setMetadata(MetadataRepository metadataRepository, String updatedBy) {
     if (this.getId() == null) {
       this.setId(UUID.randomUUID().toString());
@@ -166,6 +171,7 @@ public class Service {
     this.getRequiredDocuments().forEach(requiredDocument -> requiredDocument.setMetadata(metadataRepository, updatedBy));
     this.getContacts().forEach(contact -> contact.setMetadata(metadataRepository, updatedBy));
     this.getAdditionalUrls().forEach(url -> url.setMetadata(metadataRepository, updatedBy));
+    this.getCapacities().forEach(capacity -> capacity.setMetadata(metadataRepository, updatedBy));
   }
 
   @PrePersist
