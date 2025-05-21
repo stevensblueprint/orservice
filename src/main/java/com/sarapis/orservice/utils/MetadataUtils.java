@@ -35,6 +35,7 @@ public class MetadataUtils {
   public static final String SERVICE_AT_LOCATION_RESOURCE_TYPE = "SERVICE_AT_LOCATION";
   public static final String TAXONOMY_TERM_RESOURCE_TYPE = "TAXONOMY_TERM";
   public static final String TAXONOMY_RESOURCE_TYPE = "TAXONOMY";
+  public static final String UNIT_RESOURCE_TYPE = "UNIT";
   public static final String EMPTY_PREVIOUS_VALUE = "";
 
   public static <T> List<Metadata> createMetadata(T original, T updated, String resourceId, String resourceType, MetadataType actionType, String updatedBy) {
