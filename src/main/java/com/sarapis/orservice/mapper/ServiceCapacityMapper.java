@@ -6,28 +6,49 @@ import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceCapacityDTO;
 import com.sarapis.orservice.model.ServiceCapacity;
+import com.sarapis.orservice.repository.ServiceRepository;
+import com.sarapis.orservice.repository.UnitRepository;
 import com.sarapis.orservice.service.MetadataService;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
-public interface ServiceCapacityMapper {
+public abstract class ServiceCapacityMapper {
+  @Autowired
+  private ServiceRepository serviceRepository;
+  @Autowired
+  private UnitRepository unitRepository;
+
   @Mapping(target = "service.id", source = "serviceId")
-  ServiceCapacity toEntity(ServiceCapacityDTO.Request dto);
+  public abstract ServiceCapacity toEntity(ServiceCapacityDTO.Request dto);
 
   @Mapping(target = "serviceId", source = "service.id")
-  ServiceCapacityDTO.Response toResponseDTO(ServiceCapacity entity);
+  public abstract ServiceCapacityDTO.Response toResponseDTO(ServiceCapacity entity);
 
   @AfterMapping
-  default void toEntity(ServiceCapacityDTO.Request dto, @MappingTarget ServiceCapacity entity) {
-    if (dto.getServiceId() == null) {
-      entity.setService(null);
+  public ServiceCapacity toEntity(@MappingTarget ServiceCapacity entity) {
+    if (entity.getService().getId() != null) {
+      entity.setService(
+          serviceRepository.findById(entity.getService().getId()).orElseThrow(
+              () -> new IllegalArgumentException("Organization not found for service capacity with ID: " + entity.getId())
+          )
+      );
     }
+
+    if (entity.getUnit().getId() != null) {
+      entity.setUnit(
+          unitRepository.findById(entity.getUnit().getId()).orElseThrow(
+              () -> new IllegalArgumentException("Unit not found for service capacity with ID: " + entity.getId())
+          )
+      );
+    }
+    return entity;
   }
 
-  default ServiceCapacityDTO.Response toResponseDTO(ServiceCapacity entity, MetadataService metadataService) {
+  public ServiceCapacityDTO.Response toResponseDTO(ServiceCapacity entity, MetadataService metadataService) {
     ServiceCapacityDTO.Response response = toResponseDTO(entity);
     enrich(
         entity,
