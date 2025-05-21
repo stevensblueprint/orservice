@@ -222,6 +222,7 @@ public class ServiceDTO {
   public static final List<String> EXPORT_HEADER = Arrays.asList(
     "id",
     "organization_id",
+    "program_id",
     "name",
     "alternate_name",
     "description",
