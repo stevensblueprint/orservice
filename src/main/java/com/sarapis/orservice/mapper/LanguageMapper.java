@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.LANGUAGE_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.model.Language;
@@ -31,15 +32,14 @@ public interface LanguageMapper {
 
   default LanguageDTO.Response toResponseDTO(Language entity,  MetadataService metadataService) {
     LanguageDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(Language language, LanguageDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            language.getId(), LANGUAGE_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Language::getId,
+        LanguageDTO.Response::setMetadata,
+        LANGUAGE_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

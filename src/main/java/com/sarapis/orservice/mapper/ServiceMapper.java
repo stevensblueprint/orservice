@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
@@ -15,6 +16,7 @@ import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.model.ServiceArea;
 import com.sarapis.orservice.model.ServiceAtLocation;
+import com.sarapis.orservice.model.ServiceCapacity;
 import com.sarapis.orservice.model.Url;
 import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.CostOptionRepository;
@@ -22,10 +24,12 @@ import com.sarapis.orservice.repository.FundingRepository;
 import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.RequiredDocumentRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
 import com.sarapis.orservice.repository.ServiceAreaRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
+import com.sarapis.orservice.repository.ServiceCapacityRepository;
 import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
@@ -92,7 +96,15 @@ public abstract class ServiceMapper {
   private UrlRepository urlRepository;
 
   @Autowired
+  private ServiceCapacityMapper serviceCapacityMapper;
+  @Autowired
+  private ServiceCapacityRepository serviceCapacityRepository;
+
+  @Autowired
   private OrganizationRepository organizationRepository;
+
+  @Autowired
+  private ProgramRepository programRepository;
 
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract Response toResponseDTO(Service entity);
@@ -109,6 +121,7 @@ public abstract class ServiceMapper {
   @Mapping(target = "schedules", ignore = true)
   @Mapping(target = "serviceAreas", ignore = true)
   @Mapping(target = "languages", ignore = true)
+  @Mapping(target = "capacities", ignore = true)
   @Mapping(target = "metadata", ignore = true)
   public abstract Summary toSummaryDTOShort(Service entity);
 
@@ -242,6 +255,19 @@ public abstract class ServiceMapper {
           .peek(url -> url.setService(service)).toList();
       service.setAdditionalUrls(managedUrls);
     }
+
+    if (service.getCapacities() != null) {
+      List<ServiceCapacity> managedCapacities = service.getCapacities().stream()
+          .map(capacity -> {
+            if (capacity.getId() != null) {
+              return serviceCapacityRepository.findById(capacity.getId())
+                  .orElse(capacity);
+            }
+            return capacity;
+          })
+          .peek(capacity -> capacity.setService(service)).toList();
+      service.setCapacities(managedCapacities);
+    }
   }
 
   @AfterMapping
@@ -251,12 +277,25 @@ public abstract class ServiceMapper {
           () -> new IllegalArgumentException("Organization not found for service with ID: " + service.getOrganization().getId())
       ));
     }
+
+    if (service.getProgram().getId() != null) {
+      service.setProgram(programRepository.findById(service.getProgram().getId()).orElseThrow(
+          () -> new IllegalArgumentException("Program not found for service with ID: " + service.getProgram().getId())
+      ));
+    }
     return service;
   }
 
   public ServiceDTO.Response toResponseDTO(Service entity, MetadataService metadataService) {
     Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Service::getId,
+        Response::setMetadata,
+        SERVICE_RESOURCE_TYPE,
+        metadataService
+    );
 
     enrichList(entity.getPhones(), response::setPhones, (phone, meta) -> phoneMapper.toResponseDTO(phone, meta), metadataService);
     enrichList(entity.getSchedules(), response::setSchedules, (schedule, meta) -> scheduleMapper.toResponseDTO(schedule, meta), metadataService);
@@ -268,13 +307,21 @@ public abstract class ServiceMapper {
     enrichList(entity.getFunding(), response::setFunding, (funding, meta) -> fundingMapper.toResponseDTO(funding, meta), metadataService);
     enrichList(entity.getAdditionalUrls(), response::setAdditionalUrls, (url, meta) -> urlMapper.toResponseDTO(url, meta), metadataService);
     enrichList(entity.getServiceAtLocations(), response::setServiceAtLocations, (sal, meta) -> serviceAtLocationMapper.toResponseDTO(sal, meta), metadataService);
+    enrichList(entity.getCapacities(), response::setCapacities, (cap, meta) -> serviceCapacityMapper.toResponseDTO(cap, meta), metadataService);
 
     return response;
   }
 
   public ServiceDTO.Summary toSummaryDTO(Service entity, MetadataService metadataService) {
     Summary summary = toSummaryDTO(entity);
-    enrichMetadata(entity, summary, metadataService);
+    enrich(
+        entity,
+        summary,
+        Service::getId,
+        Summary::setMetadata,
+        SERVICE_RESOURCE_TYPE,
+        metadataService
+    );
 
     enrichList(entity.getPhones(), summary::setPhones, (phone, meta) -> phoneMapper.toResponseDTO(phone, meta), metadataService);
     enrichList(entity.getSchedules(), summary::setSchedules, (schedule, meta) -> scheduleMapper.toResponseDTO(schedule, meta), metadataService);
@@ -285,7 +332,7 @@ public abstract class ServiceMapper {
     enrichList(entity.getContacts(), summary::setContacts, (contact, meta) -> contactMapper.toResponseDTO(contact, meta), metadataService);
     enrichList(entity.getFunding(), summary::setFunding, (funding, meta) -> fundingMapper.toResponseDTO(funding, meta), metadataService);
     enrichList(entity.getAdditionalUrls(), summary::setAdditionalUrls, (url, meta) -> urlMapper.toResponseDTO(url, meta), metadataService);
-
+    enrichList(entity.getCapacities(), summary::setCapacities, (cap, meta) -> serviceCapacityMapper.toResponseDTO(cap, meta), metadataService);
     return summary;
   }
 
@@ -307,15 +354,5 @@ public abstract class ServiceMapper {
           .collect(Collectors.toList());
       setter.accept(enriched);
     }
-  }
-
-  private void enrichMetadata(Service entity, ServiceDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
-        entity.getId(), SERVICE_RESOURCE_TYPE));
-  }
-
-  private void enrichMetadata(Service entity, ServiceDTO.Summary summary, MetadataService metadataService) {
-    summary.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
-        entity.getId(), SERVICE_RESOURCE_TYPE));
   }
 }

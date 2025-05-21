@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -36,6 +35,10 @@ public class Service {
   @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "organization_id")
   private Organization organization;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "program_id")
+  private Program program;
 
   @NotBlank
   @Column(name = "name")
@@ -139,6 +142,11 @@ public class Service {
   @JoinColumn(name = "service_id", referencedColumnName = "id")
   private List<Url> additionalUrls = new ArrayList<>();
 
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "service_id", referencedColumnName = "id")
+  private List<ServiceCapacity> capacities = new ArrayList<>();
+
+
   public void setMetadata(MetadataRepository metadataRepository, String updatedBy) {
     if (this.getId() == null) {
       this.setId(UUID.randomUUID().toString());
@@ -163,6 +171,7 @@ public class Service {
     this.getRequiredDocuments().forEach(requiredDocument -> requiredDocument.setMetadata(metadataRepository, updatedBy));
     this.getContacts().forEach(contact -> contact.setMetadata(metadataRepository, updatedBy));
     this.getAdditionalUrls().forEach(url -> url.setMetadata(metadataRepository, updatedBy));
+    this.getCapacities().forEach(capacity -> capacity.setMetadata(metadataRepository, updatedBy));
   }
 
   @PrePersist

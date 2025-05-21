@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.ADDRESS_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.AddressDTO;
 import com.sarapis.orservice.model.Address;
@@ -27,15 +28,14 @@ public interface AddressMapper {
 
   default AddressDTO.Response toResponseDTO(Address entity, MetadataService metadataService) {
     AddressDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(Address address, AddressDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            address.getId(), ADDRESS_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Address::getId,
+        AddressDTO.Response::setMetadata,
+        ADDRESS_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

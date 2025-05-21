@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.CONTACT_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
@@ -52,7 +53,14 @@ public abstract class ContactMapper {
 
   public ContactDTO.Response toResponseDTO(Contact entity, MetadataService metadataService) {
     ContactDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Contact::getId,
+        ContactDTO.Response::setMetadata,
+        CONTACT_RESOURCE_TYPE,
+        metadataService
+    );
     if (entity.getPhones() != null) {
       List<PhoneDTO.Response> enrichedPhones =
           entity.getPhones().stream()
@@ -60,13 +68,5 @@ public abstract class ContactMapper {
       response.setPhones(enrichedPhones);
     }
     return response;
-  }
-
-  protected void enrichMetadata(Contact contact, ContactDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            contact.getId(), CONTACT_RESOURCE_TYPE
-        )
-    );
   }
 }

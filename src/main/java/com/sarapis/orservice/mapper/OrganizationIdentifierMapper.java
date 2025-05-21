@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_IDENTIFIER_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 @Mapper(componentModel = "spring")
 public interface OrganizationIdentifierMapper {
@@ -19,14 +21,14 @@ public interface OrganizationIdentifierMapper {
 
   default OrganizationIdentifierDTO.Response toResponseDTO(OrganizationIdentifier entity, MetadataService metadataService) {
     OrganizationIdentifierDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-  default void enrichMetadata(OrganizationIdentifier identifier, OrganizationIdentifierDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            identifier.getId(), ORGANIZATION_IDENTIFIER_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        OrganizationIdentifier::getId,
+        OrganizationIdentifierDTO.Response::setMetadata,
+        ORGANIZATION_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

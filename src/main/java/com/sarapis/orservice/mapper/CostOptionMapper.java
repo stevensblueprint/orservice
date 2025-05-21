@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.COST_OPTION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.CostOptionDTO;
 import com.sarapis.orservice.model.CostOption;
@@ -30,16 +31,14 @@ public interface CostOptionMapper {
 
   default CostOptionDTO.Response toResponseDTO(CostOption entity, MetadataService metadataService) {
     CostOptionDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        CostOption::getId,
+        CostOptionDTO.Response::setMetadata,
+        COST_OPTION_RESOURCE_TYPE,
+        metadataService
+    );
     return response;
   }
-
-  default void enrichMetadata(CostOption costOption, CostOptionDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            costOption.getId(), COST_OPTION_RESOURCE_TYPE
-        )
-    );
-  }
-
 }

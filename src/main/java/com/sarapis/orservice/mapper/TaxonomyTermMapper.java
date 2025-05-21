@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.TAXONOMY_TERM_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.dto.TaxonomyTermDTO;
@@ -74,7 +75,14 @@ public abstract class TaxonomyTermMapper {
 
   public TaxonomyTermDTO.Response toResponseDTO(TaxonomyTerm entity, MetadataService metadataService) {
     TaxonomyTermDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        TaxonomyTerm::getId,
+        TaxonomyTermDTO.Response::setMetadata,
+        TAXONOMY_TERM_RESOURCE_TYPE,
+        metadataService
+    );
 
     if (entity.getTaxonomyDetail()!= null) {
       TaxonomyDTO.Response enrichedTaxonomyDetail =
@@ -82,13 +90,5 @@ public abstract class TaxonomyTermMapper {
       response.setTaxonomyDetail(enrichedTaxonomyDetail);
     }
     return response;
-  }
-
-  private void enrichMetadata(TaxonomyTerm taxonomyTerm, TaxonomyTermDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            taxonomyTerm.getId(), TAXONOMY_TERM_RESOURCE_TYPE
-        )
-    );
   }
 }

@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
@@ -105,7 +106,14 @@ public abstract class ServiceAtLocationMapper {
 
   public ServiceAtLocationDTO.Response toResponseDTO(ServiceAtLocation entity, MetadataService metadataService) {
     ServiceAtLocationDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        ServiceAtLocation::getId,
+        ServiceAtLocationDTO.Response::setMetadata,
+        SERVICE_AT_LOCATION_RESOURCE_TYPE,
+        metadataService
+    );
 
     if (entity.getContacts() != null) {
       List<ContactDTO.Response> enrichedContacts =
@@ -129,11 +137,5 @@ public abstract class ServiceAtLocationMapper {
     }
 
     return response;
-  }
-
-  private void enrichMetadata(ServiceAtLocation entity, ServiceAtLocationDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(entity.getId(), SERVICE_AT_LOCATION_RESOURCE_TYPE)
-    );
   }
 }

@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AREA_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceAreaDTO;
 import com.sarapis.orservice.model.ServiceArea;
@@ -29,16 +30,14 @@ public interface ServiceAreaMapper {
 
   default ServiceAreaDTO.Response toResponseDTO(ServiceArea entity, MetadataService metadataService) {
     ServiceAreaDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        ServiceArea::getId,
+        ServiceAreaDTO.Response::setMetadata,
+        SERVICE_AREA_RESOURCE_TYPE,
+        metadataService
+    );
     return response;
   }
-
-  default void enrichMetadata(ServiceArea serviceArea, ServiceAreaDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            serviceArea.getId(), SERVICE_AREA_RESOURCE_TYPE
-        )
-    );
-  }
-
 }
