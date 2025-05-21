@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.FundingDTO;
@@ -180,7 +181,14 @@ public abstract class OrganizationMapper {
 
   public OrganizationDTO.Response toResponseDTO(Organization entity, MetadataService metadataService, Boolean fullService) {
     OrganizationDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Organization::getId,
+        OrganizationDTO.Response::setMetadata,
+        ORGANIZATION_RESOURCE_TYPE,
+        metadataService
+    );
     if (entity.getOrganizationIdentifiers() != null) {
       List<OrganizationIdentifierDTO.Response> enrichedIdentifiers =
           entity.getOrganizationIdentifiers().stream()
@@ -246,13 +254,5 @@ public abstract class OrganizationMapper {
     }
 
     return response;
-  }
-
-  protected void enrichMetadata(Organization organization, @MappingTarget OrganizationDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            organization.getId(), ORGANIZATION_RESOURCE_TYPE
-        )
-    );
   }
 }

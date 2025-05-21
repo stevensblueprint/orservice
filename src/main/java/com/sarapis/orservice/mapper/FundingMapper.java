@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.FUNDING_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.FundingDTO;
 import com.sarapis.orservice.model.Funding;
@@ -33,16 +34,14 @@ public interface FundingMapper {
 
   default FundingDTO.Response toResponseDTO(Funding entity, MetadataService metadataService) {
     FundingDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Funding::getId,
+        FundingDTO.Response::setMetadata,
+        FUNDING_RESOURCE_TYPE,
+        metadataService
+    );
     return response;
   }
-
-  default void enrichMetadata(Funding funding, FundingDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            funding.getId(), FUNDING_RESOURCE_TYPE
-        )
-    );
-  }
-
 }

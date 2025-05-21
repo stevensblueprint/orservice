@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.TAXONOMY_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.TaxonomyDTO;
 import com.sarapis.orservice.model.Taxonomy;
@@ -14,15 +15,14 @@ public interface TaxonomyMapper {
 
   default  TaxonomyDTO.Response toResponseDTO(Taxonomy entity, MetadataService metadataService) {
     TaxonomyDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(Taxonomy taxonomy, TaxonomyDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            taxonomy.getId(), TAXONOMY_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Taxonomy::getId,
+        TaxonomyDTO.Response::setMetadata,
+        TAXONOMY_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

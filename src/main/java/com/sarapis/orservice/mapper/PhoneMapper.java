@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
@@ -70,7 +71,14 @@ public abstract class PhoneMapper {
 
   public PhoneDTO.Response toResponseDTO(Phone entity,  MetadataService metadataService) {
     PhoneDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Phone::getId,
+        PhoneDTO.Response::setMetadata,
+        PHONE_RESOURCE_TYPE,
+        metadataService
+    );
     if (entity.getLanguages()!= null) {
       List<LanguageDTO.Response> enrichedLanguages =
           entity.getLanguages().stream()
@@ -78,13 +86,5 @@ public abstract class PhoneMapper {
       response.setLanguages(enrichedLanguages);
     }
     return response;
-  }
-
-  protected void enrichMetadata(Phone phone, PhoneDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            phone.getId(), PHONE_RESOURCE_TYPE
-        )
-    );
   }
 }

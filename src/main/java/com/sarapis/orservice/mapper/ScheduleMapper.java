@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.SCHEDULE_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ScheduleDTO;
 import com.sarapis.orservice.model.Schedule;
@@ -38,15 +39,14 @@ public interface ScheduleMapper {
 
   default ScheduleDTO.Response toResponseDTO(Schedule entity, MetadataService metadataService) {
     ScheduleDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(Schedule schedule, ScheduleDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            schedule.getId(), SCHEDULE_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Schedule::getId,
+        ScheduleDTO.Response::setMetadata,
+        SCHEDULE_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

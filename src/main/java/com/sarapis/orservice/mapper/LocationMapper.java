@@ -2,6 +2,7 @@ package com.sarapis.orservice.mapper;
 
 
 import static com.sarapis.orservice.utils.MetadataUtils.LOCATION_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.dto.AddressDTO;
@@ -159,7 +160,15 @@ public abstract class LocationMapper {
 
   public LocationDTO.Response toResponseDTO(Location entity, MetadataService metadataService) {
     LocationDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Location::getId,
+        LocationDTO.Response::setMetadata,
+        LOCATION_RESOURCE_TYPE,
+        metadataService
+    );
+
     if (entity.getAccessibility() != null) {
       List<AccessibilityDTO.Response> enrichedAccessibility =
           entity.getAccessibility().stream()
@@ -205,11 +214,4 @@ public abstract class LocationMapper {
     return response;
   }
 
-  protected void enrichMetadata(Location location, LocationDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            location.getId(), LOCATION_RESOURCE_TYPE
-        )
-    );
-  }
 }

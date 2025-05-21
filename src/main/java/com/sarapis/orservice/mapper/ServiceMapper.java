@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceDTO;
 import com.sarapis.orservice.dto.ServiceDTO.Response;
@@ -266,7 +267,14 @@ public abstract class ServiceMapper {
 
   public ServiceDTO.Response toResponseDTO(Service entity, MetadataService metadataService) {
     Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
+    enrich(
+        entity,
+        response,
+        Service::getId,
+        Response::setMetadata,
+        SERVICE_RESOURCE_TYPE,
+        metadataService
+    );
 
     enrichList(entity.getPhones(), response::setPhones, (phone, meta) -> phoneMapper.toResponseDTO(phone, meta), metadataService);
     enrichList(entity.getSchedules(), response::setSchedules, (schedule, meta) -> scheduleMapper.toResponseDTO(schedule, meta), metadataService);
@@ -284,7 +292,14 @@ public abstract class ServiceMapper {
 
   public ServiceDTO.Summary toSummaryDTO(Service entity, MetadataService metadataService) {
     Summary summary = toSummaryDTO(entity);
-    enrichMetadata(entity, summary, metadataService);
+    enrich(
+        entity,
+        summary,
+        Service::getId,
+        Summary::setMetadata,
+        SERVICE_RESOURCE_TYPE,
+        metadataService
+    );
 
     enrichList(entity.getPhones(), summary::setPhones, (phone, meta) -> phoneMapper.toResponseDTO(phone, meta), metadataService);
     enrichList(entity.getSchedules(), summary::setSchedules, (schedule, meta) -> scheduleMapper.toResponseDTO(schedule, meta), metadataService);
@@ -317,15 +332,5 @@ public abstract class ServiceMapper {
           .collect(Collectors.toList());
       setter.accept(enriched);
     }
-  }
-
-  private void enrichMetadata(Service entity, ServiceDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
-        entity.getId(), SERVICE_RESOURCE_TYPE));
-  }
-
-  private void enrichMetadata(Service entity, ServiceDTO.Summary summary, MetadataService metadataService) {
-    summary.setMetadata(metadataService.getMetadataByResourceIdAndResourceType(
-        entity.getId(), SERVICE_RESOURCE_TYPE));
   }
 }

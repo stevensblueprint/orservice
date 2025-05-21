@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.REQUIRED_DOCUMENT_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.RequiredDocumentDTO;
 import com.sarapis.orservice.model.RequiredDocument;
@@ -27,15 +28,14 @@ public interface RequiredDocumentMapper {
 
   default RequiredDocumentDTO.Response toResponseDTO(RequiredDocument entity, MetadataService metadataService) {
     RequiredDocumentDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(RequiredDocument requiredDocument, RequiredDocumentDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            requiredDocument.getId(), REQUIRED_DOCUMENT_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        RequiredDocument::getId,
+        RequiredDocumentDTO.Response::setMetadata,
+        REQUIRED_DOCUMENT_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

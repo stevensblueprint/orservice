@@ -2,6 +2,7 @@ package com.sarapis.orservice.mapper;
 
 
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_CAPACITY_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceCapacityDTO;
 import com.sarapis.orservice.model.ServiceCapacity;
@@ -28,15 +29,14 @@ public interface ServiceCapacityMapper {
 
   default ServiceCapacityDTO.Response toResponseDTO(ServiceCapacity entity, MetadataService metadataService) {
     ServiceCapacityDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(ServiceCapacity serviceCapacity, ServiceCapacityDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            serviceCapacity.getId(), SERVICE_CAPACITY_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        ServiceCapacity::getId,
+        ServiceCapacityDTO.Response::setMetadata,
+        SERVICE_CAPACITY_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

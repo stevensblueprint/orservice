@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.ACCESSIBILITY_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.AccessibilityDTO;
 import com.sarapis.orservice.model.Accessibility;
@@ -27,15 +28,14 @@ public interface AccessibilityMapper {
 
   default AccessibilityDTO.Response toResponseDTO(Accessibility entity, MetadataService metadataService) {
     AccessibilityDTO.Response response = toResponseDTO(entity);
-    enrichAccessibility(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichAccessibility(Accessibility accessibility, AccessibilityDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            accessibility.getId(), ACCESSIBILITY_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Accessibility::getId,
+        AccessibilityDTO.Response::setMetadata,
+        ACCESSIBILITY_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

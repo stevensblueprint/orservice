@@ -1,6 +1,7 @@
 package com.sarapis.orservice.mapper;
 
 import static com.sarapis.orservice.utils.MetadataUtils.URL_RESOURCE_TYPE;
+import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.UrlDTO;
 import com.sarapis.orservice.model.Url;
@@ -32,15 +33,14 @@ public interface UrlMapper {
 
   default UrlDTO.Response toResponseDTO(Url entity, MetadataService metadataService) {
     UrlDTO.Response response = toResponseDTO(entity);
-    enrichMetadata(entity, response, metadataService);
-    return response;
-  }
-
-  default void enrichMetadata(Url url, UrlDTO.Response response, MetadataService metadataService) {
-    response.setMetadata(
-        metadataService.getMetadataByResourceIdAndResourceType(
-            url.getId(), URL_RESOURCE_TYPE
-        )
+    enrich(
+        entity,
+        response,
+        Url::getId,
+        UrlDTO.Response::setMetadata,
+        URL_RESOURCE_TYPE,
+        metadataService
     );
+    return response;
   }
 }

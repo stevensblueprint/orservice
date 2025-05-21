@@ -3,8 +3,11 @@ package com.sarapis.orservice.utils;
 import static com.sarapis.orservice.utils.MetadataType.CREATE;
 import static com.sarapis.orservice.utils.MetadataType.UPDATE;
 
+import com.sarapis.orservice.dto.MetadataDTO;
 import com.sarapis.orservice.model.Metadata;
 import com.sarapis.orservice.repository.MetadataRepository;
+import com.sarapis.orservice.service.MetadataService;
+import java.util.function.Function;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.lang.reflect.Field;
@@ -160,5 +163,20 @@ public class MetadataUtils {
       throw new RuntimeException("Error accessing entity fields", e);
     }
     return metadataEntries;
+  }
+
+  public static <T, R> void enrich(
+      T resource,
+      R response,
+      Function<T, String> idExtractor,
+      BiConsumer<R, List<MetadataDTO.Response>> metadataSetter,
+      String resourceType,
+      MetadataService metadataService) {
+    List<MetadataDTO.Response> md = metadataService
+        .getMetadataByResourceIdAndResourceType(
+            idExtractor.apply(resource),
+            resourceType
+        );
+    metadataSetter.accept(response, md);
   }
 }
