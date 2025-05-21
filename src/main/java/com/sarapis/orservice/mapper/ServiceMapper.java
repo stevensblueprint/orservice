@@ -22,6 +22,7 @@ import com.sarapis.orservice.repository.FundingRepository;
 import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
+import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.RequiredDocumentRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
 import com.sarapis.orservice.repository.ServiceAreaRepository;
@@ -93,6 +94,9 @@ public abstract class ServiceMapper {
 
   @Autowired
   private OrganizationRepository organizationRepository;
+
+  @Autowired
+  private ProgramRepository programRepository;
 
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract Response toResponseDTO(Service entity);
@@ -249,6 +253,12 @@ public abstract class ServiceMapper {
     if (service.getOrganization().getId() != null) {
       service.setOrganization(organizationRepository.findById(service.getOrganization().getId()).orElseThrow(
           () -> new IllegalArgumentException("Organization not found for service with ID: " + service.getOrganization().getId())
+      ));
+    }
+
+    if (service.getProgram().getId() != null) {
+      service.setProgram(programRepository.findById(service.getProgram().getId()).orElseThrow(
+          () -> new IllegalArgumentException("Program not found for service with ID: " + service.getProgram().getId())
       ));
     }
     return service;

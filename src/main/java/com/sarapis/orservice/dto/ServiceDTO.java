@@ -265,6 +265,7 @@ public class ServiceDTO {
       ServiceDTO.Request service = Request.builder()
         .id(csvRecord.get("id"))
         .organization(OrganizationDTO.Request.builder().id(csvRecord.get("organization_id")).build())
+        .program(ProgramDTO.Request.builder().id(csvRecord.get("program_id")).build())
         .name(csvRecord.get("name"))
         .alternateName(csvRecord.get("alternate_name"))
         .description(csvRecord.get("description"))
