@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class Organization extends BaseResource {
   @NotBlank
   @Column(name = "name")
   private String name;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "parent_organization_id")
+  private Organization parentOrganization;
 
   @Column(name = "alternate_name")
   private String alternateName;

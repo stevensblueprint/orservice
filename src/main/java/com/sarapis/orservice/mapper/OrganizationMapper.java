@@ -24,6 +24,7 @@ import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.FundingRepository;
 import com.sarapis.orservice.repository.LocationRepository;
 import com.sarapis.orservice.repository.OrganizationIdentifierRepository;
+import com.sarapis.orservice.repository.OrganizationRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
 import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,8 +82,25 @@ public abstract class OrganizationMapper {
   @Autowired
   private ServiceRepository serviceRepository;
 
+  @Autowired
+  private OrganizationRepository organizationRepository;
+
+  @Mapping(target = "parentOrganization.id", source = "parentOrganizationId")
   public abstract Organization toEntity(OrganizationDTO.Request dto);
+  @Mapping(target = "parentOrganizationId", source = "parentOrganization.id")
   public abstract OrganizationDTO.Response toResponseDTO(Organization entity);
+
+  @AfterMapping
+  public Organization toEntity(@MappingTarget Organization organization) {
+    if (organization.getParentOrganization().getId() != null) {
+      organization.setParentOrganization(
+          organizationRepository.findById(organization.getParentOrganization().getId()).orElseThrow(
+              () -> new IllegalArgumentException("Parent Organization not found for organization with ID: " + organization.getId())
+          )
+      );
+    }
+    return organization;
+  }
 
   @AfterMapping
   protected void setRelations(@MappingTarget Organization organization) {
