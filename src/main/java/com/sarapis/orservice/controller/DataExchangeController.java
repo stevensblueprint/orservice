@@ -6,8 +6,10 @@ import com.sarapis.orservice.service.DataExchangeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +25,23 @@ public class DataExchangeController {
 
   @GetMapping
   public ResponseEntity<PaginationDTO<DataExchangeDTO.Response>> getAllExchanges(
-    @RequestParam(name = "user_id") String userId,
+      @RequestParam(name = "from_date", required = false)
+      @DateTimeFormat(iso = ISO.DATE_TIME)
+      LocalDateTime fromDate,
+      @RequestParam(name = "to_date", required = false)
+      @DateTimeFormat(iso = ISO.DATE_TIME)
+      LocalDateTime toDate,
+      @RequestParam(name = "page", defaultValue = "0") Integer page,
+      @RequestParam(name = "per_page", defaultValue = "10") Integer perPage
+  ) {
+    PaginationDTO<DataExchangeDTO.Response> exchanges = dataExchangeService
+        .getAllDataExchanges(fromDate, toDate, page, perPage);
+    return ResponseEntity.ok(exchanges);
+  }
+
+  @GetMapping("/{user_id}")
+  public ResponseEntity<PaginationDTO<DataExchangeDTO.Response>> getAllExchangesByUserId(
+    @PathVariable(name = "user_id") String userId,
     @RequestParam(name = "from_date", required = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     LocalDateTime fromDate,
