@@ -21,6 +21,7 @@ public class RequiredDocumentDTO {
     private String serviceId;
     private String document;
     private String uri;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

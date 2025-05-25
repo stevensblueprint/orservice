@@ -22,6 +22,7 @@ public class FundingDTO {
     private String source;
     private String organizationId;
     private String serviceId;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

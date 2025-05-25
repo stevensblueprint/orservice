@@ -25,6 +25,7 @@ public class LanguageDTO {
     private String name;
     private String code;
     private String note;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

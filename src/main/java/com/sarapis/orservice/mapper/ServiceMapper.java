@@ -1,5 +1,8 @@
 package com.sarapis.orservice.mapper;
 
+import static com.sarapis.orservice.utils.AttributeUtils.SERVICE_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
@@ -20,6 +23,7 @@ import com.sarapis.orservice.model.ServiceArea;
 import com.sarapis.orservice.model.ServiceAtLocation;
 import com.sarapis.orservice.model.ServiceCapacity;
 import com.sarapis.orservice.model.Url;
+import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.CostOptionRepository;
 import com.sarapis.orservice.repository.FundingRepository;
@@ -33,6 +37,7 @@ import com.sarapis.orservice.repository.ServiceAreaRepository;
 import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceCapacityRepository;
 import com.sarapis.orservice.repository.UrlRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -110,6 +115,13 @@ public abstract class ServiceMapper {
 
   @Autowired
   private ProgramRepository programRepository;
+
+  @Autowired
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
 
   public abstract Service toEntity(ServiceDTO.Request dto);
   public abstract Response toResponseDTO(Service entity);
@@ -276,7 +288,7 @@ public abstract class ServiceMapper {
   }
 
   @AfterMapping
-  public Service toEntity(@MappingTarget Service service) {
+  public Service toEntity(ServiceDTO.Request dto, @MappingTarget Service service) {
     Optional.ofNullable(service.getOrganization())
         .map(Organization::getId)
         .ifPresent(orgId -> {
@@ -293,6 +305,12 @@ public abstract class ServiceMapper {
           service.setProgram(program);
         });
 
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        SERVICE_LINK_TYPE
+    );
     return service;
   }
 
@@ -305,6 +323,14 @@ public abstract class ServiceMapper {
         Response::setMetadata,
         SERVICE_RESOURCE_TYPE,
         metadataService
+    );
+    enrichAttributes(
+        entity,
+        response,
+        Service::getId,
+        Response::setAttributes,
+        SERVICE_LINK_TYPE,
+        attributeService
     );
 
     enrichList(entity.getPhones(), response::setPhones, (phone, meta) -> phoneMapper.toResponseDTO(phone, meta), metadataService);

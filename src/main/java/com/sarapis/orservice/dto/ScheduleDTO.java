@@ -49,6 +49,7 @@ public class ScheduleDTO {
     private String scheduleLink;
     private String attendingType;
     private String notes;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

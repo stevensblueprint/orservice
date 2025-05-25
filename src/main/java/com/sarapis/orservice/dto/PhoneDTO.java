@@ -32,6 +32,7 @@ public class PhoneDTO {
     private String type;
     private String description;
     private List<LanguageDTO.Request> languages;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Getter

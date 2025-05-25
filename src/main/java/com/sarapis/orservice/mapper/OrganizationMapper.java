@@ -1,5 +1,8 @@
 package com.sarapis.orservice.mapper;
 
+import static com.sarapis.orservice.utils.AttributeUtils.ORGANIZATION_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.ORGANIZATION_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
@@ -20,6 +23,7 @@ import com.sarapis.orservice.model.OrganizationIdentifier;
 import com.sarapis.orservice.model.Phone;
 import com.sarapis.orservice.model.Program;
 import com.sarapis.orservice.model.Url;
+import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.FundingRepository;
 import com.sarapis.orservice.repository.LocationRepository;
@@ -29,11 +33,13 @@ import com.sarapis.orservice.repository.PhoneRepository;
 import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.UrlRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.aspectj.weaver.ast.Or;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -81,8 +87,13 @@ public abstract class OrganizationMapper {
 
   @Autowired
   private ServiceMapper serviceMapper;
+
   @Autowired
-  private ServiceRepository serviceRepository;
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
 
   @Autowired
   private OrganizationRepository organizationRepository;
@@ -93,7 +104,7 @@ public abstract class OrganizationMapper {
   public abstract OrganizationDTO.Response toResponseDTO(Organization entity);
 
   @AfterMapping
-  public Organization toEntity(@MappingTarget Organization organization) {
+  public Organization toEntity(OrganizationDTO.Request dto, @MappingTarget Organization organization) {
     Optional.ofNullable(organization.getParentOrganization())
         .map(Organization::getId)
         .ifPresent(orgId -> {
@@ -101,7 +112,26 @@ public abstract class OrganizationMapper {
               .orElseThrow(() -> new EntityNotFoundException("Organization not found with ID " + orgId));
           organization.setParentOrganization(org);
         });
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        ORGANIZATION_LINK_TYPE
+    );
     return organization;
+  }
+
+  @AfterMapping
+  public OrganizationDTO.Response toResponseDTO(Organization entity, @MappingTarget OrganizationDTO.Response response) {
+    enrichAttributes(
+        entity,
+        response,
+        Organization::getId,
+        OrganizationDTO.Response::setAttributes,
+        ORGANIZATION_LINK_TYPE,
+        attributeService
+    );
+    return response;
   }
 
   @AfterMapping

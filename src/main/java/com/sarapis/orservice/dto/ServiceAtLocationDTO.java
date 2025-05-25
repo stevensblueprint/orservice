@@ -51,6 +51,9 @@ public class ServiceAtLocationDTO {
 
     @Builder.Default
     private List<ServiceAreaDTO.Request> serviceAreas = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Request> attributes = new ArrayList<>();
   }
 
   @Setter

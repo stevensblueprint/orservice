@@ -25,6 +25,7 @@ public class ServiceAreaDTO {
     private String extent;
     private String extentType;
     private String uri;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Getter

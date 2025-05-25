@@ -109,6 +109,9 @@ public class ServiceDTO {
 
     @Builder.Default
     private List<ServiceCapacityDTO.Request> capacities = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Request> attributes = new ArrayList<>();
   }
 
   @Getter

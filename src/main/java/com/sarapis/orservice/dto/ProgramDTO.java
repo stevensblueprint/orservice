@@ -23,6 +23,7 @@ public class ProgramDTO {
     private String name;
     private String alternateName;
     private String description;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

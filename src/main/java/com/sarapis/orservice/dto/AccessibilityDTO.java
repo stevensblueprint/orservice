@@ -26,6 +26,7 @@ public class AccessibilityDTO {
     private String details;
     @ValidUrl
     private String url;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Getter

@@ -1,5 +1,9 @@
 package com.sarapis.orservice.mapper;
 
+import static com.sarapis.orservice.utils.AttributeUtils.SERVICE_AREA_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.SERVICE_AT_LOCATION_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_AT_LOCATION_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
@@ -11,10 +15,12 @@ import com.sarapis.orservice.model.Contact;
 import com.sarapis.orservice.model.Phone;
 import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.model.ServiceAtLocation;
+import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -47,9 +53,26 @@ public abstract class ServiceAtLocationMapper {
   @Autowired
   private ScheduleMapper scheduleMapper;
 
+  @Autowired
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
+
 
   public abstract ServiceAtLocation toEntity(ServiceAtLocationDTO.Request dto);
   public abstract ServiceAtLocationDTO.Response toResponseDTO(ServiceAtLocation entity);
+
+  @AfterMapping
+  protected void toEntity(ServiceAtLocationDTO.Request dto, @MappingTarget ServiceAtLocation entity) {
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        SERVICE_AT_LOCATION_LINK_TYPE
+    );
+  }
 
   @AfterMapping
   protected void setRelations(@MappingTarget ServiceAtLocation serviceAtLocation) {
@@ -113,6 +136,14 @@ public abstract class ServiceAtLocationMapper {
         ServiceAtLocationDTO.Response::setMetadata,
         SERVICE_AT_LOCATION_RESOURCE_TYPE,
         metadataService
+    );
+    enrichAttributes(
+        entity,
+        response,
+        ServiceAtLocation::getId,
+        ServiceAtLocationDTO.Response::setAttributes,
+        SERVICE_AT_LOCATION_LINK_TYPE,
+        attributeService
     );
 
     if (entity.getContacts() != null) {
