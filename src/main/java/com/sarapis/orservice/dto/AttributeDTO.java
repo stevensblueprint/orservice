@@ -23,10 +23,6 @@ public class AttributeDTO {
     private String id;
 
     private String linkId;
-
-    @NotNull(message = "Taxonomy Term is Required")
-    private String taxonomyTermId;
-
     private String linkType;
 
     @NotNull(message = "Link entity is required")
@@ -35,6 +31,7 @@ public class AttributeDTO {
     private String value;
 
     private String label;
+    private TaxonomyTermDTO.Request taxonomyTerm;
   }
 
   @Setter

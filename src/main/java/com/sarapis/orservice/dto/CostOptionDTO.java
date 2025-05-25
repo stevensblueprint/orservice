@@ -25,6 +25,7 @@ public class CostOptionDTO {
     private String currency;
     private Integer amount;
     private String amountDescription;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

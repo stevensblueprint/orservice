@@ -39,6 +39,7 @@ public class AddressDTO {
     private String country;
     @NotBlank
     private String addressType;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Getter

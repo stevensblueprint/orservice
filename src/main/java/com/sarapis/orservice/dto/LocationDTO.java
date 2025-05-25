@@ -73,6 +73,9 @@ public class LocationDTO {
 
     @Builder.Default
     private List<ScheduleDTO.Request> schedules = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Request> attributes = new ArrayList<>();
   }
 
   @Setter

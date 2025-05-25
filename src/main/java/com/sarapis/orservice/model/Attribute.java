@@ -20,9 +20,6 @@ public class Attribute {
   @Column(name = "link_id", nullable = false)
   private String linkId;
 
-  @Column(name = "taxonomy_term_id", nullable = false)
-  private String taxonomyTermId;
-
   @Column(name = "link_type")
   private String linkType;
 

@@ -31,6 +31,7 @@ public class ContactDTO {
     private String serviceAtLocationId;
     private String locationId;
     private List<PhoneDTO.Request> phones;
+    private List<AttributeDTO.Request> attributes;
   }
 
 
