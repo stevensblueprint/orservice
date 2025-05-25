@@ -5,10 +5,14 @@ import static com.sarapis.orservice.utils.MetadataUtils.SERVICE_CAPACITY_RESOURC
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ServiceCapacityDTO;
+import com.sarapis.orservice.model.Service;
 import com.sarapis.orservice.model.ServiceCapacity;
+import com.sarapis.orservice.model.Unit;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.UnitRepository;
 import com.sarapis.orservice.service.MetadataService;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -30,21 +34,20 @@ public abstract class ServiceCapacityMapper {
 
   @AfterMapping
   public ServiceCapacity toEntity(@MappingTarget ServiceCapacity entity) {
-    if (entity.getService().getId() != null) {
-      entity.setService(
-          serviceRepository.findById(entity.getService().getId()).orElseThrow(
-              () -> new IllegalArgumentException("Organization not found for service capacity with ID: " + entity.getId())
-          )
-      );
-    }
-
-    if (entity.getUnit().getId() != null) {
-      entity.setUnit(
-          unitRepository.findById(entity.getUnit().getId()).orElseThrow(
-              () -> new IllegalArgumentException("Unit not found for service capacity with ID: " + entity.getId())
-          )
-      );
-    }
+    Optional.ofNullable(entity.getService())
+        .map(Service::getId)
+        .ifPresent(serviceId -> {
+          Service service = serviceRepository.findById(serviceId)
+              .orElseThrow(() -> new EntityNotFoundException("Service not found with ID: " + serviceId));
+          entity.setService(service);
+        });
+    Optional.ofNullable(entity.getUnit())
+        .map(Unit::getId)
+        .ifPresent(unitId -> {
+          Unit unit = unitRepository.findById(unitId)
+              .orElseThrow(() -> new EntityNotFoundException("Unit not found with ID: " + unitId));
+          entity.setUnit(unit);
+        });
     return entity;
   }
 
