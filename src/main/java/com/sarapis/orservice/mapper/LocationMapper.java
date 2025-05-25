@@ -1,6 +1,9 @@
 package com.sarapis.orservice.mapper;
 
 
+import static com.sarapis.orservice.utils.AttributeUtils.LOCATION_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.LOCATION_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
@@ -20,10 +23,12 @@ import com.sarapis.orservice.model.Phone;
 import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.repository.AccessibilityRepository;
 import com.sarapis.orservice.repository.AddressRepository;
+import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.ContactRepository;
 import com.sarapis.orservice.repository.LanguageRepository;
 import com.sarapis.orservice.repository.PhoneRepository;
 import com.sarapis.orservice.repository.ScheduleRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -64,6 +69,13 @@ public abstract class LocationMapper {
   private ScheduleMapper scheduleMapper;
   @Autowired
   private ScheduleRepository scheduleRepository;
+
+  @Autowired
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
 
 
   @Mapping(target = "organization.id", source = "organizationId")
@@ -156,6 +168,13 @@ public abstract class LocationMapper {
           .peek(schedule -> schedule.setLocation(entity)).toList();
       entity.setSchedules(managedSchedules);
     }
+
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        LOCATION_LINK_TYPE
+    );
   }
 
   public LocationDTO.Response toResponseDTO(Location entity, MetadataService metadataService) {
@@ -167,6 +186,14 @@ public abstract class LocationMapper {
         LocationDTO.Response::setMetadata,
         LOCATION_RESOURCE_TYPE,
         metadataService
+    );
+    enrichAttributes(
+        entity,
+        response,
+        Location::getId,
+        LocationDTO.Response::setAttributes,
+        LOCATION_LINK_TYPE,
+        attributeService
     );
 
     if (entity.getAccessibility() != null) {

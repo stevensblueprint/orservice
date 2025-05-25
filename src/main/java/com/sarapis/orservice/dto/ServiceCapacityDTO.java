@@ -35,6 +35,7 @@ public class ServiceCapacityDTO {
     private String description;
     private LocalDate updated;
     private String serviceId;
+    private List<AttributeDTO.Request> attributes;
   }
   @Getter
   @Setter

@@ -1,11 +1,16 @@
 package com.sarapis.orservice.mapper;
 
+import static com.sarapis.orservice.utils.AttributeUtils.CONTACT_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.CONTACT_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
 import com.sarapis.orservice.dto.ContactDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.model.Contact;
+import com.sarapis.orservice.repository.AttributeRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -18,6 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class ContactMapper {
   @Autowired
   private PhoneMapper phoneMapper;
+  @Autowired
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
 
   @Mapping(target = "organization.id", source = "organizationId")
   @Mapping(target = "service.id", source = "serviceId")
@@ -49,6 +60,12 @@ public abstract class ContactMapper {
     if (entity.getPhones() != null) {
       entity.getPhones().forEach(phone -> phone.setContact(entity));
     }
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        CONTACT_LINK_TYPE
+    );
   }
 
   public ContactDTO.Response toResponseDTO(Contact entity, MetadataService metadataService) {
@@ -60,6 +77,14 @@ public abstract class ContactMapper {
         ContactDTO.Response::setMetadata,
         CONTACT_RESOURCE_TYPE,
         metadataService
+    );
+    enrichAttributes(
+        entity,
+        response,
+        Contact::getId,
+        ContactDTO.Response::setAttributes,
+        CONTACT_LINK_TYPE,
+        attributeService
     );
     if (entity.getPhones() != null) {
       List<PhoneDTO.Response> enrichedPhones =

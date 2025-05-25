@@ -86,6 +86,9 @@ public class OrganizationDTO {
 
     @Builder.Default
     private List<OrganizationIdentifierDTO.Request> organizationIdentifiers = new ArrayList<>();
+
+    @Builder.Default
+    private List<AttributeDTO.Request> attributes = new ArrayList<>();
   }
 
   @Getter

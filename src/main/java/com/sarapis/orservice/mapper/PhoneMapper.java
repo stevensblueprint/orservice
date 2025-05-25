@@ -1,5 +1,8 @@
 package com.sarapis.orservice.mapper;
 
+import static com.sarapis.orservice.utils.AttributeUtils.PHONE_LINK_TYPE;
+import static com.sarapis.orservice.utils.AttributeUtils.enrichAttributes;
+import static com.sarapis.orservice.utils.AttributeUtils.saveAttributes;
 import static com.sarapis.orservice.utils.MetadataUtils.PHONE_RESOURCE_TYPE;
 import static com.sarapis.orservice.utils.MetadataUtils.enrich;
 
@@ -7,7 +10,9 @@ import com.sarapis.orservice.dto.LanguageDTO;
 import com.sarapis.orservice.dto.PhoneDTO;
 import com.sarapis.orservice.model.Language;
 import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.repository.AttributeRepository;
 import com.sarapis.orservice.repository.LanguageRepository;
+import com.sarapis.orservice.service.AttributeService;
 import com.sarapis.orservice.service.MetadataService;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -22,6 +27,13 @@ public abstract class PhoneMapper {
   private LanguageMapper languageMapper;
   @Autowired
   private LanguageRepository languageRepository;
+
+  @Autowired
+  private AttributeRepository attributeRepository;
+  @Autowired
+  private AttributeMapper attributeMapper;
+  @Autowired
+  private AttributeService attributeService;
 
 
   @Mapping(target = "organization.id", source = "organizationId")
@@ -67,6 +79,12 @@ public abstract class PhoneMapper {
          .peek(language -> language.setPhone(entity)).toList();
       entity.setLanguages(managedLanguages);
     }
+    saveAttributes(
+        attributeRepository,
+        attributeMapper,
+        dto.getAttributes(),
+        PHONE_LINK_TYPE
+    );
   }
 
   public PhoneDTO.Response toResponseDTO(Phone entity,  MetadataService metadataService) {
@@ -79,6 +97,15 @@ public abstract class PhoneMapper {
         PHONE_RESOURCE_TYPE,
         metadataService
     );
+    enrichAttributes(
+        entity,
+        response,
+        Phone::getId,
+        PhoneDTO.Response::setAttributes,
+        PHONE_LINK_TYPE,
+        attributeService
+    );
+
     if (entity.getLanguages()!= null) {
       List<LanguageDTO.Response> enrichedLanguages =
           entity.getLanguages().stream()

@@ -24,6 +24,7 @@ public class OrganizationIdentifierDTO {
     private String identifierScheme;
     private String identifierType;
     private String identifier;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Setter

@@ -22,6 +22,7 @@ public class UnitDTO {
     private String scheme;
     private String identifier;
     private String uri;
+    private List<AttributeDTO.Request> attributes;
   }
 
   @Getter
