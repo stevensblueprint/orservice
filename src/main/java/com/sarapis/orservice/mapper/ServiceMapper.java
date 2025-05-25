@@ -10,7 +10,9 @@ import com.sarapis.orservice.model.Contact;
 import com.sarapis.orservice.model.CostOption;
 import com.sarapis.orservice.model.Funding;
 import com.sarapis.orservice.model.Language;
+import com.sarapis.orservice.model.Organization;
 import com.sarapis.orservice.model.Phone;
+import com.sarapis.orservice.model.Program;
 import com.sarapis.orservice.model.RequiredDocument;
 import com.sarapis.orservice.model.Schedule;
 import com.sarapis.orservice.model.Service;
@@ -32,7 +34,10 @@ import com.sarapis.orservice.repository.ServiceAtLocationRepository;
 import com.sarapis.orservice.repository.ServiceCapacityRepository;
 import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.service.MetadataService;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -272,17 +277,22 @@ public abstract class ServiceMapper {
 
   @AfterMapping
   public Service toEntity(@MappingTarget Service service) {
-    if (service.getOrganization().getId() != null) {
-      service.setOrganization(organizationRepository.findById(service.getOrganization().getId()).orElseThrow(
-          () -> new IllegalArgumentException("Organization not found for service with ID: " + service.getOrganization().getId())
-      ));
-    }
+    Optional.ofNullable(service.getOrganization())
+        .map(Organization::getId)
+        .ifPresent(orgId -> {
+          Organization org = organizationRepository.findById(orgId)
+              .orElseThrow(() -> new EntityNotFoundException("Organization not found with ID: " + orgId));
+          service.setOrganization(org);
+        });
 
-    if (service.getProgram().getId() != null) {
-      service.setProgram(programRepository.findById(service.getProgram().getId()).orElseThrow(
-          () -> new IllegalArgumentException("Program not found for service with ID: " + service.getProgram().getId())
-      ));
-    }
+    Optional.ofNullable(service.getProgram())
+        .map(Program::getId)
+        .ifPresent(progId -> {
+          Program program = programRepository.findById(progId)
+              .orElseThrow(() -> new EntityNotFoundException("Program not found with ID: " + progId));
+          service.setProgram(program);
+        });
+
     return service;
   }
 

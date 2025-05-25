@@ -30,7 +30,9 @@ import com.sarapis.orservice.repository.ProgramRepository;
 import com.sarapis.orservice.repository.ServiceRepository;
 import com.sarapis.orservice.repository.UrlRepository;
 import com.sarapis.orservice.service.MetadataService;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -92,13 +94,13 @@ public abstract class OrganizationMapper {
 
   @AfterMapping
   public Organization toEntity(@MappingTarget Organization organization) {
-    if (organization.getParentOrganization().getId() != null) {
-      organization.setParentOrganization(
-          organizationRepository.findById(organization.getParentOrganization().getId()).orElseThrow(
-              () -> new IllegalArgumentException("Parent Organization not found for organization with ID: " + organization.getId())
-          )
-      );
-    }
+    Optional.ofNullable(organization.getParentOrganization())
+        .map(Organization::getId)
+        .ifPresent(orgId -> {
+          Organization org = organizationRepository.findById(orgId)
+              .orElseThrow(() -> new EntityNotFoundException("Organization not found with ID " + orgId));
+          organization.setParentOrganization(org);
+        });
     return organization;
   }
 
