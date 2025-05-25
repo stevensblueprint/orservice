@@ -1,6 +1,7 @@
 package com.sarapis.orservice.service;
 
 import com.sarapis.orservice.dto.DataExchangeDTO;
+import com.sarapis.orservice.dto.DataExchangeDTO.Response;
 import com.sarapis.orservice.dto.DataExchangeFileDTO;
 import com.sarapis.orservice.dto.PaginationDTO;
 import com.sarapis.orservice.exceptions.ResourceNotFoundException;
@@ -17,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +63,27 @@ public class DataExchangeServiceImpl implements DataExchangeService {
   ) {
     PageRequest pageable = PageRequest.of(page, perPage);
     Page<DataExchange> exchangePage = dataExchangeRepository.findDataExchanges(userId, fromDate, toDate, pageable);
+    Page<DataExchangeDTO.Response> dtoPage = exchangePage.map(dataExchangeMapper::toResponseDTO);
+    return PaginationDTO.fromPage(dtoPage);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public PaginationDTO<Response> getAllDataExchanges(LocalDateTime fromDate, LocalDateTime toDate,
+      Integer page, Integer perPage) {
+    Specification<DataExchange> spec = Specification.where(null);
+    if (fromDate != null) {
+      spec = spec.and(((root, query, criteriaBuilder) ->
+          criteriaBuilder.greaterThanOrEqualTo(root.get("timestamp"), fromDate)));
+    }
+
+    if (toDate != null) {
+      spec = spec.and(((root, query, criteriaBuilder) ->
+          criteriaBuilder.lessThanOrEqualTo(root.get("timestamp"), toDate)));
+    }
+    PageRequest pageable = PageRequest.of(page, perPage, Sort.by(Direction.DESC, "timestamp"));
+    Page<DataExchange> exchangePage = dataExchangeRepository
+        .findAll(spec, pageable);
     Page<DataExchangeDTO.Response> dtoPage = exchangePage.map(dataExchangeMapper::toResponseDTO);
     return PaginationDTO.fromPage(dtoPage);
   }
