@@ -10,6 +10,7 @@ public interface LinkTypeService {
   );
 
   LinkTypeDTO.Response getLinkTypeById(String id);
+  LinkTypeDTO.Response createLinkType(LinkTypeDTO.Request request);
   LinkTypeDTO.Response updateLinkType(String id, LinkTypeDTO.Request request);
   void deleteLinkType(String id);
 }

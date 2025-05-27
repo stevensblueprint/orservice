@@ -9,6 +9,7 @@ import com.sarapis.orservice.mapper.LinkTypeMapper;
 import com.sarapis.orservice.model.LinkType;
 import com.sarapis.orservice.repository.LinkTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,17 @@ public class LinkTypeServiceImpl implements LinkTypeService {
   public Response getLinkTypeById(String id) {
     LinkType linkType = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Link Type not found with ID" + id));
     return mapper.toResponseDTO(linkType);
+  }
+
+  @Override
+  @Transactional
+  public Response createLinkType(Request request) {
+    if (request.getId() == null) {
+      request.setId(UUID.randomUUID().toString());
+    }
+    LinkType entity = mapper.toEntity(request);
+    LinkType savedLink = repository.save(entity);
+    return mapper.toResponseDTO(savedLink);
   }
 
   @Override
