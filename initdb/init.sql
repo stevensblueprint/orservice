@@ -2019,6 +2019,15 @@ CREATE TABLE public.data_exchange_file
     data_exchange_id character varying(250)
 );
 
+
+--
+-- Name: link_type; Type: TABLE; Schema: public; Owner: postgres
+CREATE TABLE  public.link_type
+(
+    id               character varying(250) NOT NULL,
+    link_type        text                   NOT NULL
+);
+
 --
 -- Name: accessibility accessibility_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -2226,6 +2235,12 @@ ALTER TABLE ONLY public.unit
 ALTER TABLE ONLY public.url
     ADD CONSTRAINT url_pkey PRIMARY KEY (id);
 
+
+--
+-- Name: link_type link_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+
+ALTER TABLE ONLY public.link_type
+    ADD CONSTRAINT link_type_pkey PRIMARY KEY (id);
 
 --
 -- Name: accessibility accessibility_location_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
